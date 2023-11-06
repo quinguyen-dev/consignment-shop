@@ -1,5 +1,5 @@
 function Landing() {
-  return <div className="bg-red-500">Landing</div>;
+  return <div></div>;
 }
 
 export { Landing };
