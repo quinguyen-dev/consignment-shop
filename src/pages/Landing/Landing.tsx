@@ -1,5 +1,3 @@
-function Landing() {
+export function Landing() {
   return <div></div>;
 }
-
-export { Landing };

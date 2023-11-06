@@ -1,5 +1,3 @@
-function AccountDashboard() {
+export function AccountDashboard() {
   return <div>AccountDashboard</div>;
 }
-
-export { AccountDashboard };

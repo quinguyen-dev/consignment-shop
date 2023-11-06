@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-function NavigationBar() {
+export function NavigationBar() {
   return (
     <div className="flex flex-row space-x-2 h-12">
       <div className="px-4 py-3 border text-gray-00 min-w-[256px] text-center">
@@ -20,5 +20,3 @@ function NavigationBar() {
     </div>
   );
 }
-
-export { NavigationBar };
