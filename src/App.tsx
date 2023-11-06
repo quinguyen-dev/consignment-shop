@@ -1,6 +1,6 @@
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import { NavigationBar } from "@/components";
-import { AccountDashboard, Landing } from "@/pages";
+import { AccountDashboard, Landing, Login } from "@/pages";
 
 function RootLayout() {
   return (
