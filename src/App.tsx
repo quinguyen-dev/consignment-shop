@@ -1,9 +1,25 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
+import { NavigationBar } from "@/components";
 import { AccountDashboard, Landing } from "@/pages";
 
+function RootLayout() {
+  return (
+    <div className="p-4">
+      <NavigationBar />
+      <Outlet />
+    </div>
+  );
+}
+
 const router = createBrowserRouter([
-  { path: "/", element: <Landing /> },
-  { path: "account", element: <AccountDashboard /> },
+  {
+    element: <RootLayout />,
+    children: [
+      { path: "/", element: <Landing /> },
+      { path: "account", element: <AccountDashboard /> },
+    ],
+  },
+  { path: "login", element: <Login /> },
 ]);
 
 function App() {
