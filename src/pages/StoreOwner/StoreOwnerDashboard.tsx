@@ -12,10 +12,7 @@ export function StoreOwnerDashboard() {
       </div>
       <hr className="my-4" />
       <div className="grid grid-cols-3 gap-x-4">
-        <Link
-          to="/account/inventory"
-          className="min-h-[90px] border flex flex-col p-4"
-        >
+        <Link to="/inventory" className="min-h-[90px] border flex flex-col p-4">
           <h2 className="font-bold">Manage Store Inventory</h2>
           <p className="text-sm">
             Add computers, edit product information, or remove a listing.

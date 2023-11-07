@@ -1,17 +1,23 @@
 export type Computer = {
-  deviceId: number;
+  deviceId: string;
+  storeId: string;
   deviceName: string;
-  price: number;
   formFactor: string;
-  memory: number;
-  memoryType: string;
-  storage: number;
-  storageType: string;
   processorManufacturer: string;
   processorModel: string;
-  graphicsManufacturer: string;
-  graphicsDedicated: boolean;
-  graphicsModel: string;
+  memoryType: string;
+  memoryMb: number;
+  storageType: string;
+  storageGb: number;
+  price: number;
   operatingSystem: string;
+  dedicatedGpu: boolean;
+  gpuManufacturer: string;
+  gpuModel: string;
   listingActive: boolean;
+};
+
+export type InventoryResponse = {
+  totalBalance: number;
+  inventory: Computer[];
 };
