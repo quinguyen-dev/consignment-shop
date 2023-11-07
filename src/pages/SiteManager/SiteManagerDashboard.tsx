@@ -25,7 +25,6 @@ function SiteManagerDashboard() {
           </div>
 
 
-
           <NavigationCard onClick={() => {}} image={placeholder} headerText={"Manage Stores"}
                           descriptionText={"Take a look at all stores active on the site."}/>
 

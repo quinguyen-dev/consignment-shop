@@ -11,7 +11,7 @@ export function Login() {
   const navigate = useNavigate();
   const onSubmit: SubmitHandler<LoginSchemaType> = () => {
     // todo post for authentication
-    navigate("/");
+    navigate("/account");
   };
 
   return (

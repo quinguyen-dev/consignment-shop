@@ -1,6 +1,5 @@
-import SiteManagerDashboard from "./SiteManager/SiteManagerDashboard.tsx";
-
-export { StoreOwnerDashboard } from "./StoreOwnerDashboard/StoreOwnerDashboard";
+export { InventoryManager } from "./InventoryManager/InventoryManager";
+export { StoreOwnerDashboard } from "./StoreOwner/StoreOwnerDashboard.tsx";
 export { Landing } from "./Landing/Landing";
 export { Login } from "./Login/Login";
-export { SiteManagerDashboard };
+export { SiteManagerDashboard } from "./SiteManager/SiteManagerDashboard.tsx";
