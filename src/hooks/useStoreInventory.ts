@@ -1,17 +1,39 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import type { Computer } from "./types";
+import type { Computer, InventoryResponse } from "./types";
 import axios from "axios";
 
-export function useStoreInventory() {
-  const queryResponse = useQuery<Computer, Error>({
-    queryKey: ["store_inventory"],
-    queryFn: async (): Promise<any> => {
-      const response = await axios.get(
-        "https://saqb4rb5je.execute-api.us-east-2.amazonaws.com/Initial/store-owner/dashboard"
+function convert(obj: Record<string, any>) {
+  const result: Record<string, any> = {};
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const camelCaseKey = key.replace(/_([a-z])/g, (_, letter) =>
+        letter.toUpperCase()
       );
-      return response.data;
-    },
-  });
+      result[camelCaseKey] = obj[key];
+    }
+  }
+  return result;
+}
+
+export function useStoreInventory() {
+  const fetchAll = () =>
+    useQuery<InventoryResponse, Error>({
+      queryKey: ["store_inventory"],
+      queryFn: async (): Promise<InventoryResponse> => {
+        const response = await axios.get(
+          `https://saqb4rb5je.execute-api.us-east-2.amazonaws.com/Initial/store-owner/dashboard?storeID=4a699379-7d1d-11ee-9fda-02893a3229ad`
+        );
+        return response.data;
+      },
+      select: (data: any) => {
+        const { body } = data;
+
+        return {
+          totalBalance: body.total_balance,
+          inventory: body.inventory.map((computer: any) => convert(computer)),
+        } as InventoryResponse;
+      },
+    });
 
   const create = (item: Computer) =>
     useMutation<Computer, Error>({
@@ -23,5 +45,5 @@ export function useStoreInventory() {
       mutationFn: async (): Promise<any> => {},
     });
 
-  return { ...queryResponse, create, remove };
+  return { fetchAll, create, remove };
 }
