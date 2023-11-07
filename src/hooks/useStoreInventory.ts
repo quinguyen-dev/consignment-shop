@@ -7,7 +7,7 @@ export function useStoreInventory() {
     queryKey: ["store_inventory"],
     queryFn: async (): Promise<any> => {
       const response = await axios.get(
-        "https://saqb4rb5je.execute-api.us-east-2.amazonaws.com/Initial/store-owner/dashboard"
+        "https://saqb4rb5je.execute-api.us-east-2.amazonaws.com/Initial/store-owner/dashboard",
       );
       return response.data;
     },
