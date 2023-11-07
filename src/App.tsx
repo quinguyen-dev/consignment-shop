@@ -1,6 +1,6 @@
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import { NavigationBar } from "@/components";
-import { Landing, Login, StoreOwnerDashboard } from "@/pages";
+import { Landing, Login, StoreOwnerDashboard, SiteManagerDashboard } from "@/pages";
 
 function RootLayout() {
   return (
@@ -17,6 +17,7 @@ const router = createBrowserRouter([
     children: [
       { path: "/", element: <Landing /> },
       { path: "account", element: <StoreOwnerDashboard /> },
+      { path: "manage", element: <SiteManagerDashboard/> }
     ],
   },
   { path: "login", element: <Login /> },
