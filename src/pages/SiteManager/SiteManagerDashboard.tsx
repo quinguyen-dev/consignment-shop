@@ -15,7 +15,7 @@ function SiteManagerDashboard() {
       <h1 className="font-semibold text-2xl">Welcome back, Site Manager!</h1>
       <hr className="my-4" />
       <div className="flex flex-row space-x-10">
-        <div className="flex flex-col space-y-5 w-[330px]">
+        <div className="flex flex-col space-y-5 min-w-[330px]">
           <div className="grid gap-x-6 gap-y-4 whitespace-nowrap">
             <label className="font-semibold text-base col-start-1 self-center">
               Your current balance:

@@ -38,9 +38,8 @@ export function useSiteManagerData() {
   const remove =
     useMutation<Store, Error, string>({
       mutationFn: async (storeId: string): Promise<any> => {
-        const response = await axios.post(
-          "/site-manager/delete-site",
-          { storeId: storeId },
+        const response = await axios.delete(
+          "/site-manager" + new URLSearchParams({"store_id": storeId}).toString(),
           {
             headers: {
               Authorization: `Bearer ${authContext.token}`,
