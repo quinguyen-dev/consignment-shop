@@ -14,7 +14,7 @@ export function useStoreInventory() {
       queryKey: ["store_inventory"],
       queryFn: async (): Promise<InventoryResponse> => {
         const response = await axios.get(
-          `/store-owner/dashboard?storeID=4a699379-7d1d-11ee-9fda-02893a3229ad`, // todo pass in store id here
+          `/store-owner/dashboard?storeID=4a699379-7d1d-11ee-9fda-02893a3229ad`,
           {
             headers: {
               Authorization: `Bearer ${authContext.token}`,
