@@ -38,9 +38,10 @@ export function useSiteManagerData() {
         const { body } = data;
 
         return {
-          totalBalance: body.total_balance.total_balance,
+          totalBalance: body.inventoryValue,
+            managerBalance: body.managerBalance,
           stores: body.storeBalances.map((store: any) => convert(store)),
-        } as SiteManagerResponse;
+        } satisfies SiteManagerResponse;
       },
     });
 

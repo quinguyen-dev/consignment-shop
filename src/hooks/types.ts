@@ -25,6 +25,7 @@ export type InventoryResponse = {
 
 export type SiteManagerResponse = {
   totalBalance: number;
+  managerBalance: number;
   stores: Store[];
 }
 
