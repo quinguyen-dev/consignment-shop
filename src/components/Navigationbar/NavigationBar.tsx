@@ -3,7 +3,8 @@ import { AuthContext, type IAuthContext } from "react-oauth2-code-pkce";
 import { Link } from "react-router-dom";
 
 export function NavigationBar() {
-  const authContext = useContext<IAuthContext>(AuthContext);
+  const { token, loginInProgress, logOut, login } =
+    useContext<IAuthContext>(AuthContext);
 
   return (
     <div className="flex flex-row space-x-2 h-12">
@@ -18,32 +19,29 @@ export function NavigationBar() {
         placeholder="Search for items"
         type="search"
       />
-      {authContext.token === "" ||
-        (!authContext.loginInProgress && (
-          <Link
-            to="/account"
-            className="px-4 border-2 rounded-md text-center flex items-center"
-          >
-            Account
-          </Link>
-        ))}
+      {token !== "" && (
+        <Link
+          to="/account"
+          className="px-4 border-2 rounded-md text-center flex items-center"
+        >
+          Account
+        </Link>
+      )}
       <button
         className="px-4 border-2 rounded-md text-center flex items-center"
         onClick={() => {
-          if (authContext.token !== "") {
-            authContext.logOut();
+          if (token !== "") {
+            logOut();
           } else {
-            authContext.login(
+            login(
               JSON.stringify({
                 returnTo: location.pathname,
-              }),
+              })
             );
           }
         }}
       >
-        {authContext.token !== "" || authContext.loginInProgress
-          ? "Log Out"
-          : "Log In"}
+        {token !== "" || loginInProgress ? "Log Out" : "Log In"}
       </button>
     </div>
   );

@@ -42,7 +42,7 @@ function NavigationCard(props: NavigationCardProps) {
   } = props;
   return (
     <button
-      className={`px-4 py-3 rounded-md border border-1 border-gray-600 flex flex-row space-x-10 w-full hover:bg-gray-300 ${
+      className={`px-4 py-3 rounded-md border border-1 border-gray-600 flex flex-row space-x-4 w-full hover:bg-gray-300 ${
         selected ? "bg-gray-300" : ""
       }`}
       onClick={onClick}
