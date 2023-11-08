@@ -35,11 +35,7 @@ export function NavigationBar() {
           if (token !== "") {
             logOut();
           } else {
-            login(
-              JSON.stringify({
-                returnTo: location.pathname,
-              })
-            );
+            login();
           }
         }}
       >
