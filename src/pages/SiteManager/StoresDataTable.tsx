@@ -13,7 +13,7 @@ function StoresDataTable() {
     const [deletePopupName, setDeletePopupName] = useState("");
 
     const managerData = useSiteManagerData();
-  const query = managerData.fetchAll();
+    const query = managerData.fetchAll();
 
 
   useEffect(() => {
@@ -90,7 +90,7 @@ function StoresDataTable() {
                             disabled={deletePopupName != inputDeletePopupId}
                             onClick={() => {
                                 setDeletePopupId(null);
-                                managerData.remove(inputDeletePopupId);
+                                managerData.remove.mutate(inputDeletePopupId);
                             }}
                                 className="bg-red-500 rounded-md text-white p-3 disabled:opacity-50">Delete store</button>
                     </div>
