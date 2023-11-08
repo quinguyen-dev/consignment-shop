@@ -1,5 +1,4 @@
 import { useStoreOwnerData } from "@/hooks/useStoreOwnerData";
-import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 export function StoreOwnerDashboard() {

@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { registrationSchema, RegistrationSchemaType } from "./types";
+import { RegistrationSchemaType } from "./types";
 import axios from "axios";
 import { useContext } from "react";
 import { AuthContext, type IAuthContext } from "react-oauth2-code-pkce";
