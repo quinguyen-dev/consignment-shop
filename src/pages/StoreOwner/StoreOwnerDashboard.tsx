@@ -14,7 +14,7 @@ export function StoreOwnerDashboard() {
         <label className="self-b">
           Your current balance:{" "}
           <span className="text-green-600 font-bold">
-            {query.data?.totalBalance.toFixed(2) ?? 0}
+            ${query.data?.totalBalance.toFixed(2) ?? 0}
           </span>
         </label>
       </div>

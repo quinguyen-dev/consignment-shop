@@ -51,8 +51,21 @@ export function useStoreInventory() {
     });
 
   const remove = () =>
-    useMutation<Computer, Error>({
-      mutationFn: async (): Promise<any> => axios.delete(""),
+    useMutation<Computer, Error, string>({
+      mutationFn: async (storeId: string): Promise<any> => {
+        const response = await axios.post(
+          "/store-owner/new-device",
+          { storeId: storeId },
+          {
+            headers: {
+              Authorization: `Bearer ${authContext.token}`,
+            },
+          }
+        );
+        return response.data;
+      },
+      onSuccess: () =>
+        queryClient.invalidateQueries({ queryKey: ["store_inventory"] }), // todo change this to setQueryData()
     });
 
   return { fetchAll, create, remove };

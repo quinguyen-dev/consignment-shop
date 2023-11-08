@@ -24,10 +24,22 @@ export type InventoryResponse = {
   inventory: Computer[];
 };
 
+export type SiteManagerResponse = {
+  totalBalance: number;
+  managerBalance: number;
+  stores: Store[];
+};
+
 export type StoreOwnerResponse = {
   username: string;
   userId: string;
   storeId: string;
   storeName: string;
   totalBalance: number;
+};
+
+export type Store = {
+  storeId: string;
+  storeName: string;
+  balance: number;
 };
