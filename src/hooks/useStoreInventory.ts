@@ -13,14 +13,11 @@ export function useStoreInventory() {
     useQuery<InventoryResponse, Error>({
       queryKey: ["store_inventory"],
       queryFn: async (): Promise<InventoryResponse> => {
-        const response = await axios.get(
-          `/store-owner/dashboard?storeID=4a699379-7d1d-11ee-9fda-02893a3229ad`,
-          {
-            headers: {
-              Authorization: `Bearer ${authContext.token}`,
-            },
-          }
-        );
+        const response = await axios.get(`/store-owner/dashboard`, {
+          headers: {
+            Authorization: `Bearer ${authContext.token}`,
+          },
+        });
         return response.data;
       },
       select: (data: any) => {
