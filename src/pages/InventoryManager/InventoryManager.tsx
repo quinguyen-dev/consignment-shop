@@ -7,13 +7,15 @@ import {
 import { useMemo, useState } from "react";
 import { useStoreInventory } from "@/hooks/useStoreInventory";
 import type { Computer } from "@/hooks/types";
-import { useForm } from "react-hook-form";
+import { AddForm } from "./AddForm";
+import { SubmitHandler } from "react-hook-form";
 
 export function InventoryManager() {
   const store = useStoreInventory();
   const query = store.fetchAll();
+  const { mutate: create } = store.create();
 
-  const [addModal, setAddModal] = useState(true);
+  const [addModal, setAddModal] = useState(false);
 
   const columns = useMemo(() => {
     const helper = createColumnHelper<Computer>();
@@ -46,15 +48,28 @@ export function InventoryManager() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const { register, handleSubmit } = useForm<Computer>();
+  const onSubmit: SubmitHandler<Computer> = async (data: Computer) => {
+    data = {
+      ...data,
+      storeId: query.data?.storeId ?? "",
+      formFactor: "N/A",
+      processorManufacturer: "N/A",
+      memoryType: "N/A",
+      storageType: "N/A",
+      operatingSystem: "N/A",
+      dedicatedGpu: false,
+      listingActive: true,
+    } satisfies Computer;
 
-  // if (query.error) return <div>error</div>;
+    create(data);
+    setAddModal(false);
+  };
 
   return (
     <>
       <div className="mt-8 mx-4">
         <div className="flex justify-between items-center">
-          <h1 className="font-bold text-2xl">Manage Consignment Store #1</h1>
+          <h1 className="font-bold text-2xl">Manage {query.data?.storeName}</h1>
           <label className="self-b">
             Store balance:{" "}
             <span className="text-green-600 font-bold">
@@ -66,65 +81,7 @@ export function InventoryManager() {
         {query.isLoading ? (
           <div>Loading...</div>
         ) : addModal ? (
-          <div className="">
-            <h1 className="text-xl font-bold mb-4">Add a computer</h1>
-            <form className="flex flex-col">
-              <input
-                className="border px-4 py-2 mb-2"
-                placeholder="Product name"
-                {...register("deviceName")}
-              />
-              <input
-                className="border px-4 py-2 mb-2"
-                placeholder="Price"
-                {...register("price")}
-              />
-              <input
-                className="border px-4 py-2 mb-2"
-                placeholder="Form Factor"
-                {...register("formFactor")}
-              />
-              <input
-                className="border px-4 py-2 mb-2"
-                placeholder="Memory (in MB)"
-                {...register("memoryMb")}
-              />
-              <input
-                className="border px-4 py-2 mb-2"
-                placeholder="Storage (in GB)"
-                {...register("storageGb")}
-              />
-              <input
-                className="border px-4 py-2 mb-2"
-                placeholder="Processor Model"
-                {...register("processorModel")}
-              />
-              <input
-                className="border px-4 py-2 mb-2"
-                placeholder="Processor Manufacturer"
-                {...register("processorManufacturer")}
-              />
-              <input
-                className="border px-4 py-2 mb-2"
-                placeholder="GPU Model"
-                {...register("gpuModel")}
-              />
-            </form>
-            <div className="flex space-x-4 mt-2">
-              <button
-                className="bg-red-600 text-white px-4 py-2 rounded-md"
-                onClick={() => setAddModal(false)}
-              >
-                Cancel
-              </button>
-              <input
-                className="bg-green-600 text-white px-4 py-2 rounded-md"
-                type="submit"
-                value="Confirm"
-                onClick={() => setAddModal(false)}
-              />
-            </div>
-          </div>
+          <AddForm setShowing={setAddModal} onSubmit={onSubmit} />
         ) : (
           <div className="space-x-2">
             <button

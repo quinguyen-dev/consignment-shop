@@ -1,13 +1,21 @@
+import { useStoreOwnerData } from "@/hooks/useStoreOwnerData";
 import { Link } from "react-router-dom";
 
 export function StoreOwnerDashboard() {
+  const ownerData = useStoreOwnerData();
+  const query = ownerData.fetchAll();
+
+  if (query.isLoading) return <div>Loading</div>;
+
   return (
     <div className="mt-8 mx-4">
       <div className="flex justify-between items-center">
-        <h1 className="font-bold text-2xl">Manage Consignment Store #1</h1>
+        <h1 className="font-bold text-2xl">Manage {query.data?.storeName}</h1>
         <label className="self-b">
           Your current balance:{" "}
-          <span className="text-green-600 font-bold">$1424.25</span>
+          <span className="text-green-600 font-bold">
+            {query.data?.totalBalance.toFixed(2) ?? 0}
+          </span>
         </label>
       </div>
       <hr className="my-4" />
