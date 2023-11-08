@@ -42,15 +42,15 @@ function NavigationCard(props: NavigationCardProps) {
   } = props;
   return (
     <button
-      className={`px-4 py-3 rounded-md border border-1 border-gray-600 flex flex-row space-x-4 w-full hover:bg-gray-300 ${
+      className={`border-1 flex w-full flex-row space-x-4 rounded-md border border-gray-600 px-4 py-3 hover:bg-gray-300 ${
         selected ? "bg-gray-300" : ""
       }`}
       onClick={onClick}
     >
       <img src={image} alt="placeholder" className="self-center" />
       <div className="flex flex-col items-start text-left">
-        <h2 className="font-semibold text-base text-gray-600">{headerText}</h2>
-        <h3 className="text-sm text-black text-left">{descriptionText}</h3>
+        <h2 className="text-base font-semibold text-gray-600">{headerText}</h2>
+        <h3 className="text-left text-sm text-black">{descriptionText}</h3>
       </div>
     </button>
   );

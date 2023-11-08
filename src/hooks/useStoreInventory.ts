@@ -57,7 +57,7 @@ export function useStoreInventory() {
             headers: {
               Authorization: `Bearer ${authContext.token}`,
             },
-          }
+          },
         );
         return response.data;
       },
