@@ -39,7 +39,7 @@ export function useSiteManagerData() {
     useMutation<Store, Error, string>({
       mutationFn: async (storeId: string): Promise<any> => {
         const response = await axios.delete(
-          "/site-manager" + new URLSearchParams({"store_id": storeId}).toString(),
+          "/site-manager/delete-site/?" + new URLSearchParams({"storeId": storeId}).toString(),
           {
             headers: {
               Authorization: `Bearer ${authContext.token}`,

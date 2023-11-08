@@ -90,7 +90,7 @@ function StoresDataTable() {
                             disabled={deletePopupName != inputDeletePopupId}
                             onClick={() => {
                                 setDeletePopupId(null);
-                                managerData.remove.mutate(inputDeletePopupId);
+                                managerData.remove.mutate(deletePopupId!);
                             }}
                                 className="bg-red-500 rounded-md text-white p-3 disabled:opacity-50">Delete store</button>
                     </div>
