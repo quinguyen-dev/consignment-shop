@@ -6,6 +6,8 @@ export function NavigationBar() {
   const { token, loginInProgress, logOut, login } =
     useContext<IAuthContext>(AuthContext);
 
+  console.log(token);
+
   return (
     <div className="flex flex-row space-x-2 h-12">
       <Link
