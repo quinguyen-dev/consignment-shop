@@ -57,7 +57,7 @@ function StoresDataTable() {
   }, []);
 
   const table = useReactTable({
-    data: query.data?.stores ?? [],
+    data: query.data?.stores ?? useMemo(() => [], []),
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
