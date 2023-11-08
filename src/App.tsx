@@ -10,22 +10,18 @@ import {
   Login,
   StoreOwnerDashboard,
   SiteManagerDashboard,
-    InventoryManager
+  InventoryManager,
 } from "@/pages";
 import { AuthProvider, type TAuthConfig } from "react-oauth2-code-pkce";
 
-
-  const url =
-          "https://cs509-newegg.auth.us-east-2.amazoncognito.com";
+const url = "https://cs509-newegg.auth.us-east-2.amazoncognito.com";
 const authConfig: TAuthConfig = {
   clientId: "6ra4r9q3m3nd9v8bkolqiittsk",
   authorizationEndpoint: `${url}/oauth2/authorize`,
-        tokenEndpoint:
-          `${url}/oauth2/token`,
-        logoutEndpoint:
-          `${url}/logout`,
-        extraLogoutParameters: {
-          logout_uri: new URL(location.origin).toString(),
+  tokenEndpoint: `${url}/oauth2/token`,
+  logoutEndpoint: `${url}/logout`,
+  extraLogoutParameters: {
+    logout_uri: new URL(location.origin).toString(),
   },
   redirectUri: new URL(location.origin).toString(),
   scope: "openid profile email aws.cognito.signin.user.admin",
@@ -46,7 +42,6 @@ function RootLayout() {
 
           if (sessionStorage.getItem("ROCP_auth_state"))
             sessionStorage.removeItem("ROCP_auth_state");
-
 
           navigate(item?.returnTo ?? location.pathname);
         },

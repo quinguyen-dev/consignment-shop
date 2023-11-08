@@ -7,7 +7,7 @@ function convert(obj: Record<string, any>) {
   for (const key in obj) {
     if (obj.hasOwnProperty(key)) {
       const camelCaseKey = key.replace(/_([a-z])/g, (_, letter) =>
-        letter.toUpperCase()
+        letter.toUpperCase(),
       );
       result[camelCaseKey] = obj[key];
     }
@@ -21,7 +21,7 @@ export function useStoreInventory() {
       queryKey: ["store_inventory"],
       queryFn: async (): Promise<InventoryResponse> => {
         const response = await axios.get(
-          `https://saqb4rb5je.execute-api.us-east-2.amazonaws.com/Initial/store-owner/dashboard?storeID=4a699379-7d1d-11ee-9fda-02893a3229ad`
+          `https://saqb4rb5je.execute-api.us-east-2.amazonaws.com/Initial/store-owner/dashboard?storeID=4a699379-7d1d-11ee-9fda-02893a3229ad`,
         );
         return response.data;
       },

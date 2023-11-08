@@ -79,7 +79,7 @@ export function InventoryManager() {
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                       </th>
                     ))}
@@ -93,7 +93,7 @@ export function InventoryManager() {
                       <td key={cell.id} className="px-4 py-2">
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </td>
                     ))}

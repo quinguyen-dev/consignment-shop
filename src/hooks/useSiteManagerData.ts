@@ -1,15 +1,15 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import type {InventoryResponse, SiteManagerResponse} from "./types";
+import type { InventoryResponse, SiteManagerResponse } from "./types";
 import axios from "axios";
-import {useContext} from "react";
-import {AuthContext, IAuthContext} from "react-oauth2-code-pkce";
+import { useContext } from "react";
+import { AuthContext, IAuthContext } from "react-oauth2-code-pkce";
 
 function convert(obj: Record<string, any>) {
   const result: Record<string, any> = {};
   for (const key in obj) {
     if (obj.hasOwnProperty(key)) {
       const camelCaseKey = key.replace(/_([a-z])/g, (_, letter) =>
-        letter.toUpperCase()
+        letter.toUpperCase(),
       );
       result[camelCaseKey] = obj[key];
     }
@@ -26,11 +26,11 @@ export function useSiteManagerData() {
       queryFn: async (): Promise<SiteManagerResponse> => {
         const response = await axios.get(
           `https://saqb4rb5je.execute-api.us-east-2.amazonaws.com/Initial/site-manager/dashboard`,
-            {
-                headers: {
-                    Authorization: `Bearer ${authContext.token}`
-                }
-            }
+          {
+            headers: {
+              Authorization: `Bearer ${authContext.token}`,
+            },
+          },
         );
         return response.data;
       },
@@ -39,7 +39,7 @@ export function useSiteManagerData() {
 
         return {
           totalBalance: body.inventoryValue,
-            managerBalance: body.managerBalance,
+          managerBalance: body.managerBalance,
           stores: body.storeBalances.map((store: any) => convert(store)),
         } satisfies SiteManagerResponse;
       },
@@ -50,7 +50,7 @@ export function useSiteManagerData() {
       mutationFn: async (): Promise<any> => {},
     });
 
-  const remove = (_: number) =>
+  const remove = (_: string) =>
     useMutation<InventoryResponse, Error>({
       mutationFn: async (): Promise<any> => {},
     });
