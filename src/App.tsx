@@ -15,6 +15,7 @@ import {
 import { AuthProvider, type TAuthConfig } from "react-oauth2-code-pkce";
 
 const url = "https://cs509-newegg.auth.us-east-2.amazoncognito.com";
+
 const authConfig: TAuthConfig = {
   clientId: "6ra4r9q3m3nd9v8bkolqiittsk",
   authorizationEndpoint: `${url}/oauth2/authorize`,
@@ -39,6 +40,7 @@ function RootLayout() {
           const item = JSON.parse(
             sessionStorage.getItem("ROCP_auth_state") ?? "null"
           );
+          console.log(sessionStorage.getItem("ROCP_auth_state"));
 
           if (sessionStorage.getItem("ROCP_auth_state"))
             sessionStorage.removeItem("ROCP_auth_state");
