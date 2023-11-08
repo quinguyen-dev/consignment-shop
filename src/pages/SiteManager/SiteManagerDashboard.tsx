@@ -1,7 +1,7 @@
 import placeholder from "@/assets/placeholder.png";
 import { NavigationCard } from "@/components";
 import { useSiteManagerData } from "@/hooks/useSiteManagerData.ts";
-import {useMemo, useState} from "react";
+import { useMemo, useState } from "react";
 import {
   createColumnHelper,
   flexRender,
@@ -27,7 +27,7 @@ function SiteManagerDashboard() {
         (item) => {
           return `$${item.balance.toLocaleString()}`;
         },
-        { header: "Balance" },
+        { header: "Balance" }
       ),
       helper.display({
         header: "",
@@ -42,9 +42,11 @@ function SiteManagerDashboard() {
         header: "",
         id: "trashColumn",
         cell: (props) => (
-          <button onClick={() => {
-            managerData.remove(props.getValue<Store>().storeId)
-          }}>
+          <button
+            onClick={() => {
+              managerData.remove(props.getValue<Store>().storeId);
+            }}
+          >
             <img src={trashIcon} alt="Delete Store"></img>
           </button>
         ),
@@ -95,47 +97,52 @@ function SiteManagerDashboard() {
           />
 
           <NavigationCard
-            onClick={() => {setManageMode(true)}}
+            onClick={() => {
+              setManageMode(true);
+            }}
             image={placeholder}
             headerText={"Manage Change Account Information"}
             descriptionText={"Modify password, change email, etc."}
             selected={manageMode}
           />
         </div>
-        {!manageMode &&
-        <table className="mt-4 flex-grow">
-          <thead>
-            {table.getHeaderGroups().map((group) => (
-              <tr key={group.id} className="border-b-2">
-                {group.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className="py-2 px-4 text-sm font-bold text-gray-900 text-left"
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="border-b-[1px]">
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-4 py-2">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        }
+        {!manageMode && (
+          <table className="mt-4 flex-grow">
+            <thead>
+              {table.getHeaderGroups().map((group) => (
+                <tr key={group.id} className="border-b-2">
+                  {group.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className="py-2 px-4 text-sm font-bold text-gray-900 text-left"
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.map((row) => (
+                <tr key={row.id} className="border-b-[1px]">
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id} className="px-4 py-2">
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );
