@@ -67,12 +67,12 @@ export function InventoryManager() {
 
   return (
     <>
-      <div className="mt-8 mx-4">
-        <div className="flex justify-between items-center">
-          <h1 className="font-bold text-2xl">Manage {query.data?.storeName}</h1>
+      <div className="mx-4 mt-8">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Manage {query.data?.storeName}</h1>
           <label className="self-b">
             Store balance:{" "}
-            <span className="text-green-600 font-bold">
+            <span className="font-bold text-green-600">
               ${query.data?.totalBalance.toFixed(2) ?? 0}
             </span>
           </label>
@@ -85,15 +85,15 @@ export function InventoryManager() {
         ) : (
           <div className="space-x-2">
             <button
-              className="bg-[#545F71] text-white px-4 py-2 rounded-md"
+              className="rounded-md bg-[#545F71] px-4 py-2 text-white"
               onClick={() => setAddModal(true)}
             >
               Add new listing
             </button>
-            <button className="bg-[#EEF1F4] text-black px-4 py-2 rounded-md">
+            <button className="rounded-md bg-[#EEF1F4] px-4 py-2 text-black">
               Download
             </button>
-            <div className="w-full overflow-y-auto z-0">
+            <div className="z-0 w-full overflow-y-auto">
               <table className="mt-4">
                 <thead>
                   {table.getHeaderGroups().map((group) => (
@@ -101,13 +101,13 @@ export function InventoryManager() {
                       {group.headers.map((header) => (
                         <th
                           key={header.id}
-                          className="py-2 px-4 text-sm font-bold text-gray-900 text-left"
+                          className="px-4 py-2 text-left text-sm font-bold text-gray-900"
                         >
                           {header.isPlaceholder
                             ? null
                             : flexRender(
                                 header.column.columnDef.header,
-                                header.getContext()
+                                header.getContext(),
                               )}
                         </th>
                       ))}
@@ -121,7 +121,7 @@ export function InventoryManager() {
                         <td key={cell.id} className="px-4 py-2">
                           {flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )}
                         </td>
                       ))}

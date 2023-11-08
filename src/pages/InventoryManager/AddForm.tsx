@@ -11,20 +11,20 @@ export function AddForm({ setShowing, onSubmit }: AddFormProps) {
 
   return (
     <>
-      <h1 className="text-xl font-bold mb-4">Add a computer</h1>
+      <h1 className="mb-4 text-xl font-bold">Add a computer</h1>
       <form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
         <input
-          className="border px-4 py-2 mb-2"
+          className="mb-2 border px-4 py-2"
           placeholder="Product name"
           {...register("deviceName")}
         />
         <input
-          className="border px-4 py-2 mb-2"
+          className="mb-2 border px-2 py-4"
           placeholder="Price"
           {...register("price")}
         />
         <select
-          className="border px-4 py-2 mb-2"
+          className="mb-2 border px-4 py-2"
           placeholder="Memory (in MB)"
           {...register("memoryMb")}
         >
@@ -34,7 +34,7 @@ export function AddForm({ setShowing, onSubmit }: AddFormProps) {
           <option value={32000}>32GB</option>
         </select>
         <select
-          className="border px-4 py-2 mb-2"
+          className="mb-2 border px-4 py-2"
           placeholder="Storage (in GB)"
           {...register("storageGb")}
         >
@@ -45,12 +45,12 @@ export function AddForm({ setShowing, onSubmit }: AddFormProps) {
           <option value={4000}>4TB</option>
         </select>
         <input
-          className="border px-4 py-2 mb-2"
+          className="mb-2 border px-4 py-2"
           placeholder="Processor Model"
           {...register("processorModel")}
         />
         <select
-          className="border px-4 py-2 mb-2"
+          className="mb-2 border px-4 py-2"
           placeholder="GPU Manufacturer"
           {...register("gpuManufacturer")}
         >
@@ -59,7 +59,7 @@ export function AddForm({ setShowing, onSubmit }: AddFormProps) {
           <option value="NVIDIA">NVIDIA</option>
         </select>
         <select
-          className="border px-4 py-2 mb-2"
+          className="mb-2 border px-4 py-2"
           placeholder="GPU Model"
           {...register("gpuModel")}
         >
@@ -77,15 +77,15 @@ export function AddForm({ setShowing, onSubmit }: AddFormProps) {
           <option value="Intel UHD Graphics 730">Intel UHD Graphics 730</option>
           <option value="Intel UHD Graphics 770">Intel UHD Graphics 770</option>
         </select>
-        <div className="flex space-x-4 mt-2">
+        <div className="mt-2 flex space-x-4">
           <button
-            className="bg-red-600 text-white px-4 py-2 rounded-md"
+            className="rounded-md bg-red-600 px-4 py-2 text-white"
             onClick={() => setShowing(false)}
           >
             Cancel
           </button>
           <input
-            className="bg-green-600 text-white px-4 py-2 rounded-md cursor-pointer"
+            className="cursor-pointer rounded-md bg-green-600 px-4 py-2 text-white"
             type="submit"
             value="Confirm"
           />
