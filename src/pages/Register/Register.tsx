@@ -56,13 +56,11 @@ export function Register() {
         <input
           className="border px-4 py-2 mb-2"
           placeholder="Latitude"
-          type="number"
           {...register("longitude")}
         />
         <input
           className="border px-4 py-2 mb-2"
           placeholder="Longitude"
-          type="number"
           {...register("latitude")}
         />
         <input
