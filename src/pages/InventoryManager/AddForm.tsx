@@ -44,17 +44,11 @@ export function AddForm({ setShowing, onSubmit }: AddFormProps) {
           <option value={2000}>2GB</option>
           <option value={4000}>4TB</option>
         </select>
-        <select
+        <input
           className="border px-4 py-2 mb-2"
           placeholder="Processor Model"
           {...register("processorModel")}
-        >
-          <option value="13th Gen Intel">13th Gen Intel</option>
-          <option value="12th Gen Intel">12th Gen Intel</option>
-          <option value="11th Gen Intel">11th Gen Intel</option>
-          <option value="AMD Ryzen 7000 Series">AMD Ryzen 7000 Series</option>
-          <option value="AMD Ryzen 6000 Series">AMD Ryzen 6000 Series</option>
-        </select>
+        />
         <select
           className="border px-4 py-2 mb-2"
           placeholder="GPU Manufacturer"
