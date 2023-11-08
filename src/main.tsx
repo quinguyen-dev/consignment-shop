@@ -4,10 +4,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import App from "./App.tsx";
 import { AuthProvider, TAuthConfig } from "react-oauth2-code-pkce";
+import Modal from "react-modal";
 
 const queryClient: QueryClient = new QueryClient();
 axios.defaults.baseURL =
   " https://saqb4rb5je.execute-api.us-east-2.amazonaws.com/Initial";
+Modal.setAppElement('#root');
 
 const url = "https://cs509-newegg.auth.us-east-2.amazoncognito.com";
 
