@@ -21,3 +21,15 @@ export type InventoryResponse = {
   totalBalance: number;
   inventory: Computer[];
 };
+
+
+export type SiteManagerResponse = {
+  totalBalance: number;
+  stores: Store[];
+}
+
+export type Store = {
+  storeId: string;
+  storeName: string;
+  balance: number;
+};

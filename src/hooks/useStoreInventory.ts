@@ -35,12 +35,12 @@ export function useStoreInventory() {
       },
     });
 
-  const create = (item: Computer) =>
+  const create = (_: Computer) =>
     useMutation<Computer, Error>({
       mutationFn: async (): Promise<any> => {},
     });
 
-  const remove = (itemId: number) =>
+  const remove = (_: number) =>
     useMutation<Computer, Error>({
       mutationFn: async (): Promise<any> => {},
     });
