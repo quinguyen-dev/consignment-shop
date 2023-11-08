@@ -6,31 +6,29 @@ export function NavigationBar() {
   const { token, loginInProgress, logOut, login } =
     useContext<IAuthContext>(AuthContext);
 
-  console.log(token);
-
   return (
-    <div className="flex flex-row space-x-2 h-12">
+    <div className="flex h-12 flex-row space-x-2">
       <Link
         to="/"
-        className="px-4 py-3 border text-gray-00 min-w-[256px] text-center"
+        className="text-gray-00 min-w-[256px] border px-4 py-3 text-center"
       >
         Website Logo / Name
       </Link>
       <input
-        className="border-2 px-4 flex-1"
+        className="flex-1 border-2 px-4"
         placeholder="Search for items"
         type="search"
       />
       {token !== "" && (
         <Link
           to="/account"
-          className="px-4 border-2 rounded-md text-center flex items-center"
+          className="flex items-center rounded-md border-2 px-4 text-center"
         >
           Account
         </Link>
       )}
       <button
-        className="px-4 border-2 rounded-md text-center flex items-center"
+        className="flex items-center rounded-md border-2 px-4 text-center"
         onClick={() => {
           if (token !== "") {
             logOut();
@@ -38,7 +36,7 @@ export function NavigationBar() {
             login(
               JSON.stringify({
                 returnTo: location.pathname,
-              })
+              }),
             );
           }
         }}

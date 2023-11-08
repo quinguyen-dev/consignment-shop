@@ -9,7 +9,7 @@ import Modal from "react-modal";
 const queryClient: QueryClient = new QueryClient();
 axios.defaults.baseURL =
   " https://saqb4rb5je.execute-api.us-east-2.amazonaws.com/Initial";
-Modal.setAppElement('#root');
+Modal.setAppElement("#root");
 
 const url = "https://cs509-newegg.auth.us-east-2.amazoncognito.com";
 
@@ -33,5 +33,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <App />
       </QueryClientProvider>
     </AuthProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

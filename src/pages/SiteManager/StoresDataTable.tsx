@@ -24,7 +24,7 @@ function StoresDataTable() {
     if (query.data !== undefined && deletePopupId !== null) {
       setDeletePopupName(
         query.data.stores.filter((store) => store.storeId == deletePopupId)[0]
-          .storeName
+          .storeName,
       );
     }
   }, [deletePopupId, query]);
@@ -38,7 +38,7 @@ function StoresDataTable() {
         (item) => {
           return `$${item.balance.toLocaleString()}`;
         },
-        { header: "Balance" }
+        { header: "Balance" },
       ),
       helper.display({
         header: "",
@@ -84,11 +84,11 @@ function StoresDataTable() {
         onAfterClose={() => {
           setDeleteInputPopupId("");
         }}
-        className="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]"
+        className="absolute left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]"
         overlayClassName="fixed top-0 bottom-0 left-0 right-0 bg-black/50"
       >
-        <div className="rounded-lg bg-white p-6 flex flex-col space-y-2.5 w-min">
-          <h1 className="font-bold text-xl text-black">
+        <div className="flex w-min flex-col space-y-2.5 rounded-lg bg-white p-6">
+          <h1 className="text-xl font-bold text-black">
             Confirm this deletion?
           </h1>
           <label className="text-xl text-black">
@@ -99,21 +99,21 @@ function StoresDataTable() {
           <input
             onChange={(event) => setDeleteInputPopupId(event.target.value)}
             placeholder={deletePopupName}
-            className="w-full rounded-md outline outline-1 outline-gray-600 text-gray-600 p-3"
+            className="w-full rounded-md p-3 text-gray-600 outline outline-1 outline-gray-600"
           />
-          <div className="inline-flex space-x-2.5 p-3 bg-red-300 rounded-md">
+          <div className="inline-flex space-x-2.5 rounded-md bg-red-300 p-3">
             <div className="w-[20px] self-center">
               <img src={cautionIcon} alt="Caution Icon" />
             </div>
-            <label className="text-base text-gray-600 whitespace-nowrap">
+            <label className="whitespace-nowrap text-base text-gray-600">
               Store deletion is an irreversible action. Please verify that this
               action is intended.
             </label>
           </div>
-          <div className="self-end flex flex-row space-x-2">
+          <div className="flex flex-row space-x-2 self-end">
             <button
               onClick={() => setDeletePopupId(null)}
-              className="bg-white outline outline-1 rounded-md outline-gray-600 text-gray-600 p-3"
+              className="rounded-md bg-white p-3 text-gray-600 outline outline-1 outline-gray-600"
             >
               Cancel
             </button>
@@ -123,7 +123,7 @@ function StoresDataTable() {
                 setDeletePopupId(null);
                 managerData.remove.mutate(deletePopupId!);
               }}
-              className="bg-red-500 rounded-md text-white p-3 disabled:opacity-50"
+              className="rounded-md bg-red-500 p-3 text-white disabled:opacity-50"
             >
               Delete store
             </button>
@@ -138,13 +138,13 @@ function StoresDataTable() {
               {group.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="py-2 px-4 text-sm font-bold text-gray-900 text-left"
+                  className="px-4 py-2 text-left text-sm font-bold text-gray-900"
                 >
                   {header.isPlaceholder
                     ? null
                     : flexRender(
                         header.column.columnDef.header,
-                        header.getContext()
+                        header.getContext(),
                       )}
                 </th>
               ))}

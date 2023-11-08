@@ -12,7 +12,7 @@ export function Register() {
 
   const navigate = useNavigate();
   const onSubmit: SubmitHandler<RegistrationSchemaType> = async (
-    data: RegistrationSchemaType
+    data: RegistrationSchemaType,
   ) => {
     const obj = {
       storeName: data.storeName,
@@ -27,7 +27,7 @@ export function Register() {
         headers: {
           Authorization: `Bearer ${authContext.token}`,
         },
-      }
+      },
     );
 
     await axios.post(`/store-owner/new-store`, obj, {
@@ -40,31 +40,31 @@ export function Register() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen flex-col">
-      <div className="px-4 py-3 border text-gray-00 text-center mb-4">
+    <div className="flex h-screen flex-col items-center justify-center">
+      <div className="text-gray-00 mb-4 border px-4 py-3 text-center">
         Website Logo / Name
       </div>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex-col flex w-[272px]"
+        className="flex w-[272px] flex-col"
       >
         <input
-          className="border px-4 py-2 mb-2"
+          className="mb-2 border px-4 py-2"
           placeholder="Store name"
           {...register("storeName")}
         />
         <input
-          className="border px-4 py-2 mb-2"
+          className="mb-2 border px-4 py-2"
           placeholder="Latitude"
           {...register("longitude")}
         />
         <input
-          className="border px-4 py-2 mb-2"
+          className="mb-2 border px-4 py-2"
           placeholder="Longitude"
           {...register("latitude")}
         />
         <input
-          className="cursor-pointer bg-[#545F71] text-white rounded-md h-11"
+          className="h-11 cursor-pointer rounded-md bg-[#545F71] text-white"
           type="submit"
           value="Create store"
         />
