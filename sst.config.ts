@@ -1,5 +1,5 @@
 import { SSTConfig } from "sst";
-import { API } from "./AWS/stacks/MyStack";
+import { API } from "./AWS/stacks/ConsignmentAWSStack";
 
 export default {
   config(_input) {
