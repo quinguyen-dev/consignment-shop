@@ -103,6 +103,11 @@ export function API({ stack }: StackContext) {
           handler: "AWS/packages/functions/src/storeOwner.dashboard",
         }),
       },
+      "GET /store-owner/user-info": {
+        function: new Function(stack, "SSTStoreOwnerInfo", {
+          handler: "AWS/packages/functions/src/storeOwner.getStoreOwnerInfo",
+        }),
+      },
       "GET /site-manager/dashboard": {
         function: new Function(stack, "SSTSiteManagerDash", {
           handler: "AWS/packages/functions/src/siteManager.dashboard",

@@ -20,16 +20,6 @@ export function Register() {
       latitude: data.latitude,
     } satisfies RegistrationSchemaType;
 
-    await axios.post(
-      "/store-owner/new-user",
-      { username: authContext.idTokenData!["cognito:username"] },
-      {
-        headers: {
-          Authorization: `Bearer ${authContext.token}`,
-        },
-      },
-    );
-
     await axios.post(`/store-owner/new-store`, obj, {
       headers: {
         Authorization: `Bearer ${authContext.token}`,

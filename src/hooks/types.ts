@@ -32,7 +32,6 @@ export type SiteManagerResponse = {
 
 export type StoreOwnerResponse = {
   username: string;
-  userId: string;
   storeId: string;
   storeName: string;
   totalBalance: number;

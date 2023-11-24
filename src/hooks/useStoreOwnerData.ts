@@ -16,6 +16,7 @@ export function useStoreOwnerData() {
             Authorization: `Bearer ${authContext.token}`,
           },
         });
+        console.log(JSON.stringify(response.data));
         return response.data;
       },
       select: (data: any) => {
@@ -23,7 +24,6 @@ export function useStoreOwnerData() {
 
         return {
           username: body.username,
-          userId: body.user_id,
           storeId: body.store_id,
           totalBalance: body.total_balance,
           storeName: body.store_name,

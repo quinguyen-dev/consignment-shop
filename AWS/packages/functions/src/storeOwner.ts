@@ -205,3 +205,59 @@ export const dashboard = ApiHandler(async (event)=>{
   return response;
 
 })
+
+
+export const getStoreOwnerInfo = ApiHandler(async(event) => {
+  const queryData = {
+    username: null,
+    store_name: null,
+    store_id: null,
+    total_balance: 0,
+  }
+  const getOwnerSummary = (username) => {
+    return new Promise((resolve, reject) => {
+      connPool.getConnection((err, connection) => {
+        if (err) {
+          response.statusCode = 503
+          response.body = err.message
+          return resolve(err);
+        }
+        connection.query(`SELECT store_name, store_id FROM STORES WHERE STORES.store_owner_id = ?;`, [username], (error, result) => {
+          if(error){
+            response.statusCode = 418
+            response.body = error.message
+            return resolve(error)
+          }
+          else{
+            console.log(result)
+            queryData.store_name = result[0].store_name
+            queryData.store_id = result[0].store_id
+          }
+          connection.query(`SELECT SUM(price) as balance FROM DEVICES, STORES WHERE DEVICES.store_id = STORES.store_id and STORES.store_owner_id = ?;`, [username], (error, result) => {
+            console.log("HERE")
+            if (error) {
+              console.log(error)
+              response.statusCode = 418
+              response.body = error.message
+              connection.release()
+              return resolve(error);
+            }
+            else {
+              console.log("HERE2")
+              queryData.total_balance = result[0].balance ? result[0].balance : 0
+            }
+            response.body = queryData
+            return resolve(0)
+          })
+        })
+      })
+    })
+  }
+  console.log(event)
+
+  queryData.username = event.requestContext.authorizer.jwt.claims?.username
+  const r = await getOwnerSummary(queryData.username)
+  response.body = JSON.stringify(response.body);
+  return response;
+
+})
