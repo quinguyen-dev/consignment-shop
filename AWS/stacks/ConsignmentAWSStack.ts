@@ -1,20 +1,54 @@
-import { StackContext, Api, EventBus, Cognito } from "sst/constructs";
-import { UserPool, UserPoolClient, OAuthScope, StringAttribute, UserPoolDomain } from "aws-cdk-lib/aws-cognito";
+import { StackContext, Api, EventBus, Cognito, Function } from "sst/constructs";
+import {
+  UserPool,
+  UserPoolClient,
+  OAuthScope,
+  StringAttribute,
+  UserPoolDomain,
+} from "aws-cdk-lib/aws-cognito";
+import { Role } from "aws-cdk-lib/aws-iam";
+import * as ec2 from "aws-cdk-lib/aws-ec2";
 
 export function API({ stack }: StackContext) {
+  const lambdaVPC = ec2.Vpc.fromLookup(stack, "vpc-097dbaebc608e2ddd", {
+    isDefault: true,
+  });
+  const lambdaSecGroup = ec2.SecurityGroup.fromSecurityGroupId(
+    stack,
+    "default",
+    "sg-0aa657fe4799616db",
+  );
+
+  const lambdaRole = Role.fromRoleName(
+    stack,
+    "lambdaRole",
+    "ExecuteLambdaCode",
+  );
+
+  stack.setDefaultFunctionProps({
+    vpc: lambdaVPC,
+    vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
+    allowPublicSubnet: true,
+    securityGroups: [lambdaSecGroup],
+    role: lambdaRole,
+  });
 
   const cognito = new Cognito(stack, "Auth", {
     login: ["email", "phone", "username", "preferredUsername"],
-    cdk:{
-      userPool:{
+    cdk: {
+      userPool: {
         standardAttributes: {
           email: { required: true, mutable: false },
           address: { required: false, mutable: true },
-          phoneNumber: { required: false, mutable:true },
-          preferredUsername: { required: false, mutable:true},
+          phoneNumber: { required: false, mutable: true },
+          preferredUsername: { required: false, mutable: true },
         },
         customAttributes: {
-          storeName: new StringAttribute({minLen:5, maxLen:200, mutable:true})
+          storeName: new StringAttribute({
+            minLen: 5,
+            maxLen: 200,
+            mutable: true,
+          }),
         },
       },
       userPoolClient: {
@@ -24,12 +58,12 @@ export function API({ stack }: StackContext) {
           flows: {
             authorizationCodeGrant: true,
           },
-          scopes: [OAuthScope.OPENID],
-          callbackUrls: ["https://oauth.pstmn.io/v1/callback"],
-          logoutUrls: ["https://my-app-domain.com/signin"],          
+          scopes: [OAuthScope.OPENID, OAuthScope.PROFILE, OAuthScope.EMAIL],
+          callbackUrls: ["https://oauth.pstmn.io/v1/callback", "http://localhost:5173/"],
+          logoutUrls: ["https://my-app-domain.com/signin"],
         },
       },
-    }
+    },
   });
 
   const bus = new EventBus(stack, "bus", {
@@ -39,23 +73,53 @@ export function API({ stack }: StackContext) {
   });
 
   const api = new Api(stack, "api", {
-    defaults: {
-      authorizer: "iam",
-      function: {
-        bind: [bus],
+    cors: true,
+    authorizers: {
+      jwt: {
+        type: "user_pool",
+        userPool: {
+          id: cognito.userPoolId,
+          clientIds: [cognito.userPoolClientId],
+        },
+        scopes: [OAuthScope.OPENID, OAuthScope.PROFILE],
       },
     },
+    defaults: {
+      authorizer: "jwt",
+    },
     routes: {
-      "GET /": "AWS/packages/functions/src/lambda.handler",
-      // "GET /todo": "packages/functions/src/todo.list",
-      // "POST /todo": "packages/functions/src/todo.create",
+      "POST /store-owner/new-store": {
+        function: new Function(stack, "SSTNewStore", {
+          handler: "AWS/packages/functions/src/storeOwner.newStore",
+        }),
+      },
+      "POST /store-owner/new-device": {
+        function: new Function(stack, "SSTNewDevice", {
+          handler: "AWS/packages/functions/src/storeOwner.newDevice",
+        }),
+      },
+      "GET /store-owner/dashboard": {
+        function: new Function(stack, "SSTStoreOwnerDash", {
+          handler: "AWS/packages/functions/src/storeOwner.dashboard",
+        }),
+      },
+      "GET /site-manager/dashboard": {
+        function: new Function(stack, "SSTSiteManagerDash", {
+          handler: "AWS/packages/functions/src/siteManager.dashboard",
+        }),
+      },
+      "DELETE /site-manager/remove-store": {
+        function: new Function(stack, "SSTRemoveStore", {
+          handler: "AWS/packages/functions/src/siteManager.removeStore",
+        }),
+      },
+      "GET /site-manager/inspect-store-inventory": {
+        function: new Function(stack, "SSTInspectStoreInv", {
+          handler: "AWS/packages/functions/src/siteManager.inspectStoreInv",
+        }),
+      },
     },
   });
-
-  // bus.subscribe("todo.created", {
-  //   handler: "packages/functions/src/events/todo-created.handler",
-  // });
-
   // Allow authenticated users invoke API
   cognito.attachPermissionsForAuthUsers(stack, [api]);
 
