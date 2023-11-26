@@ -1,5 +1,5 @@
 import { SSTConfig } from "sst";
-import { API } from "./AWS/stacks/ConsignmentAWSStack";
+import { API } from "./stacks/ConsignmentAWSStack";
 
 export default {
   config(_input) {
@@ -10,5 +10,5 @@ export default {
   },
   stacks(app) {
     app.stack(API);
-  }
+  },
 } satisfies SSTConfig;
