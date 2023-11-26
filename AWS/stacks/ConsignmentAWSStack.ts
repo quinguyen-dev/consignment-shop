@@ -1,4 +1,4 @@
-import { StackContext, Api, EventBus, Cognito, Function } from "sst/constructs";
+import { StackContext, Api, EventBus, Cognito, Function, RemixSite } from "sst/constructs";
 import {
   UserPool,
   UserPoolClient,
@@ -125,11 +125,19 @@ export function API({ stack }: StackContext) {
       },
     },
   });
+
+  const web = new RemixSite(stack, "web", {
+    path: "AWS/packages/web/"
+  })
+
   // Allow authenticated users invoke API
   cognito.attachPermissionsForAuthUsers(stack, [api]);
 
+  
+
   // Show the API endpoint and other info in the output
   stack.addOutputs({
+    URL: web.url || "localhost",
     ApiEndpoint: api.url,
     UserPoolId: cognito.userPoolId,
     UserPoolClientId: cognito.userPoolClientId,
