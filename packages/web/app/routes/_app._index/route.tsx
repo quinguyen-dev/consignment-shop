@@ -1,16 +1,15 @@
-// export const meta: MetaFunction = () => {
-//   return [
-//     { title: "Computer Consignment Shop" },
-//     {
-//       name: "description",
-//       content: "Welcome to our computer consignment shop!",
-//     },
-//   ];
-// };
+import {
+  HydrationBoundary,
+  QueryClient,
+  dehydrate,
+} from "@tanstack/react-query";
+import axios from "axios";
+import { CustomerStoreResponse } from "~/hooks/types";
 
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
-import { Link, useLoaderData, Form } from "@remix-run/react";
 import { authenticator, setRedirectUrl } from "~/services/auth.server";
+import { Form, Link, useLoaderData } from "@remix-run/react";
+import { useCustomerData } from "~/hooks/useCustomerData";
 
 // Action function to log the user in/out depending on what you said
 export async function action({ request }: ActionFunctionArgs) {
@@ -37,15 +36,29 @@ export async function action({ request }: ActionFunctionArgs) {
 
 // Check if the user is authenticated, get their details if so
 export async function loader({ request }: LoaderFunctionArgs) {
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ["stores"],
+    queryFn: async (): Promise<CustomerStoreResponse> => {
+      const response = await axios.get("customer/list-stores");
+      return response.data;
+    },
+  });
+  
   // Turn the auth state into a boolean (so that we don't pass a token around when we don't need it)
-  return json({isAuthenticated: await authenticator.isAuthenticated(request) ? true: false});
+  return json({isAuthenticated: await authenticator.isAuthenticated(request) ? true: false, dehydratedState: dehydrate(queryClient)});
 };
 
 export default function AppIndex() {
-  const user = useLoaderData<typeof loader>();
+  const { isAuthenticated } = useLoaderData<typeof loader>();
+  const store = useCustomerData();
+  const query = store.fetchAll();
+
+  const { dehydratedState } = useLoaderData<typeof loader>();
   
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
+    <div>
       <div className="flex h-12 flex-row space-x-2">
       <Link
         to="/"
@@ -70,7 +83,22 @@ export default function AppIndex() {
         <button type="submit">{user.isAuthenticated ? "Log Out": "Log In"}</button>
       </Form>
     </div>
-      This is the landing pagess
+
+    <div className="mt-4 px-2">
+      <h1 className="text-2xl font-bold">Stores</h1>
+      <HydrationBoundary state={dehydratedState}>
+        <div className="grid grid-rows-3 grid-cols-4 gap-4 mt-4">
+          {query.data?.stores.map((store) => (
+            <Link
+              to={`/store/${store.storeName}`}
+              className="border-2 border-gray-200 p-4"
+            >
+              <h1>{store.storeName}</h1>
+            </Link>
+          ))}
+        </div>
     </div>
+    </div>
+  
   );
 }

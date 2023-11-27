@@ -43,3 +43,9 @@ export type Store = {
   storeName: string;
   balance: number;
 };
+
+export type StoreInventoryResponse = Omit<InventoryResponse, "totalBalance">;
+
+export type CustomerStoreResponse = {
+  stores: Omit<Store, "balance">[];
+};
