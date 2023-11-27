@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { authenticator, setRedirectUrl } from "~/services/auth.server";
 
@@ -6,7 +6,10 @@ import { authenticator, setRedirectUrl } from "~/services/auth.server";
 export async function loader({ request }: LoaderFunctionArgs) {
   if (await authenticator.isAuthenticated(request)) {
     return await authenticator.logout(request, {
-      redirectTo: "/",
+      redirectTo: "https://cs509-dev-2023-fall.auth.us-east-2.amazoncognito.com/logout?" + new URLSearchParams({
+        client_id: "4hj4ava71f62lr5uq49tqaoeht",
+        logout_uri: new URL(request.url).origin + "/"
+      }),
     });
   } else {
     // Update the URL, to lead us back here to complete the auth request
