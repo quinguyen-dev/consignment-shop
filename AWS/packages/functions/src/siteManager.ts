@@ -64,7 +64,7 @@ export const dashboard = ApiHandler(async (event) => {
           );
         } else {
           connection.query(
-            `select s.store_id, s.store_name, SUM(d.price) as inventoryValue, COUNT(d.device_id) as deviceCount, calc.balance from STORES as s LEFT JOIN DEVICES as d ON s.store_id = d.store_id
+            `select s.store_id as storeId, s.store_name as storeName, SUM(d.price) as inventoryValue, COUNT(d.device_id) as deviceCount, calc.balance from STORES as s LEFT JOIN DEVICES as d ON s.store_id = d.store_id
             LEFT JOIN (
                 SELECT t.store_id, SUM(t.total_cost-t.shipping_cost-t.site_fee) as balance
                 FROM TRANSACTIONS as t

@@ -94,7 +94,8 @@ export const newDevice = ApiHandler(async (event) => {
             console.log("HERE");
             if (error) {
               response.statusCode = 418;
-              response.body = error.message;
+              console.log(error);
+              response.body = error;
               if (connection) connection.release();
               return resolve(error);
             } else {
@@ -168,8 +169,8 @@ export const dashboard = ApiHandler(async (event)=>{
           }
           else{
             console.log(result)
-            queryData.storeName = result[0].store_name
-            queryData.storeId = result[0].store_id
+            queryData.storeName = result[0]?.store_name
+            queryData.storeId = result[0]?.store_id
           }
         connection.query(`SELECT * FROM DEVICES, STORES WHERE DEVICES.store_id = STORES.store_id and STORES.store_id = ? and DEVICES.listing_active = 1;`, [queryData.storeId], (error, result) => {
           console.log("HERE")
@@ -180,11 +181,13 @@ export const dashboard = ApiHandler(async (event)=>{
             return resolve(error);
           }
           console.log("HERE2")
-          queryData.inventory = result
+          queryData.inventory = result? result : []
           queryData.inventory.map((device:Computer, index:number)=>{
             queryData.totalInventoryValue += device.price
           })
-          connection.query(`select s.store_id, SUM(t.total_cost-t.shipping_cost-t.site_fee) as balance from STORES as s LEFT JOIN TRANSACTIONS as t ON s.store_id = t.store_id WHERE s.store_id = ? group by s.store_id`, 
+          if(queryData.storeId)
+          {
+            connection.query(`select s.store_id, SUM(t.total_cost-t.shipping_cost-t.site_fee) as balance from STORES as s LEFT JOIN TRANSACTIONS as t ON s.store_id = t.store_id WHERE s.store_id = ? group by s.store_id`, 
           [queryData.storeId], 
           (error, result) => {
             console.log("HERE")
@@ -198,10 +201,12 @@ export const dashboard = ApiHandler(async (event)=>{
             else {
               console.log("HERE2")
               queryData.accountBalance = result[0].balance ? result[0].balance : 0
+              if(connection) connection.release()
             }
-            response.body = queryData
-            return resolve(0)
           })
+        }
+        response.body = queryData
+        return resolve(0)
         })
         })
       })

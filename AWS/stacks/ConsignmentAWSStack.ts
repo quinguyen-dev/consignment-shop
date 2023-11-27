@@ -54,17 +54,19 @@ export function API({ stack }: StackContext) {
       userPoolClient: {
         userPoolClientName: "cs509-consignment-user-pool",
         disableOAuth: false,
+        generateSecret: true,
         oAuth: {
           flows: {
             authorizationCodeGrant: true,
           },
           scopes: [OAuthScope.OPENID, OAuthScope.PROFILE, OAuthScope.EMAIL],
-          callbackUrls: ["https://oauth.pstmn.io/v1/callback", "http://localhost:5173/"],
+          callbackUrls: ["https://oauth.pstmn.io/v1/callback", "http://localhost:3000/auth/callback/"],
           logoutUrls: ["https://my-app-domain.com/signin"],
         },
       },
     },
   });
+
 
   const bus = new EventBus(stack, "bus", {
     defaults: {
