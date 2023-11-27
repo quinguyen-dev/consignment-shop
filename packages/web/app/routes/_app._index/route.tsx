@@ -71,7 +71,7 @@ export default function AppIndex() {
         placeholder="Search for items"
         type="search"
       />
-      {user.isAuthenticated && (
+      {isAuthenticated && (
         <Link
           to="/account"
           className="flex items-center rounded-md border-2 px-4 text-center"
@@ -80,9 +80,9 @@ export default function AppIndex() {
         </Link>
       )}
       <Form method="post" className="flex items-center rounded-md border-2 px-4 text-center">
-        <button type="submit">{user.isAuthenticated ? "Log Out": "Log In"}</button>
+        <button type="submit">{isAuthenticated ? "Log Out": "Log In"}</button>
       </Form>
-    </div>
+      </div>
 
     <div className="mt-4 px-2">
       <h1 className="text-2xl font-bold">Stores</h1>
@@ -97,6 +97,7 @@ export default function AppIndex() {
             </Link>
           ))}
         </div>
+      </HydrationBoundary>
     </div>
     </div>
   
