@@ -16,9 +16,9 @@ export function setRedirectUrl(newRedirectUrl: string) {
     authenticator.use(new OAuth2Strategy({
         authorizationURL: "https://cs509-dev-2023-fall.auth.us-east-2.amazoncognito.com" + "/oauth2/authorize",
     tokenURL: "https://cs509-dev-2023-fall.auth.us-east-2.amazoncognito.com" + "/oauth2/token",
-    clientID: "63gndti4mq9kg1p3ibuu6nr1k2",
-    clientSecret: "1ou0iitg4pseunkh7v6aled6bifla1d7h1gnn2sa256jv3offan2",
-        callbackURL: newRedirectUrl + "auth/callback/",
+    clientID: "4hj4ava71f62lr5uq49tqaoeht",
+    clientSecret: "bsaprf7o93mj2v41b3nct0vb47hdagfi1ade0d58a40fu894r26",
+        callbackURL: newRedirectUrl,
         scope: "openid profile email"
     }, async ({
         accessToken,

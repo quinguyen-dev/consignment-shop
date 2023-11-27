@@ -45,40 +45,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
   
   // Turn the auth state into a boolean (so that we don't pass a token around when we don't need it)
-  return json({isAuthenticated: await authenticator.isAuthenticated(request) ? true: false, dehydratedState: dehydrate(queryClient)});
+  return json({dehydratedState: dehydrate(queryClient)});
 };
 
 export default function AppIndex() {
-  const { isAuthenticated, dehydratedState } = useLoaderData<typeof loader>();
+  const { dehydratedState } = useLoaderData<typeof loader>();
   const store = useCustomerData();
   const query = store.fetchAll();
   
   return (
-    <div>
-      <div className="flex h-12 flex-row space-x-2">
-      <Link
-        to="/"
-        className="text-gray-00 min-w-[256px] border px-4 py-3 text-center"
-      >
-        Website Logo / Name
-      </Link>
-      <input
-        className="flex-1 border-2 px-4"
-        placeholder="Search for items"
-        type="search"
-      />
-      {isAuthenticated && (
-        <Link
-          to="/account"
-          className="flex items-center rounded-md border-2 px-4 text-center"
-        >
-          Account
-        </Link>
-      )}
-      <Form method="post" className="flex items-center rounded-md border-2 px-4 text-center">
-        <button type="submit">{isAuthenticated ? "Log Out": "Log In"}</button>
-      </Form>
-      </div>
 
     <div className="mt-4 px-2">
       <h1 className="text-2xl font-bold">Stores</h1>
@@ -94,7 +69,6 @@ export default function AppIndex() {
           ))}
         </div>
       </HydrationBoundary>
-    </div>
     </div>
   
   );
