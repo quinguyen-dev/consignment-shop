@@ -15,14 +15,14 @@ import { authenticator } from "~/services/auth.server";
 // Loader to fetch the JSON token
 export async function loader({ request }: LoaderFunctionArgs) {
   return await authenticator.isAuthenticated(request, {
-    failureRedirect: "/"
+    failureRedirect: "/",
   });
-};
+}
 
 export default function Inventory() {
   const loaderData = useLoaderData<typeof loader>();
   const store = useStoreInventory(loaderData.token);
-  
+
   const query = store.fetchAll();
   const { mutate: create } = store.create();
 

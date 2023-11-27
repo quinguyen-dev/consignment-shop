@@ -7,9 +7,9 @@ import axios from "axios";
 import { CustomerStoreResponse } from "~/hooks/types";
 
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
-import { authenticator, setRedirectUrl } from "~/services/auth.server";
-import { Form, Link, useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { useCustomerData } from "~/hooks/useCustomerData";
+import { authenticator, setRedirectUrl } from "~/services/auth.server";
 
 // Action function to log the user in/out depending on what you said
 export async function action({ request }: ActionFunctionArgs) {
@@ -17,20 +17,20 @@ export async function action({ request }: ActionFunctionArgs) {
   if (await authenticator.isAuthenticated(request)) {
     // Log them out
     return await authenticator.logout(request, {
-      redirectTo: "/"
-    })
-} else {
-  // Update the URL to use with the auth
-  const url = new URL(request.url);
-   setRedirectUrl(url.origin + "/");
-   
-   // Trigger the auth flow
-  return await authenticator.authenticate("oauth2", request, {
-    successRedirect: "/inventory",
-    failureRedirect: "/"
-  });
+      redirectTo: "/",
+    });
+  } else {
+    // Update the URL to use with the auth
+    const url = new URL(request.url);
+    setRedirectUrl(url.origin + "/");
+
+    // Trigger the auth flow
+    return await authenticator.authenticate("oauth2", request, {
+      successRedirect: "/inventory",
+      failureRedirect: "/",
+    });
+  }
 }
-};
 
 // Check if the user is authenticated, get their details if so
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -43,24 +43,24 @@ export async function loader({ request }: LoaderFunctionArgs) {
       return response.data;
     },
   });
-  
+
   // Turn the auth state into a boolean (so that we don't pass a token around when we don't need it)
-  return json({dehydratedState: dehydrate(queryClient)});
-};
+  return json({ dehydratedState: dehydrate(queryClient) });
+}
 
 export default function AppIndex() {
   const { dehydratedState } = useLoaderData<typeof loader>();
   const store = useCustomerData();
   const query = store.fetchAll();
-  
-  return (
 
+  return (
     <div className="mt-4 px-2">
       <h1 className="text-2xl font-bold">Stores</h1>
       <HydrationBoundary state={dehydratedState}>
         <div className="grid grid-cols-4 gap-4 mt-4">
           {query.data?.stores.map((store) => (
-            <Link key={`${store.storeId}`}
+            <Link
+              key={`${store.storeId}`}
               to={`/store/${store.storeName}`}
               className="border-2 border-gray-200 p-4"
             >
@@ -70,6 +70,5 @@ export default function AppIndex() {
         </div>
       </HydrationBoundary>
     </div>
-  
   );
 }

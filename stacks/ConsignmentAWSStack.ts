@@ -1,4 +1,8 @@
-import { CfnUserPoolClient, OAuthScope, StringAttribute } from "aws-cdk-lib/aws-cognito";
+import {
+  CfnUserPoolClient,
+  OAuthScope,
+  StringAttribute,
+} from "aws-cdk-lib/aws-cognito";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import { Role } from "aws-cdk-lib/aws-iam";
 import {
@@ -51,27 +55,28 @@ export function API({ stack }: StackContext) {
             mutable: true,
           }),
         },
-      }, 
+      },
       userPoolClient: {
         userPoolClientName: "cs509-consignment-user-pool",
-    disableOAuth: false,
-    generateSecret: true,
-    oAuth: {
-      flows: {
-        authorizationCodeGrant: true,
+        disableOAuth: false,
+        generateSecret: true,
+        oAuth: {
+          flows: {
+            authorizationCodeGrant: true,
+          },
+          scopes: [OAuthScope.OPENID, OAuthScope.PROFILE, OAuthScope.EMAIL],
+        },
       },
-      scopes: [OAuthScope.OPENID, OAuthScope.PROFILE, OAuthScope.EMAIL],
-    }
-      }
     },
   });
 
   // Add a domain to the cognito user pool
   const userPoolDomain = cognito.cdk.userPool.addDomain("CognitoDomain", {
     cognitoDomain: {
-      domainPrefix: stack.stackName.toLowerCase() + "-cs509-consignment-user-pool"
-    }
-  })
+      domainPrefix:
+        stack.stackName.toLowerCase() + "-cs509-consignment-user-pool",
+    },
+  });
 
   const bus = new EventBus(stack, "bus", {
     defaults: {
@@ -134,18 +139,22 @@ export function API({ stack }: StackContext) {
   });
 
   const web = new RemixSite(stack, "web", {
-    path: "packages/web/", 
+    path: "packages/web/",
     environment: {
       API_BASE_URL: api.url,
       COGNITO_BASE_URL: userPoolDomain.baseUrl(),
       CLIENT_ID: cognito.cdk.userPoolClient.userPoolClientId,
-      CLIENT_SECRET: cognito.cdk.userPoolClient.userPoolClientSecret.toString()
-    }
+      CLIENT_SECRET: cognito.cdk.userPoolClient.userPoolClientSecret.toString(),
+    },
   });
 
-    // Set the callback URLs, now that we have access to the production frontend
-  const cfnUserPoolClient = cognito.cdk.userPoolClient.node.defaultChild as CfnUserPoolClient;
-  cfnUserPoolClient.callbackUrLs = ["https://oauth.pstmn.io/v1/callback", (web.url || "http://localhost:3000") + "/auth/callback/"]
+  // Set the callback URLs, now that we have access to the production frontend
+  const cfnUserPoolClient = cognito.cdk.userPoolClient.node
+    .defaultChild as CfnUserPoolClient;
+  cfnUserPoolClient.callbackUrLs = [
+    "https://oauth.pstmn.io/v1/callback",
+    (web.url || "http://localhost:3000") + "/auth/callback/",
+  ];
 
   // Allow authenticated users invoke API
   cognito.attachPermissionsForAuthUsers(stack, [api]);

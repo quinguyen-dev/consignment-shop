@@ -10,11 +10,12 @@ export function useSiteManagerData(jwt: string) {
     useQuery<SiteManagerResponse, Error>({
       queryKey: ["site_manager_data"],
       queryFn: async (): Promise<SiteManagerResponse> => {
-        const response = await axios.get(`/site-manager/dashboard`, {
+        const response = await axios.get("/site-manager/dashboard", {
           headers: {
             Authorization: `Bearer ${jwt}`,
           },
         });
+
         return response.data;
       },
       select: (data: any) => {

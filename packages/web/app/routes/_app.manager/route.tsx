@@ -1,25 +1,28 @@
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import placeholder from "~/assets/placeholder.png";
 import { NavigationCard } from "~/components";
 import { useSiteManagerData } from "~/hooks/useSiteManagerData";
-import StoresDataTable from "./storeDataTable";
-import { LoaderFunctionArgs } from "@remix-run/node";
 import { authenticator } from "~/services/auth.server";
-import { useLoaderData } from "@remix-run/react";
+import ReportDataTable from "./reportDataTable";
+import StoresDataTable from "./storeDataTable";
 
 // Loader to fetch the JSON token
 export async function loader({ request }: LoaderFunctionArgs) {
   return await authenticator.isAuthenticated(request, {
-    failureRedirect: "/"
+    failureRedirect: "/",
   });
-};
+}
 
 export default function SiteManagerView() {
   const [manageMode, setManageMode] = useState(false);
   const loaderData = useLoaderData<typeof loader>();
 
   const managerData = useSiteManagerData(loaderData.token);
-  const query = managerData.fetchAll();
+  const query = managerData.fetchReport();
+
+  console.log(query.data);
 
   return (
     <div className="mx-4 mt-8">
@@ -42,7 +45,7 @@ export default function SiteManagerView() {
             </label>
             <label className="col-start-2 row-start-2 text-xl font-semibold text-green-600">
               {query.data
-                ? `$${query.data.totalBalance.toLocaleString()}`
+                ? `$${query.data.totalInventoryValue.toLocaleString()}`
                 : `Loading....`}
             </label>
           </div>
@@ -74,7 +77,7 @@ export default function SiteManagerView() {
             <StoresDataTable />
           </div>
         ) : (
-          <div></div>
+          <ReportDataTable />
         )}
       </div>
     </div>
