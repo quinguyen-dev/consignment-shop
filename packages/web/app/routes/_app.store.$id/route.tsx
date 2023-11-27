@@ -13,7 +13,7 @@ export default function CustomerStoreView() {
   const query = store.fetchStoreInfo(data);
 
   return (
-    <div className="">
+    <div className="p-2">
       <h1 className="text-2xl font-bold my-3">
         {query.data?.storeName} Inventory
       </h1>
