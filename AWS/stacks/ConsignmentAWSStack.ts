@@ -123,6 +123,31 @@ export function API({ stack }: StackContext) {
           handler: "AWS/packages/functions/src/siteManager.inspectStoreInv",
         }),
       },
+      //Customer functions are publicly accessible
+      "GET /customer/store-inventory": {
+        function: new Function(stack, "SSTCustStoreInv", {
+          handler: "AWS/packages/functions/src/customer.inspectStoreInv",
+        }),
+        authorizer: "none",
+      },
+      "GET /customer/list-stores": {
+        function: new Function(stack, "SSTCustListStores", {
+          handler: "AWS/packages/functions/src/customer.listStores",
+        }),
+        authorizer: "none",
+      },
+      "GET /customer/device-fees": {
+        function: new Function(stack, "SSTCustDeviceFees", {
+          handler: "AWS/packages/functions/src/customer.estimateFees",
+        }),
+        authorizer: "none",
+      },
+      "POST /customer/buy-device": {
+        function: new Function(stack, "SSTCustBuyDevice", {
+          handler: "AWS/packages/functions/src/customer.buyDevice",
+        }),
+        authorizer: "none",
+      },
     },
   });
   // Allow authenticated users invoke API

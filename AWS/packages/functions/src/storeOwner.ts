@@ -42,7 +42,7 @@ export const newStore = ApiHandler(async (event) => {
     storeInfo.address,
   );
   console.log(`RESPONSE: ${JSON.stringify(response)}`);
-  response.body = JSON.stringify(response);
+  response.body = JSON.stringify(response.body);
   return response;
 });
 
