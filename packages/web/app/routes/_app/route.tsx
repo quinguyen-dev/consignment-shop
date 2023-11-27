@@ -1,7 +1,13 @@
+import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { MetaFunction, Outlet } from "@remix-run/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import { useState } from "react";
+
+// Loader to fetch the API url from the environment and pass it to the frontend
+export async function loader({ request }: LoaderFunctionArgs) {
+  return json({apiBaseUrl: process.env.API_BASE_URL});
+};
 
 export const meta: MetaFunction = () => {
   return [

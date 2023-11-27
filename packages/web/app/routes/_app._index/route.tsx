@@ -20,6 +20,7 @@ export async function action({ request }: ActionFunctionArgs) {
       redirectTo: "/"
     })
 } else {
+  // Update the URL to use with the auth
   const url = new URL(request.url);
    setRedirectUrl(url.origin + "/");
    

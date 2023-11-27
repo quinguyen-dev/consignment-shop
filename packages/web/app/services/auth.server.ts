@@ -15,10 +15,10 @@ export function setRedirectUrl(newRedirectUrl: string) {
     authenticator.unuse("oauth2");
 
     authenticator.use(new OAuth2Strategy({
-        authorizationURL: process.env.COGNITO_BASE_URL + "/login",
-        tokenURL: process.env.COGNITO_BASE_URL + "/oauth2/token",
-        clientID: process.env.CLIENT_ID,
-        clientSecret: process.env.CLIENT_SECRET,
+        authorizationURL: "https://cs509-dev-2023-fall.auth.us-east-2.amazoncognito.com" + "/oauth2/authorize",
+    tokenURL: "https://cs509-dev-2023-fall.auth.us-east-2.amazoncognito.com" + "/oauth2/token",
+    clientID: "63gndti4mq9kg1p3ibuu6nr1k2",
+    clientSecret: "1ou0iitg4pseunkh7v6aled6bifla1d7h1gnn2sa256jv3offan2",
         callbackURL: newRedirectUrl + "auth/callback/",
         scope: "openid profile email"
     }, async ({
@@ -39,22 +39,5 @@ export function setRedirectUrl(newRedirectUrl: string) {
 // strategies will return and will store in the session
 export const authenticator = new Authenticator<User>(sessionStorage);
 
-authenticator.use(new OAuth2Strategy({
-    authorizationURL: process.env.COGNITO_BASE_URL + "/oauth2/authorize",
-    tokenURL: process.env.COGNITO_BASE_URL + "/oauth2/token",
-    clientID: process.env.CLIENT_ID,
-    clientSecret: process.env.CLIENT_SECRET,
-    callbackURL: "",
-    scope: "openid profile email aws.cognito.signin.user.admin"
-}, async ({
-    accessToken,
-    refreshToken,
-    extraParams,
-    profile,
-    context,
-    request,
-  }) => {
-    return {
-        token: accessToken
-    } satisfies User;
-}), "oauth2")
+// Provide an initial state for the redirect URL
+setRedirectUrl("");
