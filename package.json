@@ -31,5 +31,9 @@
       "prettier-plugin-tailwindcss",
       "prettier-plugin-organize-imports"
     ]
+  },
+  "dependencies": {
+    "geolib": "^3.3.4",
+    "mysql": "^2.18.1"
   }
 }

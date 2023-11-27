@@ -1,14 +1,9 @@
-import {
-  CfnUserPoolClient,
-  OAuthScope,
-  StringAttribute,
-} from "aws-cdk-lib/aws-cognito";
+import { OAuthScope, StringAttribute, UserPool } from "aws-cdk-lib/aws-cognito";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import { Role } from "aws-cdk-lib/aws-iam";
 import {
   Api,
   Cognito,
-  EventBus,
   Function,
   RemixSite,
   StackContext,
@@ -65,22 +60,10 @@ export function API({ stack }: StackContext) {
             authorizationCodeGrant: true,
           },
           scopes: [OAuthScope.OPENID, OAuthScope.PROFILE, OAuthScope.EMAIL],
+          callbackUrls: ["https://oauth.pstmn.io/v1/callback", "http://localhost:3000/auth/callback/"],
+          logoutUrls: ["https://my-app-domain.com/signin"],
         },
       },
-    },
-  });
-
-  // Add a domain to the cognito user pool
-  const userPoolDomain = cognito.cdk.userPool.addDomain("CognitoDomain", {
-    cognitoDomain: {
-      domainPrefix:
-        stack.stackName.toLowerCase() + "-cs509-consignment-user-pool",
-    },
-  });
-
-  const bus = new EventBus(stack, "bus", {
-    defaults: {
-      retries: 10,
     },
   });
 
@@ -115,6 +98,11 @@ export function API({ stack }: StackContext) {
           handler: "packages/functions/src/storeOwner.dashboard",
         }),
       },
+      "POST /store-owner/remove-device": {
+        function: new Function(stack, "SSTStoreOwnerRemove", {
+          handler: "packages/functions/src/storeOwner.deleteDevice",
+        }),
+      },
       "GET /store-owner/user-info": {
         function: new Function(stack, "SSTStoreOwnerInfo", {
           handler: "packages/functions/src/storeOwner.getStoreOwnerInfo",
@@ -135,36 +123,53 @@ export function API({ stack }: StackContext) {
           handler: "packages/functions/src/siteManager.inspectStoreInv",
         }),
       },
+      //Customer functions are publicly accessible
+      "GET /customer/store-inventory": {
+        function: new Function(stack, "SSTCustStoreInv", {
+          handler: "packages/functions/src/customer.inspectStoreInv",
+        }),
+        authorizer: "none",
+      },
+      "GET /customer/list-stores": {
+        function: new Function(stack, "SSTCustListStores", {
+          handler: "packages/functions/src/customer.listStores",
+        }),
+        authorizer: "none",
+      },
+      "GET /customer/device-fees": {
+        function: new Function(stack, "SSTCustDeviceFees", {
+          handler: "packages/functions/src/customer.estimateFees",
+        }),
+        authorizer: "none",
+      },
+      "POST /customer/buy-device": {
+        function: new Function(stack, "SSTCustBuyDevice", {
+          handler: "packages/functions/src/customer.buyDevice",
+        }),
+        authorizer: "none",
+      },
     },
   });
+  // Allow authenticated users invoke API
+  cognito.attachPermissionsForAuthUsers(stack, [api]);
 
-  const web = new RemixSite(stack, "web", {
+  const site = new RemixSite(stack, "Site", {
     path: "packages/web/",
     environment: {
       API_BASE_URL: api.url,
-      COGNITO_BASE_URL: userPoolDomain.baseUrl(),
+      COGNITO_BASE_URL:
+        "https://cs509-dev-2023-fall.auth.us-east-2.amazoncognito.com/",
       CLIENT_ID: cognito.cdk.userPoolClient.userPoolClientId,
       CLIENT_SECRET: cognito.cdk.userPoolClient.userPoolClientSecret.toString(),
     },
   });
 
-  // Set the callback URLs, now that we have access to the production frontend
-  const cfnUserPoolClient = cognito.cdk.userPoolClient.node
-    .defaultChild as CfnUserPoolClient;
-  cfnUserPoolClient.callbackUrLs = [
-    "https://oauth.pstmn.io/v1/callback",
-    (web.url || "http://localhost:3000") + "/auth/callback/",
-  ];
-
-  // Allow authenticated users invoke API
-  cognito.attachPermissionsForAuthUsers(stack, [api]);
-
   // Show the API endpoint and other info in the output
   stack.addOutputs({
-    URL: web.url || "localhost:3000",
     ApiEndpoint: api.url,
     UserPoolId: cognito.userPoolId,
-    UserPoolClientId: cognito.cdk.userPoolClient.userPoolClientId,
+    UserPoolClientId: cognito.userPoolClientId,
     IdentityPoolId: cognito.cognitoIdentityPoolId,
+    URL: site.url || "localhost",
   });
 }
