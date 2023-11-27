@@ -40,7 +40,7 @@ export default function Inventory() {
       helper.accessor("formFactor", { header: "Form Factor" }),
       helper.accessor("memoryMb", { header: "Memory" }),
       helper.accessor("memoryType", { header: "Memory Type" }),
-      helper.accessor("storageGb", { hea  der: "Storage" }),
+      helper.accessor("storageGb", { header: "Storage" }),
       helper.accessor("storageType", { header: "Storage Type" }),
       helper.accessor("processorManufacturer", { header: "CPU Manufacturer" }),
       helper.accessor("processorModel", { header: "CPU Model" }),
