@@ -33,7 +33,7 @@ export default function AppIndex() {
     <div className="mt-4 px-2">
       <h1 className="text-2xl font-bold">Stores</h1>
       <HydrationBoundary state={dehydratedState}>
-        <div className="grid grid-rows-3 grid-cols-4 gap-4 mt-4">
+        <div className="grid grid-cols-4 gap-4 mt-4">
           {query.data?.stores.map((store) => (
             <Link
               to={`/store/${store.storeName}`}
