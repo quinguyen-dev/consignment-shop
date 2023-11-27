@@ -23,14 +23,11 @@ export async function action({ request }: ActionFunctionArgs) {
   const url = new URL(request.url);
    setRedirectUrl(url.origin + "/");
    
-  // Otherwise, log in
-  const response = await authenticator.authenticate("oauth2", request, {
+   // Trigger the auth flow
+  return await authenticator.authenticate("oauth2", request, {
     successRedirect: "/inventory",
     failureRedirect: "/"
   });
-  
-  console.error(response);
-  return null;
 }
 };
 
@@ -51,11 +48,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 };
 
 export default function AppIndex() {
-  const { isAuthenticated } = useLoaderData<typeof loader>();
+  const { isAuthenticated, dehydratedState } = useLoaderData<typeof loader>();
   const store = useCustomerData();
   const query = store.fetchAll();
-
-  const { dehydratedState } = useLoaderData<typeof loader>();
   
   return (
     <div>

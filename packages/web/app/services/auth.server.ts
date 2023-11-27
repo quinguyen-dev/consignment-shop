@@ -1,6 +1,7 @@
 import { Authenticator } from "remix-auth";
 import { OAuth2Strategy } from "remix-auth-oauth2";
 import { sessionStorage } from "~/services/session.server";
+import { Config } from "sst/node/config";
 
 interface User {
     readonly token: string;
@@ -14,12 +15,12 @@ export function setRedirectUrl(newRedirectUrl: string) {
     authenticator.unuse("oauth2");
 
     authenticator.use(new OAuth2Strategy({
-        authorizationURL: process.env.COGNITO_BASE_URL + "/oauth2/authorize",
+        authorizationURL: process.env.COGNITO_BASE_URL + "/login",
         tokenURL: process.env.COGNITO_BASE_URL + "/oauth2/token",
         clientID: process.env.CLIENT_ID,
         clientSecret: process.env.CLIENT_SECRET,
-        callbackURL: newRedirectUrl,
-        scope: "openid profile email aws.cognito.signin.user.admin"
+        callbackURL: newRedirectUrl + "auth/callback/",
+        scope: "openid profile email"
     }, async ({
         accessToken,
         refreshToken,

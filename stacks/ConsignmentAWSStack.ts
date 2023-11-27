@@ -69,7 +69,7 @@ export function API({ stack }: StackContext) {
   // Add a domain to the cognito user pool
   const userPoolDomain = cognito.cdk.userPool.addDomain("CognitoDomain", {
     cognitoDomain: {
-      domainPrefix: "cs509-consignment-user-pool"
+      domainPrefix: stack.stackName.toLowerCase() + "-cs509-consignment-user-pool"
     }
   })
 
@@ -145,7 +145,7 @@ export function API({ stack }: StackContext) {
 
     // Set the callback URLs, now that we have access to the production frontend
   const cfnUserPoolClient = cognito.cdk.userPoolClient.node.defaultChild as CfnUserPoolClient;
-  cfnUserPoolClient.callbackUrLs = ["https://oauth.pstmn.io/v1/callback", web.url || "http://localhost:3000/"]
+  cfnUserPoolClient.callbackUrLs = ["https://oauth.pstmn.io/v1/callback", (web.url || "http://localhost:3000") + "/auth/callback/"]
 
   // Allow authenticated users invoke API
   cognito.attachPermissionsForAuthUsers(stack, [api]);
