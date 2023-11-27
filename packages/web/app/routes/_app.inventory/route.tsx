@@ -25,6 +25,7 @@ export default function Inventory() {
 
   const query = store.fetchAll();
   const { mutate: create } = store.create();
+  const { mutate: remove } = store.remove();
 
   const [addModal, setAddModal] = useState(false);
 
@@ -48,6 +49,15 @@ export default function Inventory() {
       helper.accessor("gpuModel", { header: "GPU Model" }),
       helper.accessor("dedicatedGpu", { header: "Dedicated" }),
       helper.accessor("operatingSystem", { header: "OS" }),
+      helper.display({
+        header: "",
+        id: "trashColumn",
+        cell: (props) => (
+          <button onClick={() => remove(props.row.original.deviceId)}>
+            Delete
+          </button>
+        ),
+      }),
     ];
   }, []);
 
