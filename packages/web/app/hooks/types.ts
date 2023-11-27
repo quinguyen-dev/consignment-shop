@@ -30,6 +30,17 @@ export type SiteManagerResponse = {
   stores: Store[];
 };
 
+export type StoreReport = {
+  inventoryValue: number;
+  deviceCount: number;
+} & Store;
+
+export type SiteManagerReport = {
+  managerBalance: number;
+  totalInventoryValue: number;
+  storeBalances: StoreReport[];
+};
+
 export type StoreOwnerResponse = {
   username: string;
   userId: string;

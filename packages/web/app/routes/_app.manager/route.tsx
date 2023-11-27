@@ -51,15 +51,19 @@ export default function SiteManagerView() {
               setManageMode(true);
             }}
             image={placeholder}
-            headerText={"Manage Change Account Information"}
-            descriptionText={"Modify password, change email, etc."}
+            headerText={"View report"}
+            descriptionText={
+              "Look at a report of all stores active on the site."
+            }
             selected={manageMode}
           />
         </div>
-        {!manageMode && (
+        {!manageMode ? (
           <div className="flex-grow">
             <StoresDataTable />
           </div>
+        ) : (
+          <div></div>
         )}
       </div>
     </div>

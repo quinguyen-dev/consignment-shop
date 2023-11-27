@@ -3,7 +3,7 @@ import axios from "axios";
 import { useContext } from "react";
 import { AuthContext, IAuthContext } from "react-oauth2-code-pkce";
 import { convert } from "~/utils/convert";
-import type { SiteManagerResponse, Store } from "./types";
+import type { SiteManagerReport, SiteManagerResponse, Store } from "./types";
 
 export function useSiteManagerData() {
   const queryClient = useQueryClient();
@@ -31,6 +31,19 @@ export function useSiteManagerData() {
       },
     });
 
+  const fetchReport = () =>
+    useQuery<SiteManagerReport, Error>({
+      queryKey: ["site_manager_report"],
+      queryFn: async (): Promise<SiteManagerReport> => {
+        const response = await axios.get(`/site-manager/dashboard`, {
+          headers: {
+            Authorization: `Bearer ${authContext.token}`,
+          },
+        });
+        return response.data;
+      },
+    });
+
   const remove = useMutation<Store, Error, string>({
     mutationFn: async (storeId: string): Promise<any> => {
       const response = await axios.delete(
@@ -49,5 +62,5 @@ export function useSiteManagerData() {
     },
   });
 
-  return { fetchAll, remove };
+  return { fetchAll, fetchReport, remove };
 }
