@@ -1,8 +1,11 @@
 import { Authenticator } from "remix-auth";
 import { OAuth2Strategy } from "remix-auth-oauth2";
 import { sessionStorage } from "~/services/session.server";
+import { jwtDecode } from "jwt-decode";
+
 
 interface User {
+    readonly username: string;
     readonly token: string;
 }
 
@@ -29,9 +32,10 @@ export function setRedirectUrl(newRedirectUrl: string) {
         request,
       }) => {
         return {
+            username: jwtDecode<Record<string, string>>(accessToken)["cognito:username"],
             token: accessToken
         } satisfies User;
-    }), "oauth2")
+    }), "oauth2");
 }
 
 // Create an instance of the authenticator, pass a generic with what

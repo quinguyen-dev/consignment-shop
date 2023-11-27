@@ -1,13 +1,19 @@
 import axios from "axios";
-import { useContext } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { AuthContext, type IAuthContext } from "react-oauth2-code-pkce";
-import { useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate } from "@remix-run/react";
 import { RegistrationSchemaType } from "./types";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { authenticator } from "~/services/auth.server";
+
+// Loader to fetch the JSON token
+export async function loader({ request }: LoaderFunctionArgs) {
+  return await authenticator.isAuthenticated(request, {
+    failureRedirect: "/"
+  });
+};
 
 export default function Register() {
-  const authContext = useContext<IAuthContext>(AuthContext);
-
+  const loaderData = useLoaderData<typeof loader>();
   const { register, handleSubmit } = useForm<RegistrationSchemaType>();
 
   const navigate = useNavigate();
@@ -22,17 +28,17 @@ export default function Register() {
 
     await axios.post(
       "/store-owner/new-user",
-      { username: authContext.idTokenData!["cognito:username"] },
+      { username: loaderData.username },
       {
         headers: {
-          Authorization: `Bearer ${authContext.token}`,
+          Authorization: `Bearer ${loaderData.token}`,
         },
       },
     );
 
     await axios.post(`/store-owner/new-store`, obj, {
       headers: {
-        Authorization: `Bearer ${authContext.token}`,
+        Authorization: `Bearer ${loaderData.token}`,
       },
     });
 
