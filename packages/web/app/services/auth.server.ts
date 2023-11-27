@@ -39,7 +39,7 @@ export function setRedirectUrl(newRedirectUrl: string) {
       }) => {
         return {
           username:
-            jwtDecode<Record<string, string>>(accessToken)["cognito:username"],
+            jwtDecode<Record<string, string>>(accessToken).username,
           token: accessToken,
         } satisfies User;
       },

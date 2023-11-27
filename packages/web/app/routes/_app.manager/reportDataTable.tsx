@@ -27,8 +27,12 @@ export default function ReportDataTable() {
     const helper = createColumnHelper<StoreReport>();
     return [
       helper.accessor("storeName", { header: "Store Name" }),
-      helper.accessor("balance", { header: "Store Balance" }),
-      helper.accessor("inventoryValue", { header: "Inventory Value" }),
+      helper.accessor((item) => {
+        return `$${item.balance.toLocaleString()}`;
+      }, { header: "Store Balance" }),
+      helper.accessor((item) => {
+        return `$${item.inventoryValue.toLocaleString()}`;
+      }, { header: "Inventory Value" }),
       helper.accessor("deviceCount", { header: "Device Count" }),
     ];
   }, []);

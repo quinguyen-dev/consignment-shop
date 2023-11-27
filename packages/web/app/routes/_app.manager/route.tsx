@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import placeholder from "~/assets/placeholder.png";
@@ -10,9 +10,16 @@ import StoresDataTable from "./storeDataTable";
 
 // Loader to fetch the JSON token
 export async function loader({ request }: LoaderFunctionArgs) {
-  return await authenticator.isAuthenticated(request, {
-    failureRedirect: "/",
-  });
+  const user = await authenticator.isAuthenticated(request);
+
+  // Validate the user is the site manager
+  if (!user) {
+    return redirect("/")
+  } else if (user.username != "sitemanager") {
+    return redirect("/owner")
+  } else {
+    return user;
+  }
 }
 
 export default function SiteManagerView() {

@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useNavigate } from "@remix-run/react";
 import {
   createColumnHelper,
   flexRender,
@@ -23,6 +23,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 function StoresDataTable() {
+  const navigate = useNavigate();
   const [deletePopupId, setDeletePopupId] = useState<string | null>(null);
   const [inputDeletePopupId, setDeleteInputPopupId] = useState("");
   const [deletePopupName, setDeletePopupName] = useState("");
@@ -57,8 +58,8 @@ function StoresDataTable() {
       helper.display({
         header: "",
         id: "viewDataColumn",
-        cell: (_) => (
-          <button>
+        cell: (props) => (
+          <button onClick={() => navigate("/store/" + props.row.original.storeName)}>
             <img src={dataIcon} alt="View Data"></img>
           </button>
         ),

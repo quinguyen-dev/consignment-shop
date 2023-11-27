@@ -11,9 +11,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   } else {
     // Update the URL, to lead us back here to complete the auth request
     setRedirectUrl(new URL(request.url).origin + "/auth/callback/");
-    // This starts/completes completes the authentication request, returning the user to their inventory page
+    // This starts/completes completes the authentication request, returning the user to their dashboard
     return await authenticator.authenticate("oauth2", request, {
-      successRedirect: "/inventory",
+      successRedirect: "/manager",
       failureRedirect: "/",
     });
   }
