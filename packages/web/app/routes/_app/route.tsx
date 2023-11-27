@@ -2,7 +2,6 @@ import { MetaFunction, Outlet } from "@remix-run/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import { useState } from "react";
-import Modal from "react-modal";
 import { NavigationBar } from "~/components";
 
 export const meta: MetaFunction = () => {
@@ -16,8 +15,8 @@ export const meta: MetaFunction = () => {
 };
 
 axios.defaults.baseURL =
-  "https://saqb4rb5je.execute-api.us-east-2.amazonaws.com/Initial";
-Modal.setAppElement("#root");
+  "https://vo8vlr6cyc.execute-api.us-east-2.amazonaws.com/dev";
+// Modal.setAppElement("#root");
 
 const URL = "https://cs509-newegg.auth.us-east-2.amazoncognito.com";
 export default function AppLayout() {
@@ -33,9 +32,11 @@ export default function AppLayout() {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <NavigationBar />
-      <Outlet />
-    </QueryClientProvider>
+    <div className="p-4">
+      <QueryClientProvider client={queryClient}>
+        <NavigationBar />
+        <Outlet />
+      </QueryClientProvider>
+    </div>
   );
 }
