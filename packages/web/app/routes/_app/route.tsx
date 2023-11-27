@@ -67,7 +67,7 @@ export default function AppLayout() {
           />
           {isAuthenticated && (
             <Link
-              to="/account"
+              to="/owner"
               className="flex items-center rounded-md border-2 px-4 text-center"
             >
               Account
