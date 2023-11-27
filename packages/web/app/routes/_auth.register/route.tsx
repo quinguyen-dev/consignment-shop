@@ -26,23 +26,13 @@ export default function Register() {
       latitude: data.latitude,
     } satisfies RegistrationSchemaType;
 
-    await axios.post(
-      "/store-owner/new-user",
-      { username: loaderData.username },
-      {
-        headers: {
-          Authorization: `Bearer ${loaderData.token}`,
-        },
-      },
-    );
-
     await axios.post(`/store-owner/new-store`, obj, {
       headers: {
         Authorization: `Bearer ${loaderData.token}`,
       },
     });
 
-    navigate("/account");
+    navigate("/owner");
   };
 
   return (
