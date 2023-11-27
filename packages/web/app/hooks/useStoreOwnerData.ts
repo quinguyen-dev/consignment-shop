@@ -16,14 +16,11 @@ export function useStoreOwnerData(jwt: string) {
         return response.data;
       },
       select: (data: any) => {
-        const { body } = data;
-
         return {
-          username: body.username,
-          userId: body.user_id,
-          storeId: body.store_id,
-          totalBalance: body.total_balance,
-          storeName: body.store_name,
+          username: data.username,
+          storeId: data.storeId,
+          inventoryValue: data.inventoryValue,
+          storeName: data.storeName,
         } satisfies StoreOwnerResponse;
       },
     });

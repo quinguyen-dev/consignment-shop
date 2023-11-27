@@ -19,13 +19,12 @@ export function useStoreInventory(jwt: string) {
         return response.data;
       },
       select: (data: any) => {
-        const { body } = data;
-
         return {
-          storeName: body.store_name,
-          storeId: body.store_id,
-          totalBalance: body.total_balance,
-          inventory: body.inventory.map((computer: any) => convert(computer)),
+          storeName: data.storeName,
+          storeId: data.storeId,
+          accountBalance: data.accountBalance,
+          totalInventoryValue: data.totalInventoryValue,
+          inventory: data.inventory.map((computer: any) => convert(computer)),
         } satisfies InventoryResponse;
       },
     });
@@ -47,10 +46,12 @@ export function useStoreInventory(jwt: string) {
 
   const remove = () =>
     useMutation<Computer, Error, string>({
-      mutationFn: async (storeId: string): Promise<any> => {
+      mutationFn: async (deviceId: string): Promise<any> => {
         const response = await axios.post(
-          "/store-owner/new-device",
-          { storeId: storeId },
+          "/store-owner/remove-device",
+          {
+            deviceId: deviceId
+          },
           {
             headers: {
               Authorization: `Bearer ${jwt}`,

@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { LoaderFunctionArgs } from "@remix-run/node";
 import { Link, useLoaderData, useNavigate } from "@remix-run/react";
 import { useStoreOwnerData } from "~/hooks/useStoreOwnerData";
 import { authenticator } from "~/services/auth.server";
@@ -34,9 +34,9 @@ export default function StoreOwnerDashboard() {
               Manage {query.data?.storeName}
             </h1>
             <label className="self-b">
-              Your current balance:{" "}
+              Store inventory value:{" "}
               <span className="font-bold text-green-600">
-                ${query.data?.totalBalance.toFixed(2) ?? 0}
+                ${query.data.inventoryValue.toFixed(2) ?? 0}
               </span>
             </label>
           </div>

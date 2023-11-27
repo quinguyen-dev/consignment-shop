@@ -18,7 +18,8 @@ export type Computer = {
 };
 
 export type InventoryResponse = {
-  totalBalance: number;
+  accountBalance: number;
+  totalInventoryValue: number;
   storeName: string;
   storeId: string;
   inventory: Computer[];
@@ -43,10 +44,9 @@ export type SiteManagerReport = {
 
 export type StoreOwnerResponse = {
   username: string;
-  userId: string;
   storeId: string;
   storeName: string;
-  totalBalance: number;
+  inventoryValue: number;
 };
 
 export type Store = {

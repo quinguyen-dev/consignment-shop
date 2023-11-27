@@ -40,7 +40,7 @@ export default function Inventory() {
       helper.accessor("formFactor", { header: "Form Factor" }),
       helper.accessor("memoryMb", { header: "Memory" }),
       helper.accessor("memoryType", { header: "Memory Type" }),
-      helper.accessor("storageGb", { header: "Storage" }),
+      helper.accessor("storageGb", { hea  der: "Storage" }),
       helper.accessor("storageType", { header: "Storage Type" }),
       helper.accessor("processorManufacturer", { header: "CPU Manufacturer" }),
       helper.accessor("processorModel", { header: "CPU Model" }),
@@ -62,7 +62,7 @@ export default function Inventory() {
   const onSubmit: SubmitHandler<Computer> = async (data: Computer) => {
     data = {
       ...data,
-      storeId: query.data?.storeId ?? "",
+      storeId: query.data?.storeId!,
       formFactor: "N/A",
       processorManufacturer: "N/A",
       memoryType: "N/A",
@@ -84,7 +84,7 @@ export default function Inventory() {
           <label className="self-b">
             Store balance:{" "}
             <span className="font-bold text-green-600">
-              ${query.data?.totalBalance.toFixed(2) ?? 0}
+              ${query.data?.accountBalance.toFixed(2) ?? 0}
             </span>
           </label>
         </div>
