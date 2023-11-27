@@ -1,4 +1,4 @@
-import { OAuthScope, StringAttribute, UserPool } from "aws-cdk-lib/aws-cognito";
+import { CfnUserPoolClient, OAuthScope, StringAttribute, UserPool } from "aws-cdk-lib/aws-cognito";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import { Role } from "aws-cdk-lib/aws-iam";
 import {
@@ -163,6 +163,15 @@ export function API({ stack }: StackContext) {
       CLIENT_SECRET: cognito.cdk.userPoolClient.userPoolClientSecret.toString(),
     },
   });
+
+  const cfnUserPoolClient = cognito.cdk.userPoolClient.node
+  .defaultChild as CfnUserPoolClient;
+cfnUserPoolClient.callbackUrLs = [
+  "https://oauth.pstmn.io/v1/callback",
+  (web.url || "http://localhost:3000") + "/auth/callback/",
+];
+cfnUserPoolClient.logoutUrLs= [(web.url || "http://localhost:3000") + "/"]
+
 
   // Show the API endpoint and other info in the output
   stack.addOutputs({
