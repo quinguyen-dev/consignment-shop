@@ -26,11 +26,11 @@ export const inspectStoreInv = ApiHandler(async (event) => {
               console.log(result);
               if (result) {
                 queryData.storeName = result[0]?.store_name;
-                queryData.storeID = result[0]?.store_id;
+                queryData.storeId = result[0]?.store_id;
 
                 connection.query(
                   `SELECT * FROM DEVICES WHERE DEVICES.store_id = ? AND DEVICES.listing_active = 1;`,
-                  [queryData.storeID],
+                  [queryData.storeId],
                   (error, result) => {
                     console.log("HERE");
                     if (error) {
@@ -92,15 +92,13 @@ export const listStores = ApiHandler(async (event) => {
           return resolve(err);
         }
         connection.query(
-          `SELECT store_name as storeName FROM STORES;`,
+          `SELECT store_name as storeName, store_id as storeId FROM STORES;`,
           (error, result) => {
             if (error) {
               response.statusCode = 418;
               response.body = error.message;
               return resolve(error);
             } else {
-              // console.log(JSON.stringify(result));
-              // console.log(JSON.stringify(queryData));
               result.map((val, index) => {
                 console.log(`VALUE: ${JSON.stringify(val)}`);
                 queryData.push(val as StoreInfo);
@@ -114,12 +112,12 @@ export const listStores = ApiHandler(async (event) => {
     });
   };
   const r = await getStores();
-  response.body = JSON.stringify(queryData);
+  response.body = JSON.stringify({stores:queryData});
   return response;
 });
 
-const getFees = async (deviceID, custLat, custLong) => {
-  const getStoreLatAndLong = (deviceID) => {
+const getFees = async (deviceId, custLat, custLong) => {
+  const getStoreLatAndLong = (deviceId) => {
     return new Promise((resolve, reject) => {
       connPool.getConnection((err, connection) => {
         if (err) {
@@ -129,13 +127,10 @@ const getFees = async (deviceID, custLat, custLong) => {
         }
         connection.query(
           `SELECT coords_lat, coords_long, DEVICES.price FROM STORES, DEVICES WHERE STORES.store_id = DEVICES.store_id AND DEVICES.device_id = ?`,
-          [deviceID],
+          [deviceId],
           (error, result) => {
             if (error) {
-              response.statusCode = 418;
-              response.body = error.message;
               if (connection) connection.release();
-
               return reject(error);
             } else {
               if (connection) connection.release();
@@ -156,7 +151,7 @@ const getFees = async (deviceID, custLat, custLong) => {
     managersCut: null,
     deviceCost: null,
   };
-  const r: any = await getStoreLatAndLong(deviceID);
+  const r: any = await getStoreLatAndLong(deviceId);
   console.log(JSON.stringify(r));
   if (r.latitude) {
     responseData.shippingCost =
@@ -166,17 +161,16 @@ const getFees = async (deviceID, custLat, custLong) => {
       ) *
       0.000621371 *
       0.03;
-    responseData.deviceCost = r.deviceCost;
+    responseData.deviceCost = r.devicePrice;
     responseData.managersCut = r.devicePrice * 0.05;
-    response.body = responseData;
   }
 
-  return responseData ? responseData : response;
+  return responseData;
 };
 
 export const estimateFees = ApiHandler(async (event) => {
   const fees: any = await getFees(
-    event.queryStringParameters?.deviceID,
+    event.queryStringParameters?.deviceId,
     event.queryStringParameters?.custLatitude,
     event.queryStringParameters?.custLongitude,
   );
@@ -187,18 +181,20 @@ export const estimateFees = ApiHandler(async (event) => {
 });
 
 export const buyDevice = ApiHandler(async (event) => {
-  const deviceID = event.queryStringParameters?.deviceID;
-  var storeID = event.queryStringParameters?.storeID
+  const deviceId = event.queryStringParameters?.deviceId;
+  var storeId = event.queryStringParameters?.storeId
   const custLatitude = event.queryStringParameters?.custLatitude;
   const custLongitude = event.queryStringParameters?.custLongitude;
+  
   const fees: any = await getFees(
-    event.queryStringParameters?.deviceID,
+    event.queryStringParameters?.deviceId,
     event.queryStringParameters?.custLatitude,
     event.queryStringParameters?.custLongitude,
   );
 
   if (fees.shippingCost) {
-    const newTransaction = () => {
+    if(storeId == null) {
+    const getStoreId = () => {
       return new Promise((resolve, reject) => {
         connPool.getConnection((err, connection) => {
           if (err) {
@@ -206,10 +202,10 @@ export const buyDevice = ApiHandler(async (event) => {
             response.body = err.message;
             return resolve(err);
           }
-          if(!storeID){
-            connection.query(
+          if(storeId == null){
+             connection.query(
                 `SELECT store_id FROM DEVICES WHERE DEVICES.device_id = ?`,
-                [deviceID],
+                [deviceId],
                 (error, result) => {
                   if (error) {
                     response.statusCode = 418;
@@ -219,16 +215,30 @@ export const buyDevice = ApiHandler(async (event) => {
                     return reject(error);
                   } else {
                     console.log(result);
-                    storeID = result[0]?.store_id
+                    storeId = result[0]?.store_id
+                    console.log(storeId)
                   }
                 },
               );
           }
+        });
+      });
+    };
+    const id = await getStoreId();
+    }
+    const newTransaction = () => {
+      return new Promise((resolve, reject) => {
+        connPool.getConnection((err, connection) => {
+          if (err) {
+            response.statusCode = 503;
+            response.body = err.message;
+            return reject(err);
+          }
           connection.query(
             `INSERT INTO TRANSACTIONS(store_id, device_id, site_fee, shipping_cost, total_cost, buyer_lat, buyer_long) VALUES (?,?,?,?,?,?,?)`,
             [
-              storeID,
-              deviceID,
+              storeId,
+              deviceId,
               fees.managersCut,
               fees.shippingCost,
               ((fees.shippingCost as number) + (fees.deviceCost as number)),
@@ -240,21 +250,36 @@ export const buyDevice = ApiHandler(async (event) => {
                 response.statusCode = 418;
                 response.body = error.message;
                 if (connection) connection.release();
-                return reject(error);
+                return resolve(error);
               } else {
-                if (connection) connection.release();
                 console.log(result);
                 response.body = result
-                return resolve(0);
               }
             },
           );
+          connection.query(`UPDATE DEVICES SET listing_active = 0 WHERE DEVICES.device_id = ?`, [deviceId], (error, result)=>{
+            if(error){
+              if(connection) connection.release();
+              response.statusCode = 207
+              response.body = {error_message: "Transaction created but device not removed from inventory"}
+              return resolve(error);
+            }
+            else {
+              if(connection) connection.release();
+              return resolve(result);
+            }
+          });
+
         });
       });
     };
     const r = await newTransaction();
   }
-  
+  else{
+    response.statusCode = 500;
+    response.body = "Error generating fees and total cost information"
+  }
+
   console.log(`EVENT: ${event}`)
   response.body = JSON.stringify(response.body);
   return response;

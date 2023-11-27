@@ -34,7 +34,12 @@ export const dashboard = ApiHandler(async (event) => {
         );
         if (store_id) {
           connection.query(
-            `select s.store_id, s.store_name, SUM(d.price) as balance from STORES as s LEFT JOIN DEVICES as d ON s.store_id = d.store_id WHERE s.store_id = ? group by s.store_id`,
+            `select s.store_id, s.store_name, SUM(d.price) as inventoryValue, COUNT(d.device_id) as deviceCount, calc.storeBalance from STORES as s LEFT JOIN DEVICES as d ON s.store_id = d.store_id
+            LEFT JOIN (
+                SELECT t.store_id, SUM(t.total_cost-t.shipping_cost-t.site_fee) as storeBalance
+                FROM TRANSACTIONS as t
+                GROUP BY t.store_id
+                    ) calc ON s.store_id = calc.store_id WHERE s.store_id = ? AND d.listing_active = 1 group by s.store_id;`,
             [store_id],
             (error, result) => {
               console.log("HERE2");
@@ -59,7 +64,12 @@ export const dashboard = ApiHandler(async (event) => {
           );
         } else {
           connection.query(
-            `select s.store_id, s.store_name, SUM(d.price) as balance from STORES as s LEFT JOIN DEVICES as d ON s.store_id = d.store_id group by s.store_id`,
+            `select s.store_id, s.store_name, SUM(d.price) as inventoryValue, COUNT(d.device_id) as deviceCount, calc.storeBalance from STORES as s LEFT JOIN DEVICES as d ON s.store_id = d.store_id
+            LEFT JOIN (
+                SELECT t.store_id, SUM(t.total_cost-t.shipping_cost-t.site_fee) as storeBalance
+                FROM TRANSACTIONS as t
+                GROUP BY t.store_id
+                    ) calc ON s.store_id = calc.store_id WHERE d.listing_active = 1 group by s.store_id;`,
             (error, result) => {
               console.log("HERE2");
               if (error) {
@@ -105,6 +115,7 @@ export const dashboard = ApiHandler(async (event) => {
             } else {
               console.log("HERE2");
               queryData.managerBalance = result[0].managerBalance;
+              resolve(0);
             }
           },
         );
@@ -112,14 +123,14 @@ export const dashboard = ApiHandler(async (event) => {
     });
   };
   console.log(event);
-  const r = await getSiteSummary(event.queryStringParameters?.storeID);
+  const r = await getSiteSummary(event.queryStringParameters?.storeId);
   const bal = await getManaBalance();
   response.body = JSON.stringify(queryData);
   return response;
 });
 
 export const removeStore = ApiHandler(async (event) => {
-  const removeDBStore = (storeID) => {
+  const removeDBStore = (storeId) => {
     return new Promise((resolve, reject) => {
       connPool.getConnection((err, connection) => {
         if (err) {
@@ -129,7 +140,7 @@ export const removeStore = ApiHandler(async (event) => {
         }
         connection.query(
           `DELETE FROM STORES WHERE store_id = ?;`,
-          [storeID],
+          [storeId],
           (error, result) => {
             if (error) {
               response.statusCode = 418;
@@ -148,7 +159,7 @@ export const removeStore = ApiHandler(async (event) => {
     });
   };
 
-  const r = await removeDBStore(event.queryStringParameters?.storeID);
+  const r = await removeDBStore(event.queryStringParameters?.storeId);
   response.body = JSON.stringify(response.body);
   return response;
 });
@@ -223,7 +234,7 @@ export const inspectStoreInv = ApiHandler(async (event) => {
     });
   };
 
-  const r = await getInventory(event.queryStringParameters?.storeID);
+  const r = await getInventory(event.queryStringParameters?.storeId);
   response.body = JSON.stringify(response.body);
   return response;
 });

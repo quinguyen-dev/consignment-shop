@@ -19,7 +19,7 @@ export type Computer = {
   };
 export type StoreInfo = {
     storeName: string;
-    storeID: string | null;
+    storeId: string | null;
     inventory: Computer[] | null;
-    ownerID: string | null;
+    ownerId: string | null;
 }
