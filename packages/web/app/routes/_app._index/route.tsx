@@ -89,7 +89,7 @@ export default function AppIndex() {
       <HydrationBoundary state={dehydratedState}>
         <div className="grid grid-rows-3 grid-cols-4 gap-4 mt-4">
           {query.data?.stores.map((store) => (
-            <Link
+            <Link key={`${store.storeId}`}
               to={`/store/${store.storeName}`}
               className="border-2 border-gray-200 p-4"
             >

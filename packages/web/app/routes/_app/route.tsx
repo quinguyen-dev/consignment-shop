@@ -13,11 +13,8 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-Modal.setAppElement("body")
-
 axios.defaults.baseURL =
   "https://vo8vlr6cyc.execute-api.us-east-2.amazonaws.com/dev";
-// Modal.setAppElement("#root");
 
 const URL = "https://cs509-newegg.auth.us-east-2.amazoncognito.com";
 export default function AppLayout() {
