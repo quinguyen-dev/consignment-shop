@@ -1,13 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useContext } from "react";
-import { AuthContext, IAuthContext } from "react-oauth2-code-pkce";
 import { convert } from "~/utils/convert";
 import type { SiteManagerReport, SiteManagerResponse, Store } from "./types";
 
-export function useSiteManagerData() {
+export function useSiteManagerData(jwt: string) {
   const queryClient = useQueryClient();
-  const authContext = useContext<IAuthContext>(AuthContext);
 
   const fetchAll = () =>
     useQuery<SiteManagerResponse, Error>({
@@ -15,7 +12,7 @@ export function useSiteManagerData() {
       queryFn: async (): Promise<SiteManagerResponse> => {
         const response = await axios.get(`/site-manager/dashboard`, {
           headers: {
-            Authorization: `Bearer ${authContext.token}`,
+            Authorization: `Bearer ${jwt}`,
           },
         });
         return response.data;
@@ -37,7 +34,7 @@ export function useSiteManagerData() {
       queryFn: async (): Promise<SiteManagerReport> => {
         const response = await axios.get(`/site-manager/dashboard`, {
           headers: {
-            Authorization: `Bearer ${authContext.token}`,
+            Authorization: `Bearer ${jwt}`,
           },
         });
         return response.data;
@@ -51,7 +48,7 @@ export function useSiteManagerData() {
           new URLSearchParams({ storeId: storeId }).toString(),
         {
           headers: {
-            Authorization: `Bearer ${authContext.token}`,
+            Authorization: `Bearer ${jwt}`,
           },
         },
       );

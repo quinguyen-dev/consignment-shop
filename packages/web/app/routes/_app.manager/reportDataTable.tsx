@@ -1,3 +1,5 @@
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import {
   createColumnHelper,
   flexRender,
@@ -7,9 +9,18 @@ import {
 import { useMemo } from "react";
 import { StoreReport } from "~/hooks/types";
 import { useSiteManagerData } from "~/hooks/useSiteManagerData";
+import { authenticator } from "~/services/auth.server";
+
+// Loader to fetch the JSON token
+export async function loader({ request }: LoaderFunctionArgs) {
+  return await authenticator.isAuthenticated(request, {
+    failureRedirect: "/"
+  });
+};
 
 export default function ReportDataTable() {
-  const store = useSiteManagerData();
+  const loaderData = useLoaderData<typeof loader>();
+  const store = useSiteManagerData(loaderData.token);
   const query = store.fetchReport();
 
   const columns = useMemo(() => {

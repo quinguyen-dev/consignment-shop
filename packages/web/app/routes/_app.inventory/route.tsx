@@ -1,3 +1,5 @@
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import {
   createColumnHelper,
   flexRender,
@@ -8,9 +10,19 @@ import { useMemo, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import type { Computer } from "~/hooks/types";
 import { useStoreInventory } from "~/hooks/useStoreInventory";
+import { authenticator } from "~/services/auth.server";
+
+// Loader to fetch the JSON token
+export async function loader({ request }: LoaderFunctionArgs) {
+  return await authenticator.isAuthenticated(request, {
+    failureRedirect: "/"
+  });
+};
 
 export default function Inventory() {
-  const store = useStoreInventory();
+  const loaderData = useLoaderData<typeof loader>();
+  const store = useStoreInventory(loaderData.token);
+  
   const query = store.fetchAll();
   const { mutate: create } = store.create();
 

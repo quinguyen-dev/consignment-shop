@@ -1,3 +1,5 @@
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import {
   createColumnHelper,
   flexRender,
@@ -11,13 +13,24 @@ import dataIcon from "~/assets/data.svg";
 import trashIcon from "~/assets/trash.svg";
 import { Store } from "~/hooks/types";
 import { useSiteManagerData } from "~/hooks/useSiteManagerData";
+import { authenticator } from "~/services/auth.server";
+
+// Loader to fetch the JSON token
+export async function loader({ request }: LoaderFunctionArgs) {
+  return await authenticator.isAuthenticated(request, {
+    failureRedirect: "/"
+  });
+};
 
 function StoresDataTable() {
   const [deletePopupId, setDeletePopupId] = useState<string | null>(null);
   const [inputDeletePopupId, setDeleteInputPopupId] = useState("");
   const [deletePopupName, setDeletePopupName] = useState("");
 
-  const managerData = useSiteManagerData();
+  const loaderData = useLoaderData<typeof loader>();
+
+  const managerData = useSiteManagerData(loaderData.token);
+  
   const query = managerData.fetchAll();
 
   useEffect(() => {

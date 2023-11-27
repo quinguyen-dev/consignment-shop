@@ -1,11 +1,8 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { useContext } from "react";
-import { AuthContext, IAuthContext } from "react-oauth2-code-pkce";
 import type { InventoryResponse, StoreOwnerResponse } from "./types";
 
-export function useStoreOwnerData() {
-  const authContext = useContext<IAuthContext>(AuthContext);
+export function useStoreOwnerData(jwt: string) {
 
   const fetchAll = () =>
     useQuery<StoreOwnerResponse, Error>({
@@ -13,7 +10,7 @@ export function useStoreOwnerData() {
       queryFn: async (): Promise<StoreOwnerResponse> => {
         const response = await axios.get(`/store-owner/user-info`, {
           headers: {
-            Authorization: `Bearer ${authContext.token}`,
+            Authorization: `Bearer ${jwt}`,
           },
         });
         return response.data;

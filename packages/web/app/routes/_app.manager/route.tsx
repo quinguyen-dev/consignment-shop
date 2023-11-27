@@ -3,11 +3,22 @@ import placeholder from "~/assets/placeholder.png";
 import { NavigationCard } from "~/components";
 import { useSiteManagerData } from "~/hooks/useSiteManagerData";
 import StoresDataTable from "./storeDataTable";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { authenticator } from "~/services/auth.server";
+import { useLoaderData } from "@remix-run/react";
+
+// Loader to fetch the JSON token
+export async function loader({ request }: LoaderFunctionArgs) {
+  return await authenticator.isAuthenticated(request, {
+    failureRedirect: "/"
+  });
+};
 
 export default function SiteManagerView() {
   const [manageMode, setManageMode] = useState(false);
+  const loaderData = useLoaderData<typeof loader>();
 
-  const managerData = useSiteManagerData();
+  const managerData = useSiteManagerData(loaderData.token);
   const query = managerData.fetchAll();
 
   return (

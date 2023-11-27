@@ -1,7 +1,6 @@
 import { Authenticator } from "remix-auth";
 import { OAuth2Strategy } from "remix-auth-oauth2";
 import { sessionStorage } from "~/services/session.server";
-import { Config } from "sst/node/config";
 
 interface User {
     readonly token: string;

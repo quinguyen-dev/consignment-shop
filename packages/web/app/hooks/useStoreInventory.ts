@@ -1,21 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useContext } from "react";
-import { AuthContext, type IAuthContext } from "react-oauth2-code-pkce";
 import { convert } from "~/utils/convert";
 import type { Computer, InventoryResponse } from "./types";
 
-export function useStoreInventory() {
-  const queryClient = useQueryClient();
-  const authContext = useContext<IAuthContext>(AuthContext);
 
+export function useStoreInventory(jwt: string) {
+  const queryClient = useQueryClient();
+  
   const fetchAll = () =>
     useQuery<InventoryResponse, Error>({
       queryKey: ["store_inventory"],
       queryFn: async (): Promise<InventoryResponse> => {
         const response = await axios.get(`/store-owner/dashboard`, {
           headers: {
-            Authorization: `Bearer ${authContext.token}`,
+            Authorization: `Bearer ${jwt}`,
           },
         });
         return response.data;
@@ -37,7 +35,7 @@ export function useStoreInventory() {
       mutationFn: async (data: Computer): Promise<any> => {
         const response = await axios.post("/store-owner/new-device", data, {
           headers: {
-            Authorization: `Bearer ${authContext.token}`,
+            Authorization: `Bearer ${jwt}`,
           },
         });
 
@@ -55,7 +53,7 @@ export function useStoreInventory() {
           { storeId: storeId },
           {
             headers: {
-              Authorization: `Bearer ${authContext.token}`,
+              Authorization: `Bearer ${jwt}`,
             },
           },
         );
