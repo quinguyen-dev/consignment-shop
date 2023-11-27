@@ -11,16 +11,16 @@ import Modal from "react-modal";
 import cautionIcon from "~/assets/caution.svg";
 import dataIcon from "~/assets/data.svg";
 import trashIcon from "~/assets/trash.svg";
-import { Store } from "~/hooks/types";
+import { StoreReport } from "~/hooks/types";
 import { useSiteManagerData } from "~/hooks/useSiteManagerData";
 import { authenticator } from "~/services/auth.server";
 
 // Loader to fetch the JSON token
 export async function loader({ request }: LoaderFunctionArgs) {
   return await authenticator.isAuthenticated(request, {
-    failureRedirect: "/"
+    failureRedirect: "/",
   });
-};
+}
 
 function StoresDataTable() {
   const [deletePopupId, setDeletePopupId] = useState<string | null>(null);
@@ -30,20 +30,21 @@ function StoresDataTable() {
   const loaderData = useLoaderData<typeof loader>();
 
   const managerData = useSiteManagerData(loaderData.token);
-  
-  const query = managerData.fetchAll();
+
+  const query = managerData.fetchReport();
 
   useEffect(() => {
     if (query.data !== undefined && deletePopupId !== null) {
       setDeletePopupName(
-        query.data.stores.filter((store) => store.storeId == deletePopupId)[0]
-          .storeName,
+        query.data.storeBalances.filter(
+          (store) => store.storeId == deletePopupId,
+        )[0].storeName,
       );
     }
   }, [deletePopupId, query]);
 
   const columns = useMemo(() => {
-    const helper = createColumnHelper<Store>();
+    const helper = createColumnHelper<StoreReport>();
     return [
       helper.accessor("storeId", { header: "#" }),
       helper.accessor("storeName", { header: "Store Name" }),
@@ -81,7 +82,7 @@ function StoresDataTable() {
   const defaultValue = useMemo(() => [], []);
 
   const table = useReactTable({
-    data: query.data?.stores ?? defaultValue,
+    data: query.data?.storeBalances ?? defaultValue,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });

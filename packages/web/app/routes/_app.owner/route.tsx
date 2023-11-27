@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { LoaderFunctionArgs } from "@remix-run/node";
 import { Link, useLoaderData, useNavigate } from "@remix-run/react";
 import { useStoreOwnerData } from "~/hooks/useStoreOwnerData";
 import { authenticator } from "~/services/auth.server";
@@ -6,9 +6,9 @@ import { authenticator } from "~/services/auth.server";
 // Loader to fetch the JSON token
 export async function loader({ request }: LoaderFunctionArgs) {
   return await authenticator.isAuthenticated(request, {
-    failureRedirect: "/"
+    failureRedirect: "/",
   });
-};
+}
 
 export default function StoreOwnerDashboard() {
   const navigate = useNavigate();

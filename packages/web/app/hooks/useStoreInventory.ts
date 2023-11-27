@@ -3,10 +3,9 @@ import axios from "axios";
 import { convert } from "~/utils/convert";
 import type { Computer, InventoryResponse } from "./types";
 
-
 export function useStoreInventory(jwt: string) {
   const queryClient = useQueryClient();
-  
+
   const fetchAll = () =>
     useQuery<InventoryResponse, Error>({
       queryKey: ["store_inventory"],

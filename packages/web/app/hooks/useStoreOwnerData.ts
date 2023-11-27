@@ -3,7 +3,6 @@ import axios from "axios";
 import type { InventoryResponse, StoreOwnerResponse } from "./types";
 
 export function useStoreOwnerData(jwt: string) {
-
   const fetchAll = () =>
     useQuery<StoreOwnerResponse, Error>({
       queryKey: ["store_owner_data"],
