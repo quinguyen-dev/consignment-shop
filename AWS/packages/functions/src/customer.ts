@@ -27,7 +27,6 @@ export const inspectStoreInv = ApiHandler(async (event) => {
               if (result) {
                 queryData.storeName = result[0]?.store_name;
                 queryData.storeId = result[0]?.store_id;
-
                 connection.query(
                   `SELECT * FROM DEVICES WHERE DEVICES.store_id = ? AND DEVICES.listing_active = 1;`,
                   [queryData.storeId],
@@ -261,7 +260,7 @@ export const buyDevice = ApiHandler(async (event) => {
             if(error){
               if(connection) connection.release();
               response.statusCode = 207
-              response.body = {error_message: "Transaction created but device not removed from inventory"}
+              response.body = {errorMessage: "Transaction created but device not removed from inventory"}
               return resolve(error);
             }
             else {

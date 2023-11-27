@@ -1,6 +1,7 @@
 import { ApiHandler } from "sst/node/api";
 import { response } from "./util/response";
 import { connPool } from "./util/connPool";
+import { Computer } from "./util/types";
 
 /* Do whatever operation */
 export const newStore = ApiHandler(async (event) => {
@@ -145,10 +146,11 @@ export const newDevice = ApiHandler(async (event) => {
 
 export const dashboard = ApiHandler(async (event)=>{
   const queryData = {
-    store_name: null,
-    store_id: null,
-    total_balance: 0,
-    inventory: 0
+    storeName: null,
+    storeId: null,
+    accountBalance: 0,
+    totalInventoryValue: 0,
+    inventory: []
   }
   const getInventory = (username) => {
     return new Promise((resolve, reject) => {
@@ -158,7 +160,7 @@ export const dashboard = ApiHandler(async (event)=>{
           response.body = err.message
           return resolve(err);
         }
-        connection.query(`SELECT store_name FROM STORES WHERE STORES.store_owner_id = ?;`, [username], (error, result) => {
+        connection.query(`SELECT store_name, store_id FROM STORES WHERE STORES.store_owner_id = ?;`, [username], (error, result) => {
           if(error){
             response.statusCode = 418
             response.body = error.message
@@ -166,10 +168,10 @@ export const dashboard = ApiHandler(async (event)=>{
           }
           else{
             console.log(result)
-            queryData.store_name = result[0].store_name
-            queryData.store_id = result[0].store_id
+            queryData.storeName = result[0].store_name
+            queryData.storeId = result[0].store_id
           }
-        connection.query(`SELECT * FROM DEVICES, STORES WHERE DEVICES.store_id = STORES.store_id and STORES.store_owner_id = ?;`, [username], (error, result) => {
+        connection.query(`SELECT * FROM DEVICES, STORES WHERE DEVICES.store_id = STORES.store_id and STORES.store_id = ? and DEVICES.listing_active = 1;`, [queryData.storeId], (error, result) => {
           console.log("HERE")
           if (error) {
             console.log(error)
@@ -179,7 +181,12 @@ export const dashboard = ApiHandler(async (event)=>{
           }
           console.log("HERE2")
           queryData.inventory = result
-          connection.query(`SELECT SUM(price) as balance FROM DEVICES, STORES WHERE DEVICES.store_id = STORES.store_id and STORES.store_owner_id = ?;`, [username], (error, result) => {
+          queryData.inventory.map((device:Computer, index:number)=>{
+            queryData.totalInventoryValue += device.price
+          })
+          connection.query(`select s.store_id, SUM(t.total_cost-t.shipping_cost-t.site_fee) as balance from STORES as s LEFT JOIN TRANSACTIONS as t ON s.store_id = t.store_id WHERE s.store_id = ? group by s.store_id`, 
+          [queryData.storeId], 
+          (error, result) => {
             console.log("HERE")
             if (error) {
               console.log(error)
@@ -190,7 +197,7 @@ export const dashboard = ApiHandler(async (event)=>{
             }
             else {
               console.log("HERE2")
-              queryData.total_balance = result[0].balance ? result[0].balance : 0
+              queryData.accountBalance = result[0].balance ? result[0].balance : 0
             }
             response.body = queryData
             return resolve(0)
@@ -210,9 +217,9 @@ export const dashboard = ApiHandler(async (event)=>{
 export const getStoreOwnerInfo = ApiHandler(async(event) => {
   const queryData = {
     username: null,
-    store_name: null,
-    store_id: null,
-    total_balance: 0,
+    storeName: null,
+    storeId: null,
+    inventoryValue: 0,
   }
   const getOwnerSummary = (username) => {
     return new Promise((resolve, reject) => {
@@ -230,10 +237,10 @@ export const getStoreOwnerInfo = ApiHandler(async(event) => {
           }
           else{
             console.log(result)
-            queryData.store_name = result[0].store_name
-            queryData.store_id = result[0].store_id
+            queryData.storeName = result[0].store_name
+            queryData.storeId = result[0].store_id
           }
-          connection.query(`SELECT SUM(price) as balance FROM DEVICES, STORES WHERE DEVICES.store_id = STORES.store_id and STORES.store_owner_id = ?;`, [username], (error, result) => {
+          connection.query(`SELECT SUM(price) as balance FROM DEVICES, STORES WHERE DEVICES.store_id = STORES.store_id and STORES.store_owner_id = ? AND DEVICES.listing_active = 1;`, [username], (error, result) => {
             console.log("HERE")
             if (error) {
               console.log(error)
@@ -244,7 +251,7 @@ export const getStoreOwnerInfo = ApiHandler(async(event) => {
             }
             else {
               console.log("HERE2")
-              queryData.total_balance = result[0].balance ? result[0].balance : 0
+              queryData.inventoryValue = result[0].balance ? result[0].balance : 0
             }
             response.body = queryData
             return resolve(0)
