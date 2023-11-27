@@ -24,8 +24,8 @@ export function setRedirectUrl(newRedirectUrl: string) {
         tokenURL:
           "https://cs509-dev-2023-fall.auth.us-east-2.amazoncognito.com" +
           "/oauth2/token",
-        clientID: "4hj4ava71f62lr5uq49tqaoeht",
-        clientSecret: "bsaprf7o93mj2v41b3nct0vb47hdagfi1ade0d58a40fu894r26",
+        clientID: "2t49b07b6dqou0c6ibqpnbjchb",
+        clientSecret: "dd0rlkvdpqtl304ftv8mqmlfvkfoffmrdcgpsq8o10uh0bmpnbd",
         callbackURL: newRedirectUrl,
         scope: "openid profile email",
       },
