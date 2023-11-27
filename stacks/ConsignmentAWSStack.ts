@@ -154,14 +154,7 @@ export function API({ stack }: StackContext) {
   cognito.attachPermissionsForAuthUsers(stack, [api]);
 
   const site = new RemixSite(stack, "Site", {
-    path: "packages/web/",
-    environment: {
-      API_BASE_URL: api.url,
-      COGNITO_BASE_URL:
-        "https://cs509-dev-2023-fall.auth.us-east-2.amazoncognito.com/",
-      CLIENT_ID: cognito.cdk.userPoolClient.userPoolClientId,
-      CLIENT_SECRET: cognito.cdk.userPoolClient.userPoolClientSecret.toString(),
-    },
+    path: "packages/web/"
   });
 
   const cfnUserPoolClient = cognito.cdk.userPoolClient.node
