@@ -1,12 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { convert } from "~/utils/convert";
 import type { Computer, InventoryResponse } from "./types";
 
 export function useStoreInventory(jwt: string) {
   const queryClient = useQueryClient();
 
-  const fetchAll = () =>
+  const fetchStoreInventory = () =>
     useQuery<InventoryResponse, Error>({
       queryKey: ["store_inventory"],
       queryFn: async (): Promise<InventoryResponse> => {
@@ -16,15 +15,6 @@ export function useStoreInventory(jwt: string) {
           },
         });
         return response.data;
-      },
-      select: (data: any) => {
-        return {
-          storeName: data.storeName,
-          storeId: data.storeId,
-          accountBalance: data.accountBalance,
-          totalInventoryValue: data.totalInventoryValue,
-          inventory: data.inventory.map((computer: any) => convert(computer)),
-        } satisfies InventoryResponse;
       },
     });
 
@@ -36,7 +26,6 @@ export function useStoreInventory(jwt: string) {
             Authorization: `Bearer ${jwt}`,
           },
         });
-
         return response.data;
       },
       onSuccess: () =>
@@ -49,7 +38,7 @@ export function useStoreInventory(jwt: string) {
         const response = await axios.post(
           "/store-owner/remove-device",
           {
-            deviceId: deviceId
+            deviceId: deviceId,
           },
           {
             headers: {
@@ -63,5 +52,5 @@ export function useStoreInventory(jwt: string) {
         queryClient.invalidateQueries({ queryKey: ["store_inventory"] }), // todo change this to setQueryData()
     });
 
-  return { fetchAll, create, remove };
+  return { fetchStoreInventory, create, remove };
 }
