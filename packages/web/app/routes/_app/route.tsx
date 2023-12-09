@@ -7,7 +7,6 @@ import { authenticator } from "~/services/auth.server";
 /* Loader to fetch the API url from the environment and pass it to the frontend */
 export async function loader({ request }: LoaderFunctionArgs) {
   return json({
-    apiBaseUrl: process.env.API_BASE_URL,
     isAuthenticated: (await authenticator.isAuthenticated(request))
       ? true
       : false,
