@@ -1,16 +1,16 @@
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData, useNavigate } from "@remix-run/react";
 import axios from "axios";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useLoaderData, useNavigate } from "@remix-run/react";
-import { RegistrationSchemaType } from "./types";
-import { LoaderFunctionArgs } from "@remix-run/node";
 import { authenticator } from "~/services/auth.server";
+import { RegistrationSchemaType } from "./types";
 
 // Loader to fetch the JSON token
 export async function loader({ request }: LoaderFunctionArgs) {
   return await authenticator.isAuthenticated(request, {
-    failureRedirect: "/"
+    failureRedirect: "/",
   });
-};
+}
 
 export default function Register() {
   const loaderData = useLoaderData<typeof loader>();

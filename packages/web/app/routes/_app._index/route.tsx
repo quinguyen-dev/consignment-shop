@@ -6,10 +6,26 @@ import {
 import axios from "axios";
 import { CustomerStoreResponse } from "~/hooks/types";
 
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+  json,
+} from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { useCustomerData } from "~/hooks/useCustomerData";
 import { authenticator, setRedirectUrl } from "~/services/auth.server";
+
+/* Meta information for index route */
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Computer Consignment Shop" },
+    {
+      name: "description",
+      content: "Welcome to our computer consignment shop!",
+    },
+  ];
+};
 
 // Action function to log the user in/out depending on what you said
 export async function action({ request }: ActionFunctionArgs) {
@@ -44,7 +60,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     },
   });
 
-  // Turn the auth state into a boolean (so that we don't pass a token around when we don't need it)
   return json({ dehydratedState: dehydrate(queryClient) });
 }
 

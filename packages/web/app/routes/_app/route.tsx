@@ -1,17 +1,10 @@
 import { LoaderFunctionArgs, json } from "@remix-run/node";
-import {
-  Link,
-  MetaFunction,
-  Outlet,
-  useLoaderData,
-  useNavigate,
-} from "@remix-run/react";
+import { Link, Outlet, useLoaderData, useNavigate } from "@remix-run/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import axios from "axios";
 import { useState } from "react";
 import { authenticator } from "~/services/auth.server";
 
-// Loader to fetch the API url from the environment and pass it to the frontend
+/* Loader to fetch the API url from the environment and pass it to the frontend */
 export async function loader({ request }: LoaderFunctionArgs) {
   return json({
     apiBaseUrl: process.env.API_BASE_URL,
@@ -21,22 +14,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 }
 
-export const meta: MetaFunction = () => {
-  return [
-    { title: "Computer Consignment Shop" },
-    {
-      name: "description",
-      content: "Welcome to our computer consignment shop!",
-    },
-  ];
-};
-
-axios.defaults.baseURL =
-  "https://vo8vlr6cyc.execute-api.us-east-2.amazonaws.com/dev";
-
-const URL = "https://cs509-newegg.auth.us-east-2.amazoncognito.com";
 export default function AppLayout() {
   const { isAuthenticated } = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -47,8 +27,6 @@ export default function AppLayout() {
         },
       }),
   );
-
-  const navigate = useNavigate();
 
   return (
     <div className="p-4">
