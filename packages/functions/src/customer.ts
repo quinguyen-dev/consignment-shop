@@ -3,26 +3,29 @@ import { ApiHandler } from "sst/node/api";
 import { client } from "./util/prismaClient";
 import { response } from "./util/response";
 import { StoreInfo } from "./util/types";
+import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
 
 export const inspectStoreInv = ApiHandler(async (event) => {
   console.log(JSON.stringify(event));
   try {
     const r = await client.stores.findFirst({
-      where: { storeName: event.queryStringParameters?.storeName },
+      where: { store_name: event.queryStringParameters?.storeName },
       include: {
         devices: true,
       },
     });
+    response.body = JSON.stringify(r);
   } catch (err) {
+    console.log(err);
+    console.log(event);
     response.statusCode = 400;
-    response.body = `No store exists with store name ${event.queryStringParameters?.storeName}`;
+    response.body = err instanceof Error? "Error: "+err.message : `No store exists with store name ${event.queryStringParameters?.storeName}`;
   }
   response.body = JSON.stringify(response.body);
-  return response;
+  return response as unknown as APIGatewayProxyStructuredResultV2;
 });
 
 export const listStores = ApiHandler(async (event) => {
-  const queryData: StoreInfo[] = new Array<StoreInfo>();
   try {
     const r = await client.stores.findMany({
       select: { store_name: true, store_id: true },
@@ -58,7 +61,7 @@ const getFees = async (
     const data: any = await client.devices.findFirst({
       where: { device_id: deviceId },
       include: {
-        STORES: { select: { coords_lat: true, coords_long: true } },
+        stores: { select: { coords_lat: true, coords_long: true } },
       },
     });
     if (data.latitude) {
@@ -121,7 +124,7 @@ export const buyDevice = ApiHandler(async (event) => {
 
   if (!(fees instanceof Number)) {
     try {
-      client.transactions.create({
+      const result = await client.transactions.create({
         data: {
           transaction_id: "error",
           store_id: storeId,
@@ -133,6 +136,7 @@ export const buyDevice = ApiHandler(async (event) => {
           buyer_long: custLongitude,
         },
       });
+      response.body = JSON.stringify(result);
     } catch (error) {
       response.statusCode = 400;
       response.body =

@@ -13,5 +13,10 @@
     "prisma": "^5.7.0",
     "sst": "^2.36.1",
     "vitest": "^0.34.6"
+  },
+  "dependencies": {
+    "fs-extra": "^11.2.0",
+    "prisma": "^5.7.0",
+    "@prisma/client": "^5.7.0"
   }
 }

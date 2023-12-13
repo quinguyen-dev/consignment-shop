@@ -1,6 +1,6 @@
-import { ApiHandler } from "sst/node/api";
-import { response } from "./util/response";
-import { client } from "./util/prismaClient";
+// import { ApiHandler } from "sst/node/api";
+// import { response } from "./util/response";
+// import { client } from "./util/prismaClient";
 
 // export const dashboard = ApiHandler(async (event) => {
 //   const queryData = {

@@ -12,6 +12,7 @@ export const newStore = ApiHandler(async (event) => {
   try {
     const returnedData = await client.stores.create({
       data: {
+        store_id: "error",
         store_name: storeInfo.storeName,
         coords_lat: storeInfo.latitude,
         coords_long: storeInfo.longitude,
@@ -77,7 +78,7 @@ export const dashboard = ApiHandler(async (event) => {
           .username,
       },
       include: {
-        DEVICES: true,
+        devices: true,
       },
     });
     const balance = await client.transactions.groupBy({
@@ -93,7 +94,7 @@ export const dashboard = ApiHandler(async (event) => {
     resBody.accountBalance =
       balance[0]._sum ? balance[0]._sum.total_cost! - balance[0]._sum.site_fee! - balance[0]._sum.shipping_cost! : -1;
     let inventory = 0;
-    res?.DEVICES.forEach((device: any) => {
+    res?.devices.forEach((device: any) => {
       inventory += device.price;
     });
     resBody.totalInventoryValue = inventory;
@@ -119,7 +120,7 @@ export const getStoreOwnerInfo = ApiHandler(async (event) => {
           .username,
       },
       include: {
-        DEVICES: {
+        devices: {
           select: { price: true },
         },
       },
@@ -137,7 +138,7 @@ export const getStoreOwnerInfo = ApiHandler(async (event) => {
     resBody.accountBalance =
       balance[0]._sum ? balance[0]._sum.total_cost! - balance[0]._sum.site_fee! - balance[0]._sum.shipping_cost! : -1;
     let inventory = 0;
-    res?.DEVICES.forEach((device: any) => {
+    res?.devices.forEach((device: any) => {
       inventory += device.price;
     });
     resBody.totalInventoryValue = inventory;
@@ -157,17 +158,18 @@ export const getStoreOwnerInfo = ApiHandler(async (event) => {
 export const deleteDevice = ApiHandler(async (event) => {
   const deviceId = JSON.parse(event.body ? event.body : "").deviceId;
   try {
-    const deviceData = await client.devices.findOne({
+    const deviceData = await client.devices.findFirst({
       where: { device_id: deviceId },
     });
-    const res = await client.devices.deleteOne({
+    const res = await client.devices.delete({
       where: {
         device_id: deviceId,
       },
     });
     const transRes = await client.transactions.create({
       data: {
-        store_id: deviceData.store_id,
+        store_id: deviceData?.store_id,
+        transaction_id: "error",
         site_fee: -25,
       },
     });
