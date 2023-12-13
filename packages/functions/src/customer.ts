@@ -27,8 +27,9 @@ export const listStores = ApiHandler(async (event) => {
     const r = await client.stores.findMany({
       select: { store_name: true, store_id: true },
     });
+    const resultStr = JSON.stringify(r);
     console.log(JSON.stringify(r));
-    response.body = r;
+    response.body = resultStr;
   } catch (error) {
     response.statusCode = 503;
     response.body =
@@ -54,9 +55,11 @@ const getFees = async (
     deviceCost: -1,
   };
   try {
-    const data: any = await client.devices.findOne({
+    const data: any = await client.devices.findFirst({
       where: { device_id: deviceId },
-      select: { coords_lat: true, coords_long: true },
+      include: {
+        STORES: { select: { coords_lat: true, coords_long: true } },
+      },
     });
     if (data.latitude) {
       responseData.shippingCost =
@@ -120,6 +123,7 @@ export const buyDevice = ApiHandler(async (event) => {
     try {
       client.transactions.create({
         data: {
+          transaction_id: "error",
           store_id: storeId,
           device_id: deviceId,
           site_fee: fees.managersCut,
@@ -131,7 +135,9 @@ export const buyDevice = ApiHandler(async (event) => {
       });
     } catch (error) {
       response.statusCode = 400;
-      response.body = "Error creating transaction: " + (error instanceof Error? error.message : JSON.stringify(error));
+      response.body =
+        "Error creating transaction: " +
+        (error instanceof Error ? error.message : JSON.stringify(error));
     }
   } else {
     response.statusCode = 500;

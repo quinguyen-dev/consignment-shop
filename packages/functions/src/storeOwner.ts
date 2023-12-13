@@ -38,6 +38,7 @@ export const newDevice = ApiHandler(async (event) => {
   try {
     const res = await client.devices.create({
       data: {
+        device_id: "error",
         store_id: body.storeId,
         device_name: body.deviceName,
         price: body.price,
@@ -76,27 +77,28 @@ export const dashboard = ApiHandler(async (event) => {
           .username,
       },
       include: {
-        devices: true,
+        DEVICES: true,
       },
     });
     const balance = await client.transactions.groupBy({
       by: ["store_id"],
-      where: { store_id: res.store_id },
+      where: { store_id: res?.store_id },
       _sum: {
         total_cost: true,
         site_fee: true,
         shipping_cost: true,
       },
     });
-    res.accountBalance =
-      balance.total_cost - balance.site_fee - balance.shipping_cost;
+    const resBody = {...res, accountBalance:0, totalInventoryValue:0}
+    resBody.accountBalance =
+      balance[0]._sum ? balance[0]._sum.total_cost! - balance[0]._sum.site_fee! - balance[0]._sum.shipping_cost! : -1;
     let inventory = 0;
-    res.devices.forEach((device: any) => {
+    res?.DEVICES.forEach((device: any) => {
       inventory += device.price;
     });
-    res.totalInventoryValue = inventory;
+    resBody.totalInventoryValue = inventory;
     response.statusCode = 200;
-    response.body = JSON.stringify(res);
+    response.body = JSON.stringify(resBody);
   } catch (error) {
     console.error(error);
     console.log(event.body);
@@ -117,29 +119,30 @@ export const getStoreOwnerInfo = ApiHandler(async (event) => {
           .username,
       },
       include: {
-        devices: {
+        DEVICES: {
           select: { price: true },
         },
       },
     });
     const balance = await client.transactions.groupBy({
       by: ["store_id"],
-      where: { store_id: res.store_id },
+      where: { store_id: res?.store_id },
       _sum: {
         total_cost: true,
         site_fee: true,
         shipping_cost: true,
       },
     });
-    res.accountBalance =
-      balance.total_cost - balance.site_fee - balance.shipping_cost;
+    const resBody = {...res, accountBalance:0, totalInventoryValue:0}
+    resBody.accountBalance =
+      balance[0]._sum ? balance[0]._sum.total_cost! - balance[0]._sum.site_fee! - balance[0]._sum.shipping_cost! : -1;
     let inventory = 0;
-    res.devices.forEach((device: any) => {
+    res?.DEVICES.forEach((device: any) => {
       inventory += device.price;
     });
-    res.totalInventoryValue = inventory;
+    resBody.totalInventoryValue = inventory;
     response.statusCode = 200;
-    response.body = JSON.stringify(res);
+    response.body = JSON.stringify(resBody);
   } catch (error) {
     console.error(error);
     console.log(event.body);
