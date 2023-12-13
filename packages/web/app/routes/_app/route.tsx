@@ -1,7 +1,8 @@
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
-import { Outlet, useLoaderData, useNavigate } from "@remix-run/react";
+import { Link, Outlet, useLoaderData, useNavigate } from "@remix-run/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
+import logo from "~/assets/logo.png";
 import { authenticator } from "~/services/auth.server";
 
 /* Loader to fetch the API url from the environment and pass it to the frontend */
@@ -35,15 +36,16 @@ export default function AppLayout() {
     <>
       <div className="px-8">
         <QueryClientProvider client={queryClient}>
-          <div className="space-x-2 pt-6">
-            <form
-              action=""
-              className="flex overflow-hidden rounded-xl border-2 border-gray-200 focus-within:border-2 focus-within:border-blue-500"
-            >
-              <div className="">
+          <div className="space-x-2 pt-6 flex items-center">
+            <Link to="/" className="max-w-[72px] min-w-[72px] aspect-square">
+              <img src={logo} alt="logo" />
+            </Link>
+            <div className="w-full">
+              <form
+                action=""
+                className="flex overflow-hidden rounded-xl border-2 border-gray-200 focus-within:border-2 focus-within:border-blue-500"
+              >
                 <button
-                  id="dropdown-button"
-                  data-dropdown-toggle="dropdown"
                   className="inline-flex items-center bg-gray-200 py-2.5 px-4 text-gray-600 text-sm"
                   type="button"
                 >
@@ -64,26 +66,26 @@ export default function AppLayout() {
                     />
                   </svg>
                 </button>
-              </div>
-              <input
-                className="flex-1 text-sm pl-3 outline-0"
-                placeholder="Search for computers"
-              />
-            </form>
+                <input
+                  className="flex-1 text-sm pl-3 outline-0"
+                  placeholder="Search for computers"
+                />
+              </form>
+            </div>
             {/* {isAuthenticated && (
-            <Link
-              to="/owner"
-              className="flex items-center rounded-md border-2 px-4 text-center"
+              <Link
+                to="/owner"
+                className="flex items-center rounded-md border-2 px-4 text-center"
+              >
+                Account
+              </Link>
+            )} */}
+            <button
+              className="rounded-xl px-4 min-w-[96px] text-center bg-[#48576B] text-white text-sm h-[44px]"
+              onClick={() => navigate("/auth/callback")}
             >
-              Account
-            </Link>
-          )}
-          <button
-            className="flex items-center rounded-md border-2 px-4 text-center"
-            onClick={() => navigate("/auth/callback")}
-          >
-            {isAuthenticated ? "Log Out" : "Log In"}
-          </button> */}
+              {isAuthenticated ? "Log Out" : "Log In"}
+            </button>
           </div>
           <Outlet />
         </QueryClientProvider>

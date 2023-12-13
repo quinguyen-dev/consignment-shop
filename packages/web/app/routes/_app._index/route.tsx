@@ -58,19 +58,6 @@ export default function AppIndex() {
         <button className="py-2 px-4 rounded-md mt-2 bg-blue-400 text-white">
           Shop Now
         </button>
-        {/* <HydrationBoundary state={dehydratedState}>
-        <div className="grid grid-cols-4 gap-4 mt-4">
-        {query.data?.stores.map((store) => (
-          <Link
-          key={`${store.storeId}`}
-          to={`/store/${store.storeName}`}
-          className="border-2 border-gray-200 p-4"
-          >
-          <h1>{store.storeName}</h1>
-          </Link>
-          ))}
-          </div>
-        </HydrationBoundary> */}
       </div>
       <hr className="my-6" />
       <section>
