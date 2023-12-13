@@ -1,13 +1,11 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import type { CustomerStoreResponse, StoreInventoryResponse } from "./types";
 
 export function useCustomerData() {
-  const queryClient = useQueryClient();
-
   const fetchAll = () =>
     useQuery<CustomerStoreResponse, Error>({
-      queryKey: ["stores"],
+      queryKey: ["store_list"],
       queryFn: async (): Promise<CustomerStoreResponse> => {
         const response = await axios.get("customer/list-stores");
         return response.data;

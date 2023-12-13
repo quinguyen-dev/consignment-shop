@@ -1,0 +1,15 @@
+version: "1"
+
+services:
+  frontend:
+    image: consignment-shop:frontend
+    ports:
+      - 3000:3000
+    build:
+      context: .
+      dockerfile: ./packages/web/Dockerfile
+      target: development
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/packages/web/node_modules

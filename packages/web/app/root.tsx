@@ -7,6 +7,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import axios from "axios";
 import ReactModal from "react-modal";
 import stylesheet from "~/tailwind.css";
 
@@ -14,7 +15,12 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
 ];
 
+/* Set React Modal base element */
 ReactModal.setAppElement("body");
+
+/* Axios default setup */
+axios.defaults.baseURL =
+  "https://vo8vlr6cyc.execute-api.us-east-2.amazonaws.com/dev"; // todo dockerize
 
 export default function App() {
   return (

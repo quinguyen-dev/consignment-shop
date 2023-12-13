@@ -29,17 +29,9 @@ export function setRedirectUrl(newRedirectUrl: string) {
         callbackURL: newRedirectUrl,
         scope: "openid profile email",
       },
-      async ({
-        accessToken,
-        refreshToken,
-        extraParams,
-        profile,
-        context,
-        request,
-      }) => {
+      async ({ accessToken }) => {
         return {
-          username:
-            jwtDecode<Record<string, string>>(accessToken).username,
+          username: jwtDecode<Record<string, string>>(accessToken).username,
           token: accessToken,
         } satisfies User;
       },
@@ -48,9 +40,6 @@ export function setRedirectUrl(newRedirectUrl: string) {
   );
 }
 
-// Create an instance of the authenticator, pass a generic with what
-// strategies will return and will store in the session
 export const authenticator = new Authenticator<User>(sessionStorage);
 
-// Provide an initial state for the redirect URL
 setRedirectUrl("");

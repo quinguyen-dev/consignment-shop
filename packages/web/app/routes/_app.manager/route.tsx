@@ -14,9 +14,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   // Validate the user is the site manager
   if (!user) {
-    return redirect("/")
+    return redirect("/");
   } else if (user.username != "sitemanager") {
-    return redirect("/owner")
+    return redirect("/owner");
   } else {
     return user;
   }

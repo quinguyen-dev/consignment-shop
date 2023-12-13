@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { convert } from "~/utils/convert";
 import type { SiteManagerReport, SiteManagerResponse, Store } from "./types";
 
 export function useSiteManagerData(jwt: string) {
@@ -15,17 +14,7 @@ export function useSiteManagerData(jwt: string) {
             Authorization: `Bearer ${jwt}`,
           },
         });
-
         return response.data;
-      },
-      select: (data: any) => {
-        const { body } = data;
-
-        return {
-          totalBalance: body.inventoryValue,
-          managerBalance: body.managerBalance,
-          stores: body.storeBalances.map((store: any) => convert(store)),
-        } satisfies SiteManagerResponse;
       },
     });
 
