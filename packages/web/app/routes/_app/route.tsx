@@ -27,45 +27,50 @@ export default function AppLayout() {
       }),
   );
 
+  function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   return (
-    <div className="px-8">
-      <QueryClientProvider client={queryClient}>
-        <div className="space-x-2 pt-6">
-          <form
-            action=""
-            className="flex overflow-hidden rounded-xl border-2 border-gray-200 focus-within:border-2 focus-within:border-blue-500"
-          >
-            <div className="">
-              <button
-                id="dropdown-button"
-                data-dropdown-toggle="dropdown"
-                className="inline-flex items-center bg-gray-200 py-2.5 px-4 text-gray-600 text-sm"
-                type="button"
-              >
-                All stores{" "}
-                <svg
-                  className="w-2.5 h-2.5 ms-2.5"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 10 6"
+    <>
+      <div className="px-8">
+        <QueryClientProvider client={queryClient}>
+          <div className="space-x-2 pt-6">
+            <form
+              action=""
+              className="flex overflow-hidden rounded-xl border-2 border-gray-200 focus-within:border-2 focus-within:border-blue-500"
+            >
+              <div className="">
+                <button
+                  id="dropdown-button"
+                  data-dropdown-toggle="dropdown"
+                  className="inline-flex items-center bg-gray-200 py-2.5 px-4 text-gray-600 text-sm"
+                  type="button"
                 >
-                  <path
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="m1 1 4 4 4-4"
-                  />
-                </svg>
-              </button>
-            </div>
-            <input
-              className="flex-1 text-sm pl-3 outline-0"
-              placeholder="Search for computers"
-            />
-          </form>
-          {/* {isAuthenticated && (
+                  All stores{" "}
+                  <svg
+                    className="w-2.5 h-2.5 ms-2.5"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 10 6"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="m1 1 4 4 4-4"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <input
+                className="flex-1 text-sm pl-3 outline-0"
+                placeholder="Search for computers"
+              />
+            </form>
+            {/* {isAuthenticated && (
             <Link
               to="/owner"
               className="flex items-center rounded-md border-2 px-4 text-center"
@@ -79,10 +84,20 @@ export default function AppLayout() {
           >
             {isAuthenticated ? "Log Out" : "Log In"}
           </button> */}
-        </div>
-        <Outlet />
-      </QueryClientProvider>
-    </div>
+          </div>
+          <Outlet />
+        </QueryClientProvider>
+      </div>
+      <button
+        className="w-full py-4 bg-[#48576A] text-white text-sm"
+        onClick={scrollToTop}
+      >
+        Back to the top
+      </button>
+      <footer className="bg-[#242F3E] py-6 text-center">
+        <p className="text-white">NewerEgg</p>
+      </footer>
+    </>
   );
 }
 
