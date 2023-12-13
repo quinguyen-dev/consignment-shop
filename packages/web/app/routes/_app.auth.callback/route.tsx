@@ -27,5 +27,5 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function AuthCallback() {
   const loaderData = useLoaderData<typeof loader>();
-  return <div>{loaderData}</div>;
+  return <div>hello{loaderData}</div>;
 }
