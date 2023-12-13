@@ -73,23 +73,40 @@ export default function AppIndex() {
         </HydrationBoundary> */}
       </div>
       <hr className="my-6" />
-
-      <h1 className="text-2xl font-bold">Featured products</h1>
-      <div className="pt-3 items-start flex">
-        <div className="border p-4 rounded-xl">
-          <div className="w-[200px] aspect-square flex justify-center items-center rounded-lg bg-gray-200 mb-4 ">
-            <img src={placeholderIcon} alt="product image" />
+      <section>
+        <h1 className="text-2xl font-bold">Featured products</h1>
+        <div className="pt-3 items-start flex">
+          <div className="border p-4 rounded-xl">
+            <div className="w-[200px] aspect-square flex justify-center items-center rounded-lg bg-gray-200 mb-4 ">
+              <img src={placeholderIcon} alt="product image" />
+            </div>
+            <h2 className="text-lg font-bold">Product name</h2>
+            <p className="text-sm text-gray-500">
+              Sold by:{" "}
+              <Link to="/" className="hover:underline">
+                This is somethign
+              </Link>
+            </p>
+            <p className="text-md font-medium">$999.99</p>
           </div>
-          <h1 className="text-lg font-bold">Product name</h1>
-          <p className="text-sm text-gray-500">
-            Sold by:{" "}
-            <Link to="/" className="hover:underline">
-              This is somethign
-            </Link>
-          </p>
-          <p className="text-md font-medium">$999.99</p>
         </div>
-      </div>
+      </section>
+      <section className="mt-12">
+        <h1 className="text-2xl font-bold">Featured stores</h1>
+        <div className="pt-3 items-start flex">
+          <div className="border px-4 py-4 min-w-[386px] flex space-x-3 rounded-lg">
+            <div className="w-[64px] aspect-square flex justify-center items-center rounded-lg bg-gray-200">
+              <img src={placeholderIcon} alt="product image" />
+            </div>
+            <div>
+              <h2 className="font-bold">Store name</h2>
+              <p className="text-sm text-gray-500">
+                Computers in stock: <span>4</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
