@@ -89,7 +89,7 @@ export default function AppLayout() {
         </QueryClientProvider>
       </div>
       <button
-        className="w-full py-4 bg-[#48576A] text-white text-sm"
+        className="w-full py-4 bg-[#48576A] text-white text-sm mt-4"
         onClick={scrollToTop}
       >
         Back to the top

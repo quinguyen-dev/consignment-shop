@@ -3,7 +3,8 @@ import axios from "axios";
 import { CustomerStoreResponse } from "~/hooks/types";
 
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
+import placeholderIcon from "~/assets/placeholder.svg";
 import { useCustomerData } from "~/hooks/useCustomerData";
 import { authenticator, setRedirectUrl } from "~/services/auth.server";
 
@@ -71,15 +72,23 @@ export default function AppIndex() {
           </div>
         </HydrationBoundary> */}
       </div>
-      <div className="py-4"></div>
-      <div className="py-4"></div>
-      <div className="py-4"></div>
-      <div className="py-4"></div>
-      <div className="py-4"></div>
-      <div className="py-4"></div>
-      <div className="py-4"></div>
-      <div className="mt-4">
-        <h1 className="text-2xl font-bold">Featured products</h1>
+      <hr className="my-6" />
+
+      <h1 className="text-2xl font-bold">Featured products</h1>
+      <div className="pt-3 items-start flex">
+        <div className="border p-4 rounded-xl">
+          <div className="w-[200px] aspect-square flex justify-center items-center rounded-lg bg-gray-200 mb-4 ">
+            <img src={placeholderIcon} alt="product image" />
+          </div>
+          <h1 className="text-lg font-bold">Product name</h1>
+          <p className="text-sm text-gray-500">
+            Sold by:{" "}
+            <Link to="/" className="hover:underline">
+              This is somethign
+            </Link>
+          </p>
+          <p className="text-md font-medium">$999.99</p>
+        </div>
       </div>
     </div>
   );
