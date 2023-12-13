@@ -1,6 +1,6 @@
 import { ApiHandler } from "sst/node/api";
 import { response } from "./util/response";
-import { connPool } from "./util/connPool";
+import { connPool } from "./util/prismaClient";
 
 export const dashboard = ApiHandler(async (event) => {
   const queryData = {

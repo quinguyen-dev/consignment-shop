@@ -1,7 +1,9 @@
+import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
+
 /* Create the response body */
-export const response = {
+export const response:APIGatewayProxyStructuredResultV2 = {
   statusCode: 200,
-  body: null,
+  body: "",
   headers: {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
