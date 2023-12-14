@@ -10,7 +10,7 @@ export const newStore = ApiHandler(async (event) => {
   const storeInfo = JSON.parse(event.body ? event.body : "");
   console.log(`STORE INFO: ${JSON.stringify(storeInfo)}`);
   try {
-    const returnedData = await client.stores.create({
+    const returnedData = await client.stores.createMany({
       data: {
         store_id: "error",
         store_name: storeInfo.storeName,
@@ -37,28 +37,49 @@ export const newStore = ApiHandler(async (event) => {
 export const newDevice = ApiHandler(async (event) => {
   const body = JSON.parse(event.body!);
   try {
-    const res = await client.devices.create({
-      data: {
-        device_id: "error",
-        store_id: body.storeId,
-        device_name: body.deviceName,
-        price: body.price,
-        form_factor: body.formFactor,
-        processor_manufacturer: body.processorManufacturer,
-        processor_model: body.processorModel,
-        memory_type: body.memoryType,
-        memory_mb: body.memoryMB,
-        storage_type: body.storageType,
-        storage_gb: body.storageGB,
-        operating_system: body.operatingSystem,
-        dedicated_gpu: body.dedicatedGpu,
-        gpu_manufacturer: body.gpuManufacturer,
-        gpu_model: body.gpuModel,
-        listing_active: true,
+    const newDeviceInfo = {
+      device_id: "error",
+      store_id: body.storeId,
+      device_name: body.deviceName,
+      price: body.price,
+      form_factor: body.formFactor,
+      processor_manufacturer: body.processorManufacturer,
+      processor_model: body.processorModel,
+      memory_type: body.memoryType,
+      memory_mb: body.memoryMB,
+      storage_type: body.storageType,
+      storage_gb: body.storageGB,
+      operating_system: body.operatingSystem,
+      dedicated_gpu: body.dedicatedGpu,
+      gpu_manufacturer: body.gpuManufacturer,
+      gpu_model: body.gpuModel,
+      listing_active: true,
+    };
+    const res = await client.devices.createMany({
+      data: newDeviceInfo,
+    });
+    const { device_id, ...otherFields } = newDeviceInfo;
+    console.log(otherFields);
+    const deviceInfo = await client.devices.findFirst({
+      select: {
+        device_id: true,
+      },
+      where: {
+        store_id: newDeviceInfo.store_id,
+        AND: [
+          { device_name: newDeviceInfo.device_name },
+          { processor_manufacturer: newDeviceInfo.processor_manufacturer },
+        ],
+      },
+      orderBy: {
+        updated_at: "desc",
       },
     });
     response.statusCode = 200;
-    response.body = JSON.stringify(res);
+    response.body = JSON.stringify({
+      deviceId: deviceInfo?.device_id,
+      ...otherFields,
+    });
   } catch (error) {
     console.error(error);
     console.log(event.body);
@@ -90,9 +111,12 @@ export const dashboard = ApiHandler(async (event) => {
         shipping_cost: true,
       },
     });
-    const resBody = {...res, accountBalance:0, totalInventoryValue:0}
-    resBody.accountBalance =
-      balance[0]._sum ? balance[0]._sum.total_cost! - balance[0]._sum.site_fee! - balance[0]._sum.shipping_cost! : -1;
+    const resBody = { ...res, accountBalance: 0, totalInventoryValue: 0 };
+    resBody.accountBalance = balance[0]._sum
+      ? balance[0]._sum.total_cost! -
+        balance[0]._sum.site_fee! -
+        balance[0]._sum.shipping_cost!
+      : -1;
     let inventory = 0;
     res?.devices.forEach((device: any) => {
       inventory += device.price;
@@ -134,9 +158,12 @@ export const getStoreOwnerInfo = ApiHandler(async (event) => {
         shipping_cost: true,
       },
     });
-    const resBody = {...res, accountBalance:0, totalInventoryValue:0}
-    resBody.accountBalance =
-      balance[0]._sum ? balance[0]._sum.total_cost! - balance[0]._sum.site_fee! - balance[0]._sum.shipping_cost! : -1;
+    const resBody = { ...res, accountBalance: 0, totalInventoryValue: 0 };
+    resBody.accountBalance = balance[0]._sum
+      ? balance[0]._sum.total_cost! -
+        balance[0]._sum.site_fee! -
+        balance[0]._sum.shipping_cost!
+      : -1;
     let inventory = 0;
     res?.devices.forEach((device: any) => {
       inventory += device.price;
@@ -166,8 +193,9 @@ export const deleteDevice = ApiHandler(async (event) => {
         device_id: deviceId,
       },
     });
-    const transRes = await client.transactions.create({
+    const transRes = await client.transactions.createMany({
       data: {
+        device_id: null,
         store_id: deviceData?.store_id,
         transaction_id: "error",
         site_fee: -25,

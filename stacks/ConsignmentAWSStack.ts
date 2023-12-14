@@ -197,6 +197,18 @@ export function API({ stack }: StackContext) {
         }),
         authorizer: "none",
       },
+      "GET /customer/device": {
+        function: new Function(stack, "SSTCustGetDevice", {
+          handler: "packages/functions/src/customer.getDevice",
+        }),
+        authorizer: "none",
+      },
+      "GET /homepage-data": {
+        function: new Function(stack, "SSTMiscHomePage", {
+          handler: "packages/functions/src/misc.homepageData",
+        }),
+        authorizer: "none",
+      }
     },
   });
   // Allow authenticated users invoke API
