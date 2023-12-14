@@ -1,29 +1,7 @@
-import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useNavigate } from "@remix-run/react";
-import { QueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import logo from "~/assets/logo.png";
-import { CustomerStoreResponse, Store } from "~/hooks/types";
 import { useCustomerData } from "~/hooks/useCustomerData";
-import { authenticator } from "~/services/auth.server";
-
-/* Loader to fetch the API url from the environment and pass it to the frontend */
-export async function loader({ request }: LoaderFunctionArgs) {
-  const queryClient = new QueryClient();
-  const response = await queryClient.prefetchQuery({
-    queryKey: ["store_list"],
-    queryFn: async (): Promise<CustomerStoreResponse> => {
-      const response = await axios.get("customer/list-stores");
-      return response.data;
-    },
-  });
-
-  return json({
-    isAuthenticated: (await authenticator.isAuthenticated(request))
-      ? true
-      : false,
-  });
-}
+import { loader } from "./route";
 
 export default function AppLayout() {
   const navigate = useNavigate();
@@ -52,7 +30,7 @@ export default function AppLayout() {
               className="flex overflow-hidden rounded-xl border-2 border-gray-200 focus-within:border-2 focus-within:border-blue-500"
             >
               <select
-                className="inline-flex items-center bg-gray-200 py-2.5 px-4 text-gray-600 text-sm border-r-8 max-w-[128px]"
+                className="inline-flex items-center bg-gray-200 py-2.5 px-4 text-gray-600 text-sm border-r-8"
                 placeholder="All stores"
               >
                 <option value="">All stores</option>

@@ -65,7 +65,7 @@ export default function AppIndex() {
         <div className="pt-3 grid grid-cols-2 gap-4 md:grid-cols-4">
           {query?.selecDevices.map((computer: NewComputer) => {
             return (
-              <div className="border p-4 rounded-xl">
+              <div key={computer.deviceId} className="border p-4 rounded-xl">
                 <div className="w-full h-[200px] flex justify-center items-center rounded-lg bg-gray-200 mb-4 ">
                   <img src={placeholderIcon} alt="product image" />
                 </div>
@@ -84,17 +84,18 @@ export default function AppIndex() {
       </section>
       <section className="mt-12">
         <h1 className="text-2xl font-bold">Featured stores</h1>
-        <div className="pt-3 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {query?.selecStores.map((store: Store, idx: number) => (
-            <div
-              key={idx}
-              className="border px-4 py-4 flex space-x-3 rounded-lg"
+        <div className="pt-3 grid grid-cols-2 md:grid-cols-4 gap-4 h-fit">
+          {query?.selecStores.map((store: Store) => (
+            <Link
+              to=""
+              key={store.storeId}
+              className="border px-4 py-4 flex space-x-3 rounded-lg h-full"
             >
-              <div className="w-[64px] aspect-square flex justify-center items-center rounded-lg bg-gray-200">
+              <div className="min-w-[64px] aspect-square flex justify-center items-center rounded-lg bg-gray-200">
                 <img src={placeholderIcon} alt="product image" />
               </div>
               <h2 className="font-bold">{store.storeName}</h2>
-            </div>
+            </Link>
           ))}
         </div>
       </section>

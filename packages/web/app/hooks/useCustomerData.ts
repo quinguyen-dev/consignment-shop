@@ -8,7 +8,7 @@ export function useCustomerData() {
       queryKey: ["store_list"],
       queryFn: async (): Promise<CustomerStoreResponse> => {
         const response = await axios.get("customer/list-stores");
-        return response.data;
+        return { stores: response.data };
       },
     });
 
