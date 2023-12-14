@@ -94,7 +94,10 @@ export default function Compare() {
                   <h2 className="font-bold">{computer.deviceName}</h2>
                   <p className="text-xs text-gray-500">
                     Sold by:{" "}
-                    <Link to="/" className="hover:underline">
+                    <Link
+                      to={`/sr?store=${computer.stores.storeName}&query=`}
+                      className="hover:underline"
+                    >
                       {computer.stores.storeName}
                     </Link>
                   </p>
@@ -110,7 +113,7 @@ export default function Compare() {
         <div className="pt-3 grid grid-cols-2 md:grid-cols-4 gap-4 h-fit">
           {query?.selecStores.map((store: Store) => (
             <Link
-              to=""
+              to={`/sr?store=${store.storeName}&query=`}
               key={store.storeId}
               className="border px-4 py-4 flex space-x-3 rounded-lg h-full"
             >

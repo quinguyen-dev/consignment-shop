@@ -38,9 +38,12 @@ export default function AppIndex() {
       <div className="flex justify-center items-center flex-col bg-gray-100 h-[384px] rounded-lg">
         <h1 className="text-3xl font-bold">Welcome to NewerEgg</h1>
         <p>The best place for your computer needs.</p>
-        <button className="py-2 px-4 rounded-md mt-2 bg-blue-400 text-white">
+        <Link
+          to="/sr?store=&query="
+          className="py-2 px-4 rounded-md mt-2 bg-blue-400 text-white"
+        >
           Shop Now
-        </button>
+        </Link>
       </div>
       <hr className="my-6" />
       <section>
@@ -55,7 +58,10 @@ export default function AppIndex() {
                 <h2 className="text-lg font-bold">{computer.deviceName}</h2>
                 <p className="text-sm text-gray-500">
                   Sold by:{" "}
-                  <Link to="/" className="hover:underline">
+                  <Link
+                    to={`/sr?store=${computer.stores.storeName}&query=`}
+                    className="hover:underline"
+                  >
                     {computer.stores.storeName}
                   </Link>
                 </p>
@@ -70,7 +76,7 @@ export default function AppIndex() {
         <div className="pt-3 grid grid-cols-2 md:grid-cols-4 gap-4 h-fit">
           {query?.selecStores.map((store: Store) => (
             <Link
-              to=""
+              to={`/sr?store=${store.storeName}&query=`}
               key={store.storeId}
               className="border px-4 py-4 flex space-x-3 rounded-lg h-full"
             >
