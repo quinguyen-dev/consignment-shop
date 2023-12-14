@@ -55,14 +55,19 @@ export default function AppIndex() {
                 <div className="w-full h-[200px] flex justify-center items-center rounded-lg bg-gray-200 mb-4 ">
                   <img src={placeholderIcon} alt="product image" />
                 </div>
-                <h2 className="text-lg font-bold">{computer.deviceName}</h2>
+                <Link
+                  to={`/${computer.deviceName}/p/${computer.deviceId}`}
+                  className="text-lg font-bold"
+                >
+                  {computer.deviceName}
+                </Link>
                 <p className="text-sm text-gray-500">
                   Sold by:{" "}
                   <Link
-                    to={`/sr?store=${computer.stores.storeName}&query=`}
+                    to={`/sr?store=${computer.storeName}&query=`}
                     className="hover:underline"
                   >
-                    {computer.stores.storeName}
+                    {computer.storeName}
                   </Link>
                 </p>
                 <p className="text-md font-medium">${computer.price}</p>

@@ -10,7 +10,7 @@ export default function Compare() {
   const [searchParams] = useSearchParams();
   const ids = searchParams.get("list")?.split(",") ?? [];
 
-  const data = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: [`${ids}`],
     queryFn: async (): Promise<Computer[]> => {
       const computers: Computer[] = [];
@@ -29,18 +29,19 @@ export default function Compare() {
   });
 
   const customerInfo = useCustomerData();
-  const { data: query, isLoading } = customerInfo.fetchHomePageData();
+  const { data: query, isLoading: carouselIsLoading } =
+    customerInfo.fetchHomePageData();
 
-  if (data.isLoading) return "Loading";
+  if (isLoading || carouselIsLoading) return "Loading";
 
   return (
     <>
       <h1 className="text-2xl font-bold text-center my-2">
-        Comparing {data.data?.length} devices
+        Comparing {data?.length} devices
       </h1>
       <div className="w-full flex justify-center">
         <div className="flex lg:space-x-4 space-y-4 lg:space-y-0 h-full mt-2 lg:flex-row flex-col">
-          {data.data?.map((computer) => (
+          {data?.map((computer) => (
             <div className="p-4 px-12 h-fit w-[600px] flex items-center flex-col border">
               <div className="w-[256px] aspect-square flex justify-center items-center rounded-lg bg-gray-200 mb-4 self-center">
                 <img src={placeholderIcon} alt="product image" />
@@ -91,14 +92,19 @@ export default function Compare() {
                 className="border p-4 rounded-xl flex flex-col xl:flex-row xl:justify-between"
               >
                 <div>
-                  <h2 className="font-bold">{computer.deviceName}</h2>
+                  <Link
+                    to={`/${computer.deviceName}/p/${computer.deviceId}`}
+                    className="font-bold"
+                  >
+                    {computer.deviceName}
+                  </Link>
                   <p className="text-xs text-gray-500">
                     Sold by:{" "}
                     <Link
-                      to={`/sr?store=${computer.stores.storeName}&query=`}
+                      to={`/sr?store=${computer.storeName}&query=`}
                       className="hover:underline"
                     >
-                      {computer.stores.storeName}
+                      {computer.storeName}
                     </Link>
                   </p>
                 </div>

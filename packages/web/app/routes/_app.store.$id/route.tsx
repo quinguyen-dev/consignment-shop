@@ -6,6 +6,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
   return params.id;
 }
 
+// todo can get rid of
+
 export default function CustomerStoreView() {
   const data = useLoaderData<typeof loader>();
 

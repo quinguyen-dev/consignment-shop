@@ -1,3 +1,4 @@
+import { Link } from "@remix-run/react";
 import placeholderIcon from "~/assets/placeholder.svg";
 import { Computer, ComputerResultResponse } from "~/hooks/types";
 
@@ -22,9 +23,14 @@ export function ResultPane({ computer, disabled, onChange }: ResultPaneProps) {
       <div className="flex flex-col lg:flex-row w-full lg:ml-0 ml-4">
         <div className="lg:ml-4 w-full lg:w-1/2 flex flex-row lg:flex-col justify-between lg:justify-normal">
           <div>
-            <h2 className="font-bold">{computer.deviceName}</h2>
+            <Link
+              to={`/${computer.deviceName}/p/${computer.deviceId}`}
+              className="font-bold"
+            >
+              {computer.deviceName}
+            </Link>
             <p className="hover:underline text-xs text-gray-500 cursor-pointer">
-              {computer.stores.storeName}
+              {computer.storeName}
             </p>
           </div>
           <p className="font-medium">$3000</p>

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import type {
+  ComputerResultResponse,
   CustomerStoreResponse,
   HomePageResponse,
   SearchResultResponse,
@@ -47,5 +48,16 @@ export function useCustomerData() {
       },
     });
 
-  return { fetchAll, fetchStoreInfo, fetchHomePageData };
+  const fetchDevice = (deviceId: string) =>
+    useQuery<ComputerResultResponse, Error>({
+      queryKey: [`${deviceId}`],
+      queryFn: async (): Promise<ComputerResultResponse> => {
+        const response = await axios.get(
+          `customer/device?deviceId=${deviceId}`,
+        );
+        return response.data;
+      },
+    });
+
+  return { fetchAll, fetchStoreInfo, fetchHomePageData, fetchDevice };
 }

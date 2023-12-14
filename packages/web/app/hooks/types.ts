@@ -61,9 +61,7 @@ export type CustomerStoreResponse = {
   stores: Omit<Store, "balance">[];
 };
 
-export type ComputerResultResponse = Computer & {
-  stores: { storeName: string };
-};
+export type ComputerResultResponse = Computer & { storeName: string };
 
 export type SearchResultResponse = {
   devices: ComputerResultResponse[];
