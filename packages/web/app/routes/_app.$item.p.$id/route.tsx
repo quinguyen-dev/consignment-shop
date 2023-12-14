@@ -1,6 +1,7 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import placeholderIcon from "~/assets/placeholder.svg";
+import { ItemCard, StoreCard } from "~/components";
 import { ComputerResultResponse, Store } from "~/hooks/types";
 import { useCustomerData } from "~/hooks/useCustomerData";
 
@@ -27,7 +28,7 @@ export default function ItemPage() {
         </div>
         <div className="w-full">
           <h1 className="text-2xl font-bold">{device?.deviceName}</h1>
-          <h2 className="text-gray-400">Sold by: Store name</h2>
+          <h2 className="text-gray-400">{device?.storeName}</h2>
           <hr className="my-2" />
           <div className="flex space-x-12 text-sm">
             <div className="w-fit font-medium text-black">
@@ -66,46 +67,16 @@ export default function ItemPage() {
       <section className="mt-6">
         <h1 className="text-xl font-bold">Find more items like these</h1>
         <div className="pt-3 grid grid-cols-2 gap-4 md:grid-cols-4">
-          {query?.selecDevices.map((computer: ComputerResultResponse) => {
-            return (
-              <div
-                key={computer.deviceId}
-                className="border p-4 rounded-xl flex flex-col xl:flex-row xl:justify-between"
-              >
-                <div>
-                  <Link
-                    to={`/${computer.deviceName}/p/${computer.deviceId}`}
-                    className="font-bold hover:underline"
-                  >
-                    {computer.deviceName}
-                  </Link>
-                  <p className="text-xs text-gray-500">
-                    Sold by:{" "}
-                    <Link
-                      to={`/sr?store=${computer.storeName}&query=`}
-                      className="hover:underline"
-                    >
-                      {computer.storeName}
-                    </Link>
-                  </p>
-                </div>
-                <p className="text-md font-medium">${computer.price}</p>
-              </div>
-            );
-          })}
+          {query?.selecDevices.map((computer: ComputerResultResponse) => (
+            <ItemCard computer={computer} variant="md" />
+          ))}
         </div>
       </section>
       <section className="my-6">
         <h1 className="text-xl font-bold">Shop at more stores</h1>
         <div className="pt-3 grid grid-cols-2 md:grid-cols-4 gap-4 h-fit">
-          {query?.selecStores.map((store: Store) => (
-            <Link
-              to={`/sr?store=${store.storeName}&query=`}
-              key={store.storeId}
-              className="border px-4 py-4 flex space-x-3 rounded-lg h-full"
-            >
-              <h2 className="font-bold">{store.storeName}</h2>
-            </Link>
+          {query?.selecStores.map((store: Omit<Store, "balance">) => (
+            <StoreCard store={store} variant="sm" />
           ))}
         </div>
       </section>

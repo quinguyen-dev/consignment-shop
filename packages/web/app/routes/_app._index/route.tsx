@@ -2,7 +2,7 @@ import { ComputerResultResponse, Store } from "~/hooks/types";
 
 import { ActionFunctionArgs } from "@remix-run/node";
 import { Link } from "@remix-run/react";
-import placeholderIcon from "~/assets/placeholder.svg";
+import { ItemCard, StoreCard } from "~/components";
 import { useCustomerData } from "~/hooks/useCustomerData";
 import { authenticator, setRedirectUrl } from "~/services/auth.server";
 
@@ -49,47 +49,16 @@ export default function AppIndex() {
       <section>
         <h1 className="text-2xl font-bold">Featured products</h1>
         <div className="pt-3 grid grid-cols-2 gap-4 md:grid-cols-4">
-          {query?.selecDevices.map((computer: ComputerResultResponse) => {
-            return (
-              <div key={computer.deviceId} className="border p-4 rounded-xl">
-                <div className="w-full h-[200px] flex justify-center items-center rounded-lg bg-gray-200 mb-4 ">
-                  <img src={placeholderIcon} alt="product image" />
-                </div>
-                <Link
-                  to={`/${computer.deviceName}/p/${computer.deviceId}`}
-                  className="text-lg font-bold"
-                >
-                  {computer.deviceName}
-                </Link>
-                <p className="text-sm text-gray-500">
-                  Sold by:{" "}
-                  <Link
-                    to={`/sr?store=${computer.storeName}&query=`}
-                    className="hover:underline"
-                  >
-                    {computer.storeName}
-                  </Link>
-                </p>
-                <p className="text-md font-medium">${computer.price}</p>
-              </div>
-            );
-          })}
+          {query?.selecDevices.map((computer: ComputerResultResponse) => (
+            <ItemCard computer={computer} />
+          ))}
         </div>
       </section>
       <section className="mt-12">
         <h1 className="text-2xl font-bold">Featured stores</h1>
         <div className="pt-3 grid grid-cols-2 md:grid-cols-4 gap-4 h-fit">
-          {query?.selecStores.map((store: Store) => (
-            <Link
-              to={`/sr?store=${store.storeName}&query=`}
-              key={store.storeId}
-              className="border px-4 py-4 flex space-x-3 rounded-lg h-full"
-            >
-              <div className="min-w-[64px] aspect-square flex justify-center items-center rounded-lg bg-gray-200">
-                <img src={placeholderIcon} alt="product image" />
-              </div>
-              <h2 className="font-bold">{store.storeName}</h2>
-            </Link>
+          {query?.selecStores.map((store: Omit<Store, "balance">) => (
+            <StoreCard store={store} />
           ))}
         </div>
       </section>

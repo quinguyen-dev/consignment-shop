@@ -44,7 +44,9 @@ export default function SearchResults() {
         </div>
         <div className="w-full">
           <div className="flex justify-between items-end">
-            <h1 className="text-xl font-bold">Results</h1>
+            <h1 className="text-xl font-bold">
+              Results from {store === "" ? "all stores" : `'${store}'`}
+            </h1>
             <Link
               className={`px-4 py-2 rounded-xl text-sm bg-blue-500 text-white ${
                 compareList.length === 2 ? "opacity-100" : "opacity-50"
