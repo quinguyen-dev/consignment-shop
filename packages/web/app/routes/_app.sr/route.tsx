@@ -49,7 +49,7 @@ export default function SearchResults() {
               className={`px-4 py-2 rounded-xl text-sm bg-blue-500 text-white ${
                 compareList.length === 2 ? "opacity-100" : "opacity-50"
               }`}
-              to={`/compare/?list=${compareList.at(0)
+              to={`/compare?list=${compareList.at(0)
                 ?.deviceId},${compareList.at(1)?.deviceId}`}
             >
               Compare
