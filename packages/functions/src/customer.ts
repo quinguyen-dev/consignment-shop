@@ -42,6 +42,7 @@ export const inspectStoreInv = ApiHandler(async (event) => {
       err instanceof Error ? "Error: " + err.message : "Unknown error occurred";
   }
   return response;
+  return response;
 });
 
 export const listStores = ApiHandler(async (event) => {
