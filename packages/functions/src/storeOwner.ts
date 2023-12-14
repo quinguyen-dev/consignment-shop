@@ -12,12 +12,12 @@ export const newStore = ApiHandler(async (event) => {
   try {
     const returnedData = await client.stores.createMany({
       data: {
-        store_id: "error",
-        store_name: storeInfo.storeName,
-        coords_lat: storeInfo.latitude,
-        coords_long: storeInfo.longitude,
-        street_address: storeInfo.address,
-        store_owner_id: userInfo.username,
+        storeId: "error",
+        storeName: storeInfo.storeName,
+        latititude: storeInfo.latitude,
+        longitude: storeInfo.longitude,
+        streetAddress: storeInfo.address,
+        storeOwnerId: userInfo.username,
       },
     });
     response.statusCode = 400;
@@ -38,46 +38,46 @@ export const newDevice = ApiHandler(async (event) => {
   const body = JSON.parse(event.body!);
   try {
     const newDeviceInfo = {
-      device_id: "error",
-      store_id: body.storeId,
-      device_name: body.deviceName,
+      deviceId: "error",
+      storeId: body.storeId,
+      deviceName: body.deviceName,
       price: body.price,
-      form_factor: body.formFactor,
-      processor_manufacturer: body.processorManufacturer,
-      processor_model: body.processorModel,
-      memory_type: body.memoryType,
-      memory_mb: body.memoryMB,
-      storage_type: body.storageType,
-      storage_gb: body.storageGB,
-      operating_system: body.operatingSystem,
-      dedicated_gpu: body.dedicatedGpu,
-      gpu_manufacturer: body.gpuManufacturer,
-      gpu_model: body.gpuModel,
-      listing_active: true,
+      formFactor: body.formFactor,
+      processorManufacturer: body.processorManufacturer,
+      processorModel: body.processorModel,
+      memoryType: body.memoryType,
+      memoryMb: body.memoryMB,
+      storageType: body.storageType,
+      storageGb: body.storageGB,
+      operatingSystem: body.operatingSystem,
+      dedicatedGpu: body.dedicatedGpu,
+      gpuManufacturer: body.gpuManufacturer,
+      gpuModel: body.gpuModel,
+      listingActive: true,
     };
     const res = await client.devices.createMany({
       data: newDeviceInfo,
     });
-    const { device_id, ...otherFields } = newDeviceInfo;
+    const { deviceId, ...otherFields } = newDeviceInfo;
     console.log(otherFields);
     const deviceInfo = await client.devices.findFirst({
       select: {
-        device_id: true,
+        deviceId: true,
       },
       where: {
-        store_id: newDeviceInfo.store_id,
+        storeId: newDeviceInfo.storeId,
         AND: [
-          { device_name: newDeviceInfo.device_name },
-          { processor_manufacturer: newDeviceInfo.processor_manufacturer },
+          { deviceName: newDeviceInfo.deviceName },
+          { processorManufacturer: newDeviceInfo.processorManufacturer },
         ],
       },
       orderBy: {
-        updated_at: "desc",
+        updatedAt: "desc",
       },
     });
     response.statusCode = 200;
     response.body = JSON.stringify({
-      deviceId: deviceInfo?.device_id,
+      deviceId: deviceInfo?.deviceId,
       ...otherFields,
     });
   } catch (error) {
@@ -186,19 +186,19 @@ export const deleteDevice = ApiHandler(async (event) => {
   const deviceId = JSON.parse(event.body ? event.body : "").deviceId;
   try {
     const deviceData = await client.devices.findFirst({
-      where: { device_id: deviceId },
+      where: { deviceId: deviceId },
     });
     const res = await client.devices.delete({
       where: {
-        device_id: deviceId,
+        deviceId: deviceId,
       },
     });
     const transRes = await client.transactions.createMany({
       data: {
-        device_id: null,
-        store_id: deviceData?.store_id,
-        transaction_id: "error",
-        site_fee: -25,
+        deviceId: null,
+        storeId: deviceData?.storeId,
+        transactionId: "error",
+        siteFee: -25,
       },
     });
     response.statusCode = 200;

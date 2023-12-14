@@ -1,13 +1,23 @@
 // import { ApiHandler } from "sst/node/api";
-// import { response } from "./util/response";
 // import { client } from "./util/prismaClient";
+// import { response } from "./util/response";
 
 // export const dashboard = ApiHandler(async (event) => {
 //   const queryData = {
-//     managerBalance: 0, //TODO: calculate based on transaction
+//     managerBalance: 0,
 //     totalInventoryValue: 0,
 //     storeBalances: [],
 //   };
+
+//   const storeId = event.queryStringParameters?.storeId;
+
+//   const totInvRes = await client.devices.groupBy({
+//     by: ["device_id"],
+//     _sum: {
+//       price: true,
+//     },
+//   });
+//   const totalInventoryValue = totInvRes[0]._sum.price
 
 //   const getSiteSummary = (storeId) => {
 //     return new Promise((resolve, reject) => {

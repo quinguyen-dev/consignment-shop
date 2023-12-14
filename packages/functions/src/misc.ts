@@ -10,14 +10,22 @@ export const homepageData = ApiHandler(async (event) => {
   try {
     const stores = await client.stores.findMany({
         select:{
-            store_id: true,
-            store_name: true,
+            storeId: true,
+            storeName: true,
         _count:{
             select:{devices: true},
         }
+      },
+    });
+    const devices = await client.devices.findMany({
+      include:{
+        stores:{
+          select:{
+            storeName: true,
+          }
+        }
       }
     });
-    const devices = await client.devices.findMany({});
 
     // Shuffle array
     const shuffStores = stores.sort(() => 0.5 - Math.random());

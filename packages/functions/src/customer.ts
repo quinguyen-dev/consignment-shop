@@ -9,7 +9,7 @@ export const inspectStoreInv = ApiHandler(async (event) => {
   console.log(JSON.stringify(event));
   try {
     const r = await client.stores.findFirst({
-      where: { store_name: event.queryStringParameters?.storeName },
+      where: { storeName: event.queryStringParameters?.storeName },
       include: {
         devices: true,
       },
@@ -31,7 +31,7 @@ export const inspectStoreInv = ApiHandler(async (event) => {
 export const listStores = ApiHandler(async (event) => {
   try {
     const r = await client.stores.findMany({
-      select: { store_name: true, store_id: true },
+      select: { storeName: true, storeId: true },
     });
     const resultStr = JSON.stringify(r);
     console.log(JSON.stringify(r));
@@ -62,9 +62,9 @@ const getFees = async (
   };
   try {
     const data: any = await client.devices.findFirst({
-      where: { device_id: deviceId },
+      where: { deviceId: deviceId },
       include: {
-        stores: { select: { coords_lat: true, coords_long: true } },
+        stores: { select: { latititude: true, longitude: true } },
       },
     });
     console.log(JSON.stringify(data));
@@ -135,14 +135,14 @@ export const buyDevice = ApiHandler(async (event) => {
     try {
       const result = await client.transactions.createMany({
         data: {
-          transaction_id: "error",
-          store_id: storeId,
-          device_id: deviceId,
-          site_fee: fees.managersCut,
-          shipping_cost: fees.shippingCost,
-          total_cost: fees.shippingCost + fees.deviceCost,
-          buyer_lat: custLatitude,
-          buyer_long: custLongitude,
+          transactionId: "error",
+          storeId: storeId,
+          deviceId: deviceId,
+          siteFee: fees.managersCut,
+          shippingCost: fees.shippingCost,
+          totalCost: fees.shippingCost + fees.deviceCost,
+          latitude: custLatitude,
+          longitude: custLongitude,
         },
       });
       response.body = JSON.stringify(fees);
@@ -181,7 +181,7 @@ export const getDevice = ApiHandler(async (event) => {
     const deviceId = event.queryStringParameters?.deviceId;
     const result = await client.devices.findUnique({
       where: {
-        device_id: deviceId,
+        deviceId: deviceId,
       },
     });
     if (result == null) {
