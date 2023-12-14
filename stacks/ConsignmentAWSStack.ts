@@ -1,6 +1,13 @@
-import { CfnUserPoolClient, OAuthScope, StringAttribute, UserPool } from "aws-cdk-lib/aws-cognito";
+import {
+  CfnUserPoolClient,
+  OAuthScope,
+  StringAttribute,
+} from "aws-cdk-lib/aws-cognito";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import { Role } from "aws-cdk-lib/aws-iam";
+import * as lambda from "aws-cdk-lib/aws-lambda";
+import fs from "fs-extra";
+import path from "node:path";
 import {
   Api,
   Cognito,
@@ -9,7 +16,37 @@ import {
   StackContext,
 } from "sst/constructs";
 
+export const LAYER_MODULES = ["encoding", "@prisma/client/runtime"]
+
+function preparePrismaLayerFiles() {
+  const layerPath = "./layers/prisma";
+  try {
+    fs.rmSync(layerPath, { force: true, recursive: true });
+    fs.mkdirSync(layerPath, { recursive: true });
+    const files = [
+      "node_modules/.prisma",
+      "node_modules/@prisma/client",
+      "node_modules/prisma/build",
+    ];
+    for (const file of files) {
+      // Do not include binary files that aren't for AWS to save space
+      fs.copySync(file, path.join(layerPath, "nodejs", file), {
+        filter: (src) => !src.endsWith("so.node") || src.includes("rhel"),
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    return -1;
+  }
+}
+
 export function API({ stack }: StackContext) {
+  preparePrismaLayerFiles();
+  const PrismaLayer = new lambda.LayerVersion(stack, "PrismaLayer", {
+    description: "Prisma layer",
+    code: lambda.Code.fromAsset("./layers/prisma"),
+  });
+
   const lambdaVPC = ec2.Vpc.fromLookup(stack, "vpc-097dbaebc608e2ddd", {
     isDefault: true,
   });
@@ -31,6 +68,15 @@ export function API({ stack }: StackContext) {
     allowPublicSubnet: true,
     securityGroups: [lambdaSecGroup],
     role: lambdaRole,
+    layers: [PrismaLayer],
+    runtime: "nodejs18.x",
+    nodejs: {
+      // format: "esm",
+      esbuild: {
+        external: LAYER_MODULES.concat(["@prisma/engines", "@prisma/engines-version", "@prisma/internals"]),
+        sourcemap: true,
+      },
+    },
   });
 
   const cognito = new Cognito(stack, "Auth", {
@@ -60,7 +106,10 @@ export function API({ stack }: StackContext) {
             authorizationCodeGrant: true,
           },
           scopes: [OAuthScope.OPENID, OAuthScope.PROFILE, OAuthScope.EMAIL],
-          callbackUrls: ["https://oauth.pstmn.io/v1/callback", "http://localhost:3000/auth/callback/"],
+          callbackUrls: [
+            "https://oauth.pstmn.io/v1/callback",
+            "http://localhost:3000/auth/callback/",
+          ],
           logoutUrls: ["https://my-app-domain.com/signin"],
         },
       },
@@ -148,23 +197,34 @@ export function API({ stack }: StackContext) {
         }),
         authorizer: "none",
       },
+      "GET /customer/device": {
+        function: new Function(stack, "SSTCustGetDevice", {
+          handler: "packages/functions/src/customer.getDevice",
+        }),
+        authorizer: "none",
+      },
+      "GET /homepage-data": {
+        function: new Function(stack, "SSTMiscHomePage", {
+          handler: "packages/functions/src/misc.homepageData",
+        }),
+        authorizer: "none",
+      }
     },
   });
   // Allow authenticated users invoke API
   cognito.attachPermissionsForAuthUsers(stack, [api]);
 
   const site = new RemixSite(stack, "Site", {
-    path: "packages/web/"
+    path: "packages/web/",
   });
 
   const cfnUserPoolClient = cognito.cdk.userPoolClient.node
-  .defaultChild as CfnUserPoolClient;
-cfnUserPoolClient.callbackUrLs = [
-  "https://oauth.pstmn.io/v1/callback",
-  (site.url || "http://localhost:3000") + "/auth/callback/",
-];
-cfnUserPoolClient.logoutUrLs= [(site.url || "http://localhost:3000") + "/"]
-
+    .defaultChild as CfnUserPoolClient;
+  cfnUserPoolClient.callbackUrLs = [
+    "https://oauth.pstmn.io/v1/callback",
+    (site.url || "http://localhost:3000") + "/auth/callback/",
+  ];
+  cfnUserPoolClient.logoutUrLs = [(site.url || "http://localhost:3000") + "/"];
 
   // Show the API endpoint and other info in the output
   stack.addOutputs({

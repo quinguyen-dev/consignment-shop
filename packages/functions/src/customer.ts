@@ -1,285 +1,218 @@
-import { ApiHandler } from "sst/node/api";
-import { response } from "./util/response";
-import { connPool } from "./util/connPool";
-import { Computer, StoreInfo } from "./util/types";
+import { Prisma } from "@prisma/client";
 import { getDistance } from "geolib";
+import { ApiHandler } from "sst/node/api";
+import { client } from "./util/prismaClient";
+import { response } from "./util/response";
 
 export const inspectStoreInv = ApiHandler(async (event) => {
-  const queryData = {} as StoreInfo;
-  const getInventory = (storeName) => {
-    return new Promise((resolve, reject) => {
-      connPool.getConnection((err, connection) => {
-        if (err) {
-          response.statusCode = 503;
-          response.body = err.message;
-          return resolve(err);
-        }
-        connection.query(
-          `SELECT store_name, store_id FROM STORES WHERE STORES.store_name = ?;`,
-          [storeName],
-          (error, result) => {
-            if (error) {
-              response.statusCode = 418;
-              response.body = error.message;
-              return resolve(error);
-            } else {
-              console.log(result);
-              if (result) {
-                queryData.storeName = result[0]?.store_name;
-                queryData.storeId = result[0]?.store_id;
-                connection.query(
-                  `SELECT * FROM DEVICES WHERE DEVICES.store_id = ? AND DEVICES.listing_active = 1;`,
-                  [queryData.storeId],
-                  (error, result) => {
-                    console.log("HERE");
-                    if (error) {
-                      console.log(error);
-                      response.statusCode = 418;
-                      response.body = error.message;
-                      return resolve(error);
-                    }
-                    queryData.inventory = new Array<Computer>();
-                    result.map((val, index) => {
-                      queryData.inventory.push({
-                        deviceId: val.device_id,
-                        storeId: val.store_id,
-                        deviceName: val.device_name,
-                        formFactor: val.form_factor,
-                        processorModel: val.processor_model,
-                        memoryType: val.memory_type,
-                        memoryMb: val.memory_mb,
-                        storageType: val.storage_type,
-                        storageGb: val.storage_gb,
-                        price: val.price,
-                        operatingSystem: val.operating_system,
-                        dedicatedGpu: val.dedicated_gpu,
-                        gpuManufacturer: val.gpu_manufacturer,
-                        gpuModel: val.gpu_model,
-                        listingActive: val.listing_active,
-                      } as Computer);
-                    });
-
-                    response.body = queryData;
-                    if (connection) connection.release();
-                    return resolve(0);
-                  },
-                );
-              } else {
-                response.statusCode = 400;
-                response.body = "Invalid store name";
-              }
-            }
+  try {
+    const devices = await client.devices.findMany({
+      include: {
+        stores: {
+          select: {
+            storeName: true,
           },
-        );
-      });
+        },
+      },
+      where: {
+        stores: { storeName: event.queryStringParameters?.storeName === '' ? undefined :  event.queryStringParameters?.storeName},
+      },
     });
-  };
-  console.log(JSON.stringify(event));
-  const r = await getInventory(event.queryStringParameters?.storeName);
-  response.body = JSON.stringify(response.body);
-  return response;
+    console.log(event)
+    response.body = JSON.stringify({devices: devices });
+  } catch (err) {
+    console.log(err);
+    console.log(event);
+    response.statusCode = 400;
+    response.body =
+      err instanceof Error ? "Error: " + err.message : "Unknown error occurred";
+  }
+  return response
 });
 
 export const listStores = ApiHandler(async (event) => {
-  const queryData: StoreInfo[] = new Array<StoreInfo>();
-  const getStores = () => {
-    return new Promise((resolve, reject) => {
-      connPool.getConnection((err, connection) => {
-        if (err) {
-          response.statusCode = 503;
-          response.body = err.message;
-          return resolve(err);
-        }
-        connection.query(
-          `SELECT store_name as storeName, store_id as storeId FROM STORES;`,
-          (error, result) => {
-            if (error) {
-              response.statusCode = 418;
-              response.body = error.message;
-              return resolve(error);
-            } else {
-              result.map((val, index) => {
-                console.log(`VALUE: ${JSON.stringify(val)}`);
-                queryData.push(val as StoreInfo);
-              });
-              if (connection) connection.release();
-              return resolve(0);
-            }
-          },
-        );
-      });
+  try {
+    const r = await client.stores.findMany({
+      select: { storeName: true, storeId: true },
     });
-  };
-  const r = await getStores();
-  response.body = JSON.stringify({stores:queryData});
+    const resultStr = JSON.stringify(r);
+    console.log(JSON.stringify(r));
+    response.body = resultStr;
+  } catch (error) {
+    response.statusCode = 503;
+    response.body =
+      error instanceof Error ? error.message : (error as String).toUpperCase();
+  }
   return response;
 });
 
-const getFees = async (deviceId, custLat, custLong) => {
-  const getStoreLatAndLong = (deviceId) => {
-    return new Promise((resolve, reject) => {
-      connPool.getConnection((err, connection) => {
-        if (err) {
-          response.statusCode = 503;
-          response.body = err.message;
-          return resolve(err);
-        }
-        connection.query(
-          `SELECT coords_lat, coords_long, DEVICES.price FROM STORES, DEVICES WHERE STORES.store_id = DEVICES.store_id AND DEVICES.device_id = ?`,
-          [deviceId],
-          (error, result) => {
-            if (error) {
-              if (connection) connection.release();
-              return reject(error);
-            } else {
-              if (connection) connection.release();
-              console.log(result);
-              return resolve({
-                latitude: result[0]?.coords_lat,
-                longitude: result[0]?.coords_long,
-                devicePrice: result[0]?.price,
-              });
-            }
-          },
-        );
-      });
-    });
-  };
-  const responseData = {
-    shippingCost: null,
-    managersCut: null,
-    deviceCost: null,
-  };
-  const r: any = await getStoreLatAndLong(deviceId);
-  console.log(JSON.stringify(r));
-  if (r.latitude) {
-    responseData.shippingCost =
-      getDistance(
-        { latitude: custLat, longitude: custLong },
-        { latitude: r.latitude, longitude: r.longitude },
-      ) *
-      0.000621371 *
-      0.03;
-    responseData.deviceCost = r.devicePrice;
-    responseData.managersCut = r.devicePrice * 0.05;
-  }
+interface iFees {
+  shippingCost: number;
+  managersCut: number;
+  deviceCost: number;
+}
 
-  return responseData;
+const getFees = async (
+  deviceId: string,
+  custLat: number,
+  custLong: number,
+): Promise<iFees | number> => {
+  const responseData: iFees = {
+    shippingCost: -1,
+    managersCut: -1,
+    deviceCost: -1,
+  };
+  try {
+    const data: any = await client.devices.findFirst({
+      where: { deviceId: deviceId },
+      include: {
+        stores: { select: { latititude: true, longitude: true } },
+      },
+    });
+    console.log(JSON.stringify(data));
+    if (data.stores.coords_lat) {
+      const latitude = data.stores.coords_lat;
+      const longitude = data.stores.coords_long;
+      responseData.shippingCost =
+        getDistance(
+          { latitude: custLat, longitude: custLong },
+          { latitude: latitude, longitude: longitude },
+        ) *
+        0.000621371 *
+        0.03;
+      responseData.deviceCost = data.price;
+      responseData.managersCut = data.price * 0.05;
+    }
+
+    return responseData;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+  return -1;
 };
 
 export const estimateFees = ApiHandler(async (event) => {
-  const fees: any = await getFees(
-    event.queryStringParameters?.deviceId,
-    event.queryStringParameters?.custLatitude,
-    event.queryStringParameters?.custLongitude,
-  );
-  fees.shippingCost
-    ? (response.body = JSON.stringify(fees))
-    : (response.body = JSON.stringify(response.body));
+  let fees: iFees | null = null;
+  try {
+    const returnedFees = await getFees(
+      event.queryStringParameters?.deviceId!,
+      +event.queryStringParameters?.custLatitude!,
+      +event.queryStringParameters?.custLongitude!,
+    );
+    if (returnedFees instanceof Number) {
+      throw Error("failed to calculate fees");
+    }
+    const fees = returnedFees as iFees;
+    if (fees?.shippingCost) {
+      response.body = JSON.stringify(fees);
+    } else {
+      response.body = JSON.stringify(response.body);
+    }
+  } catch (error) {
+    response.body = `ERROR: Invalid parameters. Parameters received: ${event.queryStringParameters}`;
+  }
   return response;
 });
 
 export const buyDevice = ApiHandler(async (event) => {
-  const deviceId = event.queryStringParameters?.deviceId;
-  var storeId = event.queryStringParameters?.storeId
-  const custLatitude = event.queryStringParameters?.custLatitude;
-  const custLongitude = event.queryStringParameters?.custLongitude;
-  
-  const fees: any = await getFees(
-    event.queryStringParameters?.deviceId,
+  const deviceId = event.queryStringParameters?.deviceId
+    ? event.queryStringParameters.deviceId
+    : "";
+  var storeId = event.queryStringParameters?.storeId;
+  const custLatitude: number = Number(
     event.queryStringParameters?.custLatitude,
+  );
+  const custLongitude: number = Number(
     event.queryStringParameters?.custLongitude,
   );
 
-  if (fees.shippingCost) {
-    if(storeId == null) {
-    const getStoreId = () => {
-      return new Promise((resolve, reject) => {
-        connPool.getConnection((err, connection) => {
-          if (err) {
-            response.statusCode = 503;
-            response.body = err.message;
-            return resolve(err);
-          }
-          if(storeId == null){
-             connection.query(
-                `SELECT store_id FROM DEVICES WHERE DEVICES.device_id = ?`,
-                [deviceId],
-                (error, result) => {
-                  if (error) {
-                    response.statusCode = 418;
-                    response.body = error.message;
-                    if (connection) connection.release();
-      
-                    return reject(error);
-                  } else {
-                    console.log(result);
-                    storeId = result[0]?.store_id
-                    console.log(storeId)
-                  }
-                },
-              );
-          }
-        });
+  const fees: iFees | Number = await getFees(
+    deviceId,
+    custLatitude,
+    custLongitude,
+  );
+
+  if (!(fees instanceof Number)) {
+    try {
+      const result = await client.transactions.createMany({
+        data: {
+          transactionId: "error",
+          storeId: storeId,
+          deviceId: deviceId,
+          siteFee: fees.managersCut,
+          shippingCost: fees.shippingCost,
+          totalCost: fees.shippingCost + fees.deviceCost,
+          latitude: custLatitude,
+          longitude: custLongitude,
+        },
       });
-    };
-    const id = await getStoreId();
-    }
-    const newTransaction = () => {
-      return new Promise((resolve, reject) => {
-        connPool.getConnection((err, connection) => {
-          if (err) {
-            response.statusCode = 503;
-            response.body = err.message;
-            return reject(err);
-          }
-          connection.query(
-            `INSERT INTO TRANSACTIONS(store_id, device_id, site_fee, shipping_cost, total_cost, buyer_lat, buyer_long) VALUES (?,?,?,?,?,?,?)`,
-            [
-              storeId,
-              deviceId,
-              fees.managersCut,
-              fees.shippingCost,
-              ((fees.shippingCost as number) + (fees.deviceCost as number)),
-              custLatitude,
-              custLongitude,
-            ],
-            (error, result) => {
-              if (error) {
-                response.statusCode = 418;
-                response.body = error.message;
-                if (connection) connection.release();
-                return resolve(error);
-              } else {
-                console.log(result);
-                response.body = result
-              }
-            },
+      response.body = JSON.stringify(fees);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        // The .code property can be accessed in a type-safe manner
+        if (error.code === "P2002") {
+          console.log(
+            "There is a unique constraint violation, a new user cannot be created with this email",
           );
-          connection.query(`UPDATE DEVICES SET listing_active = 0 WHERE DEVICES.device_id = ?`, [deviceId], (error, result)=>{
-            if(error){
-              if(connection) connection.release();
-              response.statusCode = 207
-              response.body = {errorMessage: "Transaction created but device not removed from inventory"}
-              return resolve(error);
-            }
-            else {
-              if(connection) connection.release();
-              return resolve(result);
-            }
-          });
-
-        });
-      });
-    };
-    const r = await newTransaction();
-  }
-  else{
+          response.body = "Unique constraint violation: " + error.message;
+        } else {
+          const errorStr = `Prisma error ${error.code}: ${error.message}`;
+          console.log(errorStr);
+          response.body = errorStr;
+        }
+      } else {
+        console.log(`ERROR: ${JSON.stringify(error)}`);
+        response.statusCode = 400;
+        response.body =
+          "Error creating transaction: " +
+          (error instanceof Error ? error.message : JSON.stringify(error));
+      }
+    }
+  } else {
     response.statusCode = 500;
-    response.body = "Error generating fees and total cost information"
+    response.body = "Error generating fees and total cost information";
+  }
+  console.log(`EVENT: ${event}`);
+  response.body = JSON.stringify(response.body);
+  return response;
+});
+
+export const getDevice = ApiHandler(async (event) => {
+  try {
+    const deviceId = event.queryStringParameters?.deviceId;
+    const result = await client.devices.findUnique({
+      where: {
+        deviceId: deviceId,
+      },
+    });
+    if (result == null) {
+      throw Error("no device found with that ID");
+    } else {
+      response.statusCode = 200;
+    }
+    response.body = JSON.stringify(result);
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // The .code property can be accessed in a type-safe manner
+      if (error.code === "P2002") {
+        console.log(
+          "There is a unique constraint violation, a new user cannot be created with this email",
+        );
+        response.body = "Unique constraint violation: " + error.message;
+      } else {
+        const errorStr = `Prisma error ${error.code}: ${error.message}`;
+        console.log(errorStr);
+        response.body = errorStr;
+      }
+    } else {
+      console.log(`ERROR: ${JSON.stringify(error)}`);
+      response.statusCode = 400;
+      response.body =
+        "Error creating transaction: " +
+        (error instanceof Error ? error.message : JSON.stringify(error));
+    }
   }
 
-  console.log(`EVENT: ${event}`)
-  response.body = JSON.stringify(response.body);
   return response;
 });

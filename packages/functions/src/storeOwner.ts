@@ -1,359 +1,216 @@
 import { ApiHandler } from "sst/node/api";
-import { connPool } from "./util/connPool";
+import { client } from "./util/prismaClient";
 import { response } from "./util/response";
-import { Computer } from "./util/types";
 
 /* Do whatever operation */
 export const newStore = ApiHandler(async (event) => {
-  const createStore = (username, storeName, lat, long, address) => {
-    return new Promise((resolve, reject) => {
-      connPool.query(
-        `INSERT INTO STORES (store_name, coords_lat, coords_long, street_address, store_owner_id) VALUES (?, ?, ?, ?, ?);`,
-        [storeName, lat, long, address, username],
-        (error, result) => {
-          console.log("HERE");
-          if (error) {
-            response.statusCode = 418;
-            response.body = {
-              "error message": error.message,
-              "received-body": JSON.stringify(event.body),
-            };
-            return resolve(error);
-          } else {
-            console.log("HERE2");
-            response.statusCode = 201;
-            response.body = result;
-            return resolve(0);
-          }
-        },
-      );
-    });
-  };
-
   console.log(`EVENT: ${JSON.stringify(event)}`);
-  const userInfo = event.requestContext.authorizer.jwt.claims;
+  const userInfo = (event.requestContext as any).authorizer?.jwt.claims;
   console.log(`User Info: ${JSON.stringify(userInfo)}`);
-  const storeInfo = JSON.parse(event.body);
+  const storeInfo = JSON.parse(event.body ? event.body : "");
   console.log(`STORE INFO: ${JSON.stringify(storeInfo)}`);
-  const r = await createStore(
-    userInfo.username,
-    storeInfo.storeName,
-    storeInfo.latitude,
-    storeInfo.longitude,
-    storeInfo.address,
-  );
+  try {
+    const returnedData = await client.stores.createMany({
+      data: {
+        storeId: "error",
+        storeName: storeInfo.storeName,
+        latititude: storeInfo.latitude,
+        longitude: storeInfo.longitude,
+        streetAddress: storeInfo.address,
+        storeOwnerId: userInfo.username,
+      },
+    });
+    response.statusCode = 400;
+    response.body = JSON.stringify(returnedData);
+  } catch (error) {
+    console.error(error);
+    console.log(event.body);
+    response.statusCode = 400;
+    response.body =
+      "ERROR: unable to create new store. \t" +
+      (error instanceof Error ? error.message : JSON.stringify(error));
+  }
   console.log(`RESPONSE: ${JSON.stringify(response)}`);
-  response.body = JSON.stringify(response.body);
   return response;
 });
 
 export const newDevice = ApiHandler(async (event) => {
-  const insertDevice = (
-    storeId,
-    deviceName,
-    price,
-    formFactor,
-    memoryMB,
-    memoryType,
-    storageGB,
-    storageType,
-    cpuMan,
-    cpuModel,
-    gpuMan,
-    gpuModel,
-    dedicatedGpu,
-    os,
-  ) => {
-    return new Promise((resolve, reject) => {
-      connPool.getConnection((err, connection) => {
-        if (err) {
-          response.statusCode = 418;
-          response.body = err;
-          return resolve(1);
-        }
-        connection.query(
-          `INSERT INTO DEVICES(store_id, device_name, price, form_factor, memory_mb, memory_type, storage_gb, storage_type, processor_manufacturer, processor_model, gpu_manufacturer, gpu_model, dedicated_gpu, operating_system, listing_active) VALUES (?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?);`,
-          [
-            storeId,
-            deviceName,
-            price,
-            formFactor,
-            memoryMB,
-            memoryType,
-            storageGB,
-            storageType,
-            cpuMan,
-            cpuModel,
-            gpuMan,
-            gpuModel,
-            dedicatedGpu,
-            os,
-            true,
-          ],
-          (error, result) => {
-            console.log("HERE");
-            if (error) {
-              response.statusCode = 418;
-              console.log(error);
-              response.body = error;
-              if (connection) connection.release();
-              return resolve(error);
-            } else {
-              connection.query(
-                "SELECT * FROM DEVICES WHERE store_id = ? ORDER BY updated_at DESC limit 1",
-                [storeId],
-                (err, res) => {
-                  if (err) {
-                    console.log(err);
-                    response.body = err;
-                    response.statusCode = 207;
-                    if (connection) connection.release();
-                    return resolve(0);
-                  }
-                  if (connection) connection.release();
-                  response.statusCode = 201;
-                  response.body = res[0];
-                  return resolve(0);
-                },
-              );
-            }
-          },
-        );
-      });
+  const body = JSON.parse(event.body!);
+  try {
+    const newDeviceInfo = {
+      deviceId: "error",
+      storeId: body.storeId,
+      deviceName: body.deviceName,
+      price: body.price,
+      formFactor: body.formFactor,
+      processorManufacturer: body.processorManufacturer,
+      processorModel: body.processorModel,
+      memoryType: body.memoryType,
+      memoryMb: body.memoryMB,
+      storageType: body.storageType,
+      storageGb: body.storageGB,
+      operatingSystem: body.operatingSystem,
+      dedicatedGpu: body.dedicatedGpu,
+      gpuManufacturer: body.gpuManufacturer,
+      gpuModel: body.gpuModel,
+      listingActive: true,
+    };
+    const res = await client.devices.createMany({
+      data: newDeviceInfo,
     });
-  };
-
-  const body = JSON.parse(event.body);
-  const r = await insertDevice(
-    body.storeId,
-    body.deviceName,
-    body.price,
-    body.formFactor,
-    body.memoryMB,
-    body.memoryType,
-    body.storageGB,
-    body.storageType,
-    body.processorManufacturer,
-    body.processorModel,
-    body.gpuManufacturer,
-    body.gpuModel,
-    body.dedicatedGpu,
-    body.operatingSystem,
-  );
-
-  response.body = JSON.stringify(response.body);
+    const { deviceId, ...otherFields } = newDeviceInfo;
+    console.log(otherFields);
+    const deviceInfo = await client.devices.findFirst({
+      select: {
+        deviceId: true,
+      },
+      where: {
+        storeId: newDeviceInfo.storeId,
+        AND: [
+          { deviceName: newDeviceInfo.deviceName },
+          { processorManufacturer: newDeviceInfo.processorManufacturer },
+        ],
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+    });
+    response.statusCode = 200;
+    response.body = JSON.stringify({
+      deviceId: deviceInfo?.deviceId,
+      ...otherFields,
+    });
+  } catch (error) {
+    console.error(error);
+    console.log(event.body);
+    response.statusCode = 400;
+    response.body =
+      "ERROR: unable to create new device. \t" +
+      (error instanceof Error ? error.message : JSON.stringify(error));
+  }
   return response;
 });
 
 export const dashboard = ApiHandler(async (event) => {
-  const queryData = {
-    storeName: null,
-    storeId: null,
-    accountBalance: 0,
-    totalInventoryValue: 0,
-    inventory: [],
-  };
-  const getInventory = (username) => {
-    return new Promise((resolve, reject) => {
-      connPool.getConnection((err, connection) => {
-        if (err) {
-          response.statusCode = 503;
-          response.body = err.message;
-          return resolve(err);
-        }
-        connection.query(
-          `SELECT store_name, store_id FROM STORES WHERE STORES.store_owner_id = ?;`,
-          [username],
-          (error, result) => {
-            if (error) {
-              response.statusCode = 418;
-              response.body = error.message;
-              return resolve(error);
-            } else {
-              console.log(result);
-              queryData.storeName = result[0]?.store_name;
-              queryData.storeId = result[0]?.store_id;
-            }
-            connection.query(
-              `SELECT * FROM DEVICES, STORES WHERE DEVICES.store_id = STORES.store_id and STORES.store_id = ? and DEVICES.listing_active = 1;`,
-              [queryData.storeId],
-              (error, result) => {
-                console.log("HERE");
-                if (error) {
-                  console.log(error);
-                  response.statusCode = 418;
-                  response.body = error.message;
-                  return resolve(error);
-                }
-                console.log("HERE2");
-                queryData.inventory = result ? result : [];
-                queryData.inventory.map((device: Computer, index: number) => {
-                  queryData.totalInventoryValue += device.price;
-                });
-                if (queryData.storeId) {
-                  connection.query(
-                    `select s.store_id, SUM(t.total_cost-t.shipping_cost-t.site_fee) as balance from STORES as s LEFT JOIN TRANSACTIONS as t ON s.store_id = t.store_id WHERE s.store_id = ? group by s.store_id`,
-                    [queryData.storeId],
-                    (error, result) => {
-                      console.log("HERE");
-                      if (error) {
-                        console.log(error);
-                        response.statusCode = 418;
-                        response.body = error.message;
-                        connection.release();
-                        return resolve(error);
-                      } else {
-                        console.log("HERE2");
-                        queryData.accountBalance = result[0].balance
-                          ? result[0].balance
-                          : 0;
-                        if (connection) connection.release();
-                      }
-                    },
-                  );
-                }
-                response.body = queryData;
-                return resolve(0);
-              },
-            );
-          },
-        );
-      });
+  try {
+    const res = await client.stores.findFirst({
+      where: {
+        storeOwnerId: (event.requestContext as any).authorizer?.jwt.claims
+          .username,
+      },
+      include: {
+        devices: true,
+      },
     });
-  };
-  const r = await getInventory(
-    event.requestContext.authorizer.jwt.claims?.username,
-  );
+    const balance = await client.transactions.groupBy({
+      by: ["storeId"],
+      where: { storeId: res?.storeId },
+      _sum: {
+        totalCost: true,
+        siteFee: true,
+        shippingCost: true,
+      },
+    });
+    const resBody = { ...res, accountBalance: 0, totalInventoryValue: 0 };
+    resBody.accountBalance = balance[0]._sum
+      ? balance[0]._sum.totalCost! -
+        balance[0]._sum.siteFee! -
+        balance[0]._sum.shippingCost!
+      : -1;
+    let inventory = 0;
+    res?.devices.forEach((device: any) => {
+      inventory += device.price;
+    });
+    resBody.totalInventoryValue = inventory;
+    response.statusCode = 200;
+    response.body = JSON.stringify(resBody);
+  } catch (error) {
+    console.error(error);
+    console.log(event.body);
+    response.statusCode = 400;
+    response.body =
+      "ERROR: unable to retreive user info. \t" +
+      (error instanceof Error ? error.message : JSON.stringify(error));
+  }
   response.body = JSON.stringify(response.body);
   return response;
 });
 
 export const getStoreOwnerInfo = ApiHandler(async (event) => {
-  const queryData = {
-    username: null,
-    storeName: null,
-    storeId: null,
-    inventoryValue: 0,
-  };
-  const getOwnerSummary = (username) => {
-    return new Promise((resolve, reject) => {
-      connPool.getConnection((err, connection) => {
-        if (err) {
-          response.statusCode = 503;
-          response.body = err.message;
-          return resolve(err);
-        }
-        connection.query(
-          `SELECT store_name, store_id FROM STORES WHERE STORES.store_owner_id = ?;`,
-          [username],
-          (error, result) => {
-            if (error) {
-              response.statusCode = 418;
-              response.body = error.message;
-              return resolve(error);
-            } else {
-              console.log(result);
-              queryData.storeName = result[0].store_name;
-              queryData.storeId = result[0].store_id;
-            }
-            connection.query(
-              `SELECT SUM(price) as balance FROM DEVICES, STORES WHERE DEVICES.store_id = STORES.store_id and STORES.store_owner_id = ? AND DEVICES.listing_active = 1;`,
-              [username],
-              (error, result) => {
-                console.log("HERE");
-                if (error) {
-                  console.log(error);
-                  response.statusCode = 418;
-                  response.body = error.message;
-                  connection.release();
-                  return resolve(error);
-                } else {
-                  console.log("HERE2");
-                  queryData.inventoryValue = result[0].balance
-                    ? result[0].balance
-                    : 0;
-                }
-                response.body = queryData;
-                return resolve(0);
-              },
-            );
-          },
-        );
-      });
+  try {
+    const res = await client.stores.findFirst({
+      where: {
+        storeOwnerId: (event.requestContext as any).authorizer?.jwt.claims
+          .username,
+      },
+      include: {
+        devices: {
+          select: { price: true },
+        },
+      },
     });
-  };
-  console.log(event);
-
-  queryData.username = event.requestContext.authorizer.jwt.claims?.username;
-  const r = await getOwnerSummary(queryData.username);
-  response.body = JSON.stringify(response.body);
+    const balance = await client.transactions.groupBy({
+      by: ["storeId"],
+      where: { storeId: res?.storeId },
+      _sum: {
+        totalCost: true,
+        siteFee: true,
+        shippingCost: true,
+      },
+    });
+    const resBody = { ...res, accountBalance: 0, totalInventoryValue: 0 };
+    resBody.accountBalance = balance[0]._sum
+      ? balance[0]._sum.totalCost! -
+        balance[0]._sum.siteFee! -
+        balance[0]._sum.shippingCost!
+      : -1;
+    let inventory = 0;
+    res?.devices.forEach((device: any) => {
+      inventory += device.price;
+    });
+    resBody.totalInventoryValue = inventory;
+    response.statusCode = 200;
+    response.body = JSON.stringify(resBody);
+  } catch (error) {
+    console.error(error);
+    console.log(event.body);
+    response.statusCode = 400;
+    response.body =
+      "ERROR: unable to retrieve user info. \t" +
+      (error instanceof Error ? error.message : JSON.stringify(error));
+  }
   return response;
 });
 
 export const deleteDevice = ApiHandler(async (event) => {
-  const removeDevice = (deviceId) => {
-    return new Promise((resolve, reject) => {
-      connPool.getConnection((err, connection) => {
-        if (err) {
-          response.statusCode = 503;
-          response.body = err.message;
-          return resolve(err);
-        }
-        connection.query(
-          "SELECT store_id from DEVICES where device_id = ?",
-          [deviceId],
-          (errors, result) => {
-            if (errors) {
-              response.statusCode = 418;
-              response.body = errors.message;
-              return resolve(errors);
-            }
-            const storeId = result[0]?.store_id;
-            if (storeId) {
-              connection.query(
-                `DELETE FROM DEVICES WHERE device_id = ?;`,
-                [deviceId],
-                (error, result) => {
-                  if (error) {
-                    response.statusCode = 418;
-                    response.body = error.message;
-                    return resolve(error);
-                  } else {
-                    response.statusCode = 200;
-                    response.body = result;
-
-                    connection.query(
-                      `INSERT INTO TRANSACTIONS(store_id, device_id, site_fee, shipping_cost, total_cost) VALUES (?, ?, ?, ?, ?)`,
-                      [storeId, null, 25, 0, 0],
-                      (err, result) => {
-                        if (err) {
-                          response.statusCode = 203;
-                          response.body = err;
-                          if (connection) connection.release();
-                          return resolve(1);
-                        } else {
-                          if (connection) connection.release();
-                          return resolve(0);
-                        }
-                      },
-                    );
-                  }
-                },
-              );
-            } else {
-              response.statusCode = 418;
-              response.body = { errorMessage: "cannot find device" };
-              return resolve(errors);
-            }
-          },
-        );
-      });
+  const deviceId = JSON.parse(event.body ? event.body : "").deviceId;
+  try {
+    const deviceData = await client.devices.findFirst({
+      where: { deviceId: deviceId },
     });
-  };
-  console.log(event);
-
-  const deviceId = JSON.parse(event.body).deviceId;
-  const r = await removeDevice(deviceId);
+    const res = await client.devices.delete({
+      where: {
+        deviceId: deviceId,
+      },
+    });
+    const transRes = await client.transactions.createMany({
+      data: {
+        deviceId: null,
+        storeId: deviceData?.storeId,
+        transactionId: "error",
+        siteFee: -25,
+      },
+    });
+    response.statusCode = 200;
+    response.body = JSON.stringify(res);
+  } catch (error) {
+    console.error(error);
+    console.log(event.body);
+    response.statusCode = 400;
+    response.body =
+      "ERROR: unable to delete device. \t" +
+      (error instanceof Error ? error.message : JSON.stringify(error));
+  }
   response.body = JSON.stringify(response.body);
   return response;
 });
