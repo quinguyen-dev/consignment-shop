@@ -1,11 +1,10 @@
-import { QueryClient, dehydrate } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { CustomerStoreResponse } from "~/hooks/types";
+import { Computer, Store } from "~/hooks/types";
 
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { ActionFunctionArgs } from "@remix-run/node";
+import { Link } from "@remix-run/react";
 import placeholderIcon from "~/assets/placeholder.svg";
-import { useCustomerData } from "~/hooks/useCustomerData";
 import { authenticator, setRedirectUrl } from "~/services/auth.server";
 
 // Action function to log the user in/out depending on what you said
@@ -29,26 +28,27 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
-// Check if the user is authenticated, get their details if so
-export async function loader({ request }: LoaderFunctionArgs) {
-  const queryClient = new QueryClient();
+type NewComputer = Computer & {
+  stores: {
+    storeName: string;
+  };
+};
 
-  await queryClient.prefetchQuery({
-    queryKey: ["stores"],
-    queryFn: async (): Promise<CustomerStoreResponse> => {
-      const response = await axios.get("customer/list-stores");
+type HomePageData = {
+  selecDevices: [NewComputer, NewComputer, NewComputer, NewComputer];
+  selecStores: [Store, Store, Store, Store];
+};
+
+export default function AppIndex() {
+  const { data: query, isLoading } = useQuery({
+    queryKey: ["homepage_data"],
+    queryFn: async (): Promise<HomePageData> => {
+      const response = await axios.get("homepage-data");
       return response.data;
     },
   });
 
-  // Turn the auth state into a boolean (so that we don't pass a token around when we don't need it)
-  return json({ dehydratedState: dehydrate(queryClient) });
-}
-
-export default function AppIndex() {
-  const { dehydratedState } = useLoaderData<typeof loader>();
-  const store = useCustomerData();
-  const query = store.fetchAll();
+  if (isLoading) return "Loading";
 
   return (
     <div className="py-4">
@@ -62,36 +62,40 @@ export default function AppIndex() {
       <hr className="my-6" />
       <section>
         <h1 className="text-2xl font-bold">Featured products</h1>
-        <div className="pt-3 items-start flex">
-          <div className="border p-4 rounded-xl">
-            <div className="w-[200px] aspect-square flex justify-center items-center rounded-lg bg-gray-200 mb-4 ">
-              <img src={placeholderIcon} alt="product image" />
-            </div>
-            <h2 className="text-lg font-bold">Product name</h2>
-            <p className="text-sm text-gray-500">
-              Sold by:{" "}
-              <Link to="/" className="hover:underline">
-                This is somethign
-              </Link>
-            </p>
-            <p className="text-md font-medium">$999.99</p>
-          </div>
+        <div className="pt-3 grid grid-cols-2 gap-4 md:grid-cols-4">
+          {query?.selecDevices.map((computer: NewComputer) => {
+            return (
+              <div className="border p-4 rounded-xl">
+                <div className="w-full h-[200px] flex justify-center items-center rounded-lg bg-gray-200 mb-4 ">
+                  <img src={placeholderIcon} alt="product image" />
+                </div>
+                <h2 className="text-lg font-bold">{computer.deviceName}</h2>
+                <p className="text-sm text-gray-500">
+                  Sold by:{" "}
+                  <Link to="/" className="hover:underline">
+                    {computer.stores.storeName}
+                  </Link>
+                </p>
+                <p className="text-md font-medium">${computer.price}</p>
+              </div>
+            );
+          })}
         </div>
       </section>
       <section className="mt-12">
         <h1 className="text-2xl font-bold">Featured stores</h1>
-        <div className="pt-3 items-start flex">
-          <div className="border px-4 py-4 min-w-[386px] flex space-x-3 rounded-lg">
-            <div className="w-[64px] aspect-square flex justify-center items-center rounded-lg bg-gray-200">
-              <img src={placeholderIcon} alt="product image" />
+        <div className="pt-3 grid grid-cols-2 md:grid-cols-4 gap-4">
+          {query?.selecStores.map((store: Store, idx: number) => (
+            <div
+              key={idx}
+              className="border px-4 py-4 flex space-x-3 rounded-lg"
+            >
+              <div className="w-[64px] aspect-square flex justify-center items-center rounded-lg bg-gray-200">
+                <img src={placeholderIcon} alt="product image" />
+              </div>
+              <h2 className="font-bold">{store.storeName}</h2>
             </div>
-            <div>
-              <h2 className="font-bold">Store name</h2>
-              <p className="text-sm text-gray-500">
-                Computers in stock: <span>4</span>
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
     </div>
