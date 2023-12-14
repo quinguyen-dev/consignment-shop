@@ -1,75 +1,23 @@
 import { Link, useSearchParams } from "@remix-run/react";
-import { ResultPane } from "ResultPane";
 import { useState } from "react";
-import Modal from "react-modal";
-import placeholderIcon from "~/assets/placeholder.svg";
-import { Computer } from "~/hooks/types";
+import { Computer, ComputerResultResponse } from "~/hooks/types";
+import { useCustomerData } from "~/hooks/useCustomerData";
+import { ResultPane } from "~/routes/_app.sr/ResultPane";
 
 /* Get all data if searching, otherwise, just get the search parameters */
 export function loader() {
   return "test";
 }
 
-const test: Computer[] = [
-  {
-    deviceId: "e1300ee5-8cd8-11ee-b2f1-02893a3229ad",
-    storeId: "21191237-8a6b-11ee-b2f1-02893a3229ad",
-    processorManufacturer: "hello",
-    deviceName: "TEST DEVICE POSTMAN",
-    formFactor: "Laptop",
-    processorModel: "TEST MODEL",
-    memoryType: "DDR 4",
-    memoryMb: 1024,
-    storageType: "SSD",
-    storageGb: 1024,
-    price: 8888,
-    operatingSystem: "TEST OS",
-    dedicatedGpu: true,
-    gpuManufacturer: "TEST MAN",
-    gpuModel: "TEST GPU",
-    listingActive: true,
-  },
-  {
-    deviceId: "fasdfasdf-8cd8-11ee-b2f1-02893a3229ad",
-    storeId: "21191237-8a6b-11ee-b2f1-02893a3229ad",
-    processorManufacturer: "hello",
-    deviceName: "TEST DEVICE POSTMAN",
-    formFactor: "Laptop",
-    processorModel: "TEST MODEL",
-    memoryType: "DDR 4",
-    memoryMb: 1024,
-    storageType: "SSD",
-    storageGb: 1024,
-    price: 8888,
-    operatingSystem: "TEST OS",
-    dedicatedGpu: true,
-    gpuManufacturer: "TEST MAN",
-    gpuModel: "TEST GPU",
-    listingActive: true,
-  },
-  {
-    deviceId: "ff-8cd8-11ee-b2f1-02893a3229ad",
-    storeId: "21191237-8a6b-11ee-b2f1-02893a3229ad",
-    processorManufacturer: "hello",
-    deviceName: "TEST DEVICE POSTMAN",
-    formFactor: "Laptop",
-    processorModel: "TEST MODEL",
-    memoryType: "DDR 4",
-    memoryMb: 1024,
-    storageType: "SSD",
-    storageGb: 1024,
-    price: 8888,
-    operatingSystem: "TEST OS",
-    dedicatedGpu: true,
-    gpuManufacturer: "TEST MAN",
-    gpuModel: "TEST GPU",
-    listingActive: true,
-  },
-];
-
 export default function SearchResults() {
   const [searchParams] = useSearchParams();
+  const [store, query] = [
+    searchParams.get("store") ?? "",
+    searchParams.get("query"),
+  ];
   const [compareList, setCompareList] = useState<Computer[]>([]);
+  const storeInfo = useCustomerData();
+  const { data } = storeInfo.fetchStoreInfo(store);
 
   function addToCompareList(computer: Computer) {
     const isAlreadySelected = compareList.includes(computer);
@@ -84,55 +32,9 @@ export default function SearchResults() {
 
   return (
     <>
-      <Modal
-        isOpen={false}
-        className="flex justify-center align-center bg-white w-11/12 py-12 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-      >
-        <div className="flex space-x-4">
-          {compareList.map((computer: Computer) => (
-            <div className="p-4 rounded-2xl">
-              <div className="w-[256px] aspect-square flex justify-center items-center rounded-lg bg-gray-200 mb-4 self-center">
-                <img src={placeholderIcon} alt="product image" />
-              </div>
-              <h1 className="font-bold text-lg text-center">
-                {computer.deviceName}
-              </h1>
-              <h2 className="font-medium text-lg mb-4 text-center">
-                ${computer.price}
-              </h2>
-              <div className="flex space-x-12">
-                <div className="w-fit font-medium">
-                  <p>Form factor: </p>
-                  <p>Processor manufacturer: </p>
-                  <p>Processor model: </p>
-                  <p>Memory type: </p>
-                  <p>Memory capacity: </p>
-                  <p>Storage type: </p>
-                  <p>Storage capacity: </p>
-                  <p>GPU manufacturer: </p>
-                  <p>GPU model: </p>
-                  <p>Operating system: </p>
-                </div>
-                <div className="w-fit">
-                  <p>{computer.formFactor} </p>
-                  <p>{computer.processorManufacturer}</p>
-                  <p>{computer.processorModel}</p>
-                  <p>{computer.memoryType}</p>
-                  <p>{computer.memoryMb}</p>
-                  <p>{computer.storageType}</p>
-                  <p>{computer.storageGb}</p>
-                  <p>{computer.gpuManufacturer}</p>
-                  <p>{computer.gpuModel}</p>
-                  <p>{computer.operatingSystem}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Modal>
       <div className="p-2">
         <p className="text-xs">
-          Showing 1000 search results for "{searchParams}"
+          Showing {data?.devices.length ?? 0} search results for "{query}"
         </p>
       </div>
       <hr />
@@ -154,7 +56,7 @@ export default function SearchResults() {
             </Link>
           </div>
           <div id="results" className="flex flex-col mt-4">
-            {test.map((computer: Computer) => (
+            {data?.devices.map((computer: ComputerResultResponse) => (
               <ResultPane
                 computer={computer}
                 onChange={addToCompareList}

@@ -1,10 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import { Computer, Store } from "~/hooks/types";
+import { ComputerResultResponse, Store } from "~/hooks/types";
 
 import { ActionFunctionArgs } from "@remix-run/node";
 import { Link } from "@remix-run/react";
 import placeholderIcon from "~/assets/placeholder.svg";
+import { useCustomerData } from "~/hooks/useCustomerData";
 import { authenticator, setRedirectUrl } from "~/services/auth.server";
 
 // Action function to log the user in/out depending on what you said
@@ -28,25 +27,9 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
-type NewComputer = Computer & {
-  stores: {
-    storeName: string;
-  };
-};
-
-type HomePageData = {
-  selecDevices: [NewComputer, NewComputer, NewComputer, NewComputer];
-  selecStores: [Store, Store, Store, Store];
-};
-
 export default function AppIndex() {
-  const { data: query, isLoading } = useQuery({
-    queryKey: ["homepage_data"],
-    queryFn: async (): Promise<HomePageData> => {
-      const response = await axios.get("homepage-data");
-      return response.data;
-    },
-  });
+  const customerInfo = useCustomerData();
+  const { data: query, isLoading } = customerInfo.fetchHomePageData();
 
   if (isLoading) return "Loading";
 
@@ -63,7 +46,7 @@ export default function AppIndex() {
       <section>
         <h1 className="text-2xl font-bold">Featured products</h1>
         <div className="pt-3 grid grid-cols-2 gap-4 md:grid-cols-4">
-          {query?.selecDevices.map((computer: NewComputer) => {
+          {query?.selecDevices.map((computer: ComputerResultResponse) => {
             return (
               <div key={computer.deviceId} className="border p-4 rounded-xl">
                 <div className="w-full h-[200px] flex justify-center items-center rounded-lg bg-gray-200 mb-4 ">

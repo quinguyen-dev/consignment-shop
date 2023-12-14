@@ -60,3 +60,16 @@ export type StoreInventoryResponse = Omit<InventoryResponse, "totalBalance">;
 export type CustomerStoreResponse = {
   stores: Omit<Store, "balance">[];
 };
+
+export type ComputerResultResponse = Computer & {
+  stores: { storeName: string };
+};
+
+export type SearchResultResponse = {
+  devices: ComputerResultResponse[];
+};
+
+export type HomePageResponse = {
+  selecDevices: ComputerResultResponse[];
+  selecStores: Store[];
+};
