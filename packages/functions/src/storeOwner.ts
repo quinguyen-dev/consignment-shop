@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { ApiHandler } from "sst/node/api";
 import { client } from "./util/prismaClient";
 import { response } from "./util/response";
@@ -87,6 +88,46 @@ export const newDevice = ApiHandler(async (event) => {
     response.body =
       "ERROR: unable to create new device. \t" +
       (error instanceof Error ? error.message : JSON.stringify(error));
+  }
+  return response;
+});
+
+export const modifyDevice = ApiHandler(async (event) => {
+  const {deviceId, ...deviceInfo} = JSON.parse(event.body? event.body : "");
+  console.log(event)
+  console.log(deviceId);
+  console.log(deviceInfo);
+  if (!deviceId) {
+    response.statusCode = 400;
+    response.body = "ERROR: Device ID not provided";
+  } else {
+    try {
+      const updatedDevice = await client.devices.update({
+        where: { deviceId: deviceId },
+        data: deviceInfo,
+      });
+      response.body = JSON.stringify(updatedDevice)
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        // The .code property can be accessed in a type-safe manner
+        if (error.code === "P2002") {
+          console.log(
+            "There is a unique constraint violation, a new user cannot be created with this email",
+          );
+          response.body = "Unique constraint violation: " + error.message;
+        } else {
+          const errorStr = `Prisma error ${error.code}: ${error.message}`;
+          console.log(errorStr);
+          response.body = errorStr;
+        }
+      } else {
+        console.log(`ERROR: ${JSON.stringify(error)}`);
+        response.statusCode = 400;
+        response.body =
+          "Error modifying device: " +
+          (error instanceof Error ? error.message : JSON.stringify(error));
+      }
+    }
   }
   return response;
 });

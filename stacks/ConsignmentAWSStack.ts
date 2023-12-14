@@ -155,6 +155,11 @@ export function API({ stack }: StackContext) {
           handler: "packages/functions/src/storeOwner.getStoreOwnerInfo",
         }),
       },
+      "POST /store-owner/modify-device": {
+        function: new Function(stack, "SSTStoreOwnerModifyDevice", {
+          handler: "packages/functions/src/storeOwner.modifyDevice",
+        }),
+      },
       "GET /site-manager/dashboard": {
         function: new Function(stack, "SSTSiteManagerDash", {
           handler: "packages/functions/src/siteManager.dashboard",

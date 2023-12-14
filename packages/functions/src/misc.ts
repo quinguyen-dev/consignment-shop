@@ -12,9 +12,6 @@ export const homepageData = ApiHandler(async (event) => {
         select:{
             storeId: true,
             storeName: true,
-        _count:{
-            select:{devices: true},
-        }
       },
     });
     const devices = await client.devices.findMany({
@@ -34,7 +31,12 @@ export const homepageData = ApiHandler(async (event) => {
     const selecStores = shuffStores.slice(0, 4);
     const selecDevices = shuffDevices.slice(0, 4);
 
-    response.body = JSON.stringify({selecStores, selecDevices});
+    const returnData = Array();
+    selecDevices.map((device) => {
+      const {stores, ...everythingElse} = device
+      returnData.push({...everythingElse, storeName:device.stores.storeName})
+    })
+    response.body = JSON.stringify({selecStores:selecStores, selecDevices:returnData});
   } catch (err) {
     console.log(err);
     console.log(event);

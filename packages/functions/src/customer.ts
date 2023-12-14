@@ -15,11 +15,21 @@ export const inspectStoreInv = ApiHandler(async (event) => {
         },
       },
       where: {
-        stores: { storeName: event.queryStringParameters?.storeName === '' ? undefined :  event.queryStringParameters?.storeName},
+        stores: {
+          storeName:
+            event.queryStringParameters?.storeName === ""
+              ? undefined
+              : event.queryStringParameters?.storeName,
+        },
       },
     });
-    console.log(event)
-    response.body = JSON.stringify({devices: devices });
+    console.log(event);
+    const returnData = Array();
+    devices.map((device) => {
+      const {stores, ...everythingElse} = device
+      returnData.push({...everythingElse, storeName:device.stores.storeName})
+    })
+    response.body = JSON.stringify({devices:returnData});
   } catch (err) {
     console.log(err);
     console.log(event);
@@ -27,7 +37,7 @@ export const inspectStoreInv = ApiHandler(async (event) => {
     response.body =
       err instanceof Error ? "Error: " + err.message : "Unknown error occurred";
   }
-  return response
+  return response;
 });
 
 export const listStores = ApiHandler(async (event) => {
@@ -89,7 +99,6 @@ const getFees = async (
     console.error(err);
     throw err;
   }
-  return -1;
 };
 
 export const estimateFees = ApiHandler(async (event) => {
@@ -185,13 +194,22 @@ export const getDevice = ApiHandler(async (event) => {
       where: {
         deviceId: deviceId,
       },
+      include:{
+        stores: {
+          select:{
+            storeName:true
+          }
+        }
+      }
     });
     if (result == null) {
       throw Error("no device found with that ID");
     } else {
       response.statusCode = 200;
     }
-    response.body = JSON.stringify(result);
+    const {stores, ...everythingElse} = result
+    const returnData = {...everythingElse, storeName:stores.storeName}
+    response.body = JSON.stringify(returnData);
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       // The .code property can be accessed in a type-safe manner
@@ -210,6 +228,67 @@ export const getDevice = ApiHandler(async (event) => {
       response.statusCode = 400;
       response.body =
         "Error creating transaction: " +
+        (error instanceof Error ? error.message : JSON.stringify(error));
+    }
+  }
+
+  return response;
+});
+
+export const filterDevices = ApiHandler(async (event) => {
+  type filter = {
+    storeId: string,
+    deviceName: string,
+    price: number,
+    formFactor: string,
+    processorManufacturer: string,
+    processorModel: string,
+    memoryType: string,
+    memoryMb: number,
+    storageType: string,
+    storageGb: number,
+    operatingSystem: string,
+    dedicatedGpu: boolean
+    gpuManufacturer: string,
+    gpuModel: string,
+    listingActive: boolean
+  }
+  const filters:filter = /*event.queryStringParameters ? event.queryStringParameters satisfies filter : */{} as filter;
+
+  try {
+    const searchResults = await client.devices.findMany({
+      where:{
+        AND:[
+          {
+            storeId:filters.storeId
+          },
+          {
+            deviceName:filters.deviceName
+          }
+        ]
+      }
+    });
+    console.log(event);
+    console.log(searchResults);
+    response.body = JSON.stringify({ devices: searchResults });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // The .code property can be accessed in a type-safe manner
+      if (error.code === "P2002") {
+        console.log(
+          "There is a unique constraint violation, a new user cannot be created with this email",
+        );
+        response.body = "Unique constraint violation: " + error.message;
+      } else {
+        const errorStr = `Prisma error ${error.code}: ${error.message}`;
+        console.log(errorStr);
+        response.body = errorStr;
+      }
+    } else {
+      console.log(`ERROR: ${JSON.stringify(error)}`);
+      response.statusCode = 400;
+      response.body =
+        "Error filtering for devices: " +
         (error instanceof Error ? error.message : JSON.stringify(error));
     }
   }
