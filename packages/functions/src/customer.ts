@@ -1,31 +1,33 @@
 import { Prisma } from "@prisma/client";
-import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
 import { getDistance } from "geolib";
 import { ApiHandler } from "sst/node/api";
 import { client } from "./util/prismaClient";
 import { response } from "./util/response";
 
 export const inspectStoreInv = ApiHandler(async (event) => {
-  console.log(JSON.stringify(event));
   try {
-    const r = await client.stores.findFirst({
-      where: { storeName: event.queryStringParameters?.storeName },
+    const devices = await client.devices.findMany({
       include: {
-        devices: true,
+        stores: {
+          select: {
+            storeName: true,
+          },
+        },
+      },
+      where: {
+        stores: { storeName: event.queryStringParameters?.storeName === '' ? undefined :  event.queryStringParameters?.storeName},
       },
     });
-    response.body = JSON.stringify(r);
+    console.log(event)
+    response.body = JSON.stringify({devices: devices });
   } catch (err) {
     console.log(err);
     console.log(event);
     response.statusCode = 400;
     response.body =
-      err instanceof Error
-        ? "Error: " + err.message
-        : `No store exists with store name ${event.queryStringParameters?.storeName}`;
+      err instanceof Error ? "Error: " + err.message : "Unknown error occurred";
   }
-  response.body = JSON.stringify(response.body);
-  return response as unknown as APIGatewayProxyStructuredResultV2;
+  return response
 });
 
 export const listStores = ApiHandler(async (event) => {

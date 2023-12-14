@@ -95,7 +95,7 @@ export const dashboard = ApiHandler(async (event) => {
   try {
     const res = await client.stores.findFirst({
       where: {
-        store_owner_id: (event.requestContext as any).authorizer?.jwt.claims
+        storeOwnerId: (event.requestContext as any).authorizer?.jwt.claims
           .username,
       },
       include: {
@@ -103,19 +103,19 @@ export const dashboard = ApiHandler(async (event) => {
       },
     });
     const balance = await client.transactions.groupBy({
-      by: ["store_id"],
-      where: { store_id: res?.store_id },
+      by: ["storeId"],
+      where: { storeId: res?.storeId },
       _sum: {
-        total_cost: true,
-        site_fee: true,
-        shipping_cost: true,
+        totalCost: true,
+        siteFee: true,
+        shippingCost: true,
       },
     });
     const resBody = { ...res, accountBalance: 0, totalInventoryValue: 0 };
     resBody.accountBalance = balance[0]._sum
-      ? balance[0]._sum.total_cost! -
-        balance[0]._sum.site_fee! -
-        balance[0]._sum.shipping_cost!
+      ? balance[0]._sum.totalCost! -
+        balance[0]._sum.siteFee! -
+        balance[0]._sum.shippingCost!
       : -1;
     let inventory = 0;
     res?.devices.forEach((device: any) => {
@@ -140,7 +140,7 @@ export const getStoreOwnerInfo = ApiHandler(async (event) => {
   try {
     const res = await client.stores.findFirst({
       where: {
-        store_owner_id: (event.requestContext as any).authorizer?.jwt.claims
+        storeOwnerId: (event.requestContext as any).authorizer?.jwt.claims
           .username,
       },
       include: {
@@ -150,19 +150,19 @@ export const getStoreOwnerInfo = ApiHandler(async (event) => {
       },
     });
     const balance = await client.transactions.groupBy({
-      by: ["store_id"],
-      where: { store_id: res?.store_id },
+      by: ["storeId"],
+      where: { storeId: res?.storeId },
       _sum: {
-        total_cost: true,
-        site_fee: true,
-        shipping_cost: true,
+        totalCost: true,
+        siteFee: true,
+        shippingCost: true,
       },
     });
     const resBody = { ...res, accountBalance: 0, totalInventoryValue: 0 };
     resBody.accountBalance = balance[0]._sum
-      ? balance[0]._sum.total_cost! -
-        balance[0]._sum.site_fee! -
-        balance[0]._sum.shipping_cost!
+      ? balance[0]._sum.totalCost! -
+        balance[0]._sum.siteFee! -
+        balance[0]._sum.shippingCost!
       : -1;
     let inventory = 0;
     res?.devices.forEach((device: any) => {

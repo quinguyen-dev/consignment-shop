@@ -1,250 +1,213 @@
-// import { ApiHandler } from "sst/node/api";
-// import { client } from "./util/prismaClient";
-// import { response } from "./util/response";
+import { ApiHandler } from "sst/node/api";
+import { client } from "./util/prismaClient";
+import { response } from "./util/response";
+import { Prisma } from "@prisma/client";
 
-// export const dashboard = ApiHandler(async (event) => {
-//   const queryData = {
-//     managerBalance: 0,
-//     totalInventoryValue: 0,
-//     storeBalances: [],
-//   };
+export const dashboard = ApiHandler(async (event) => {
+  const queryData = {
+    managerBalance: 0,
+    totalInventoryValue: 0,
+    storeBalances: [],
+  };
+  try {
+    const storeId = event.queryStringParameters?.storeId;
 
-//   const storeId = event.queryStringParameters?.storeId;
+    const totInvRes = await client.devices.aggregate({
+      _sum: {
+        price: true,
+      },
+    });
+    const totalInventoryValue = totInvRes._sum.price;
 
-//   const totInvRes = await client.devices.groupBy({
-//     by: ["device_id"],
-//     _sum: {
-//       price: true,
-//     },
-//   });
-//   const totalInventoryValue = totInvRes[0]._sum.price
+    const storeBalanceRes = storeId ? //if a specific store is requested
+        await client.stores.findMany({
+          where: {
+            storeId: storeId,
+          },
+          select: {
+            storeId: true,
+            storeName: true,
+            devices: {
+              select: { price: true },
+            },
+            transactions: {
+              select: {
+                siteFee: true,
+              },
+            },
+          },
+        })
+      : //else get all stores
+        await client.stores.findMany({
+          select: {
+            storeId: true,
+            storeName: true,
+            devices: {
+              select: { price: true },
+            },
+            transactions: {
+              select: {
+                siteFee: true,
+              },
+            },
+          },
+        });
 
-//   const getSiteSummary = (storeId) => {
-//     return new Promise((resolve, reject) => {
-//       connPool.getConnection((err, connection) => {
-//         if (err) {
-//           response.statusCode = 503;
-//           response.body = err.message;
-//           return resolve(err);
-//         }
-//         connection.query(
-//           `SELECT SUM(price) as totalBalance FROM DEVICES;`,
-//           (error, result) => {
-//             console.log("HERE");
-//             if (error) {
-//               response.statusCode = 418;
-//               response.body = error.message;
-//               connection.release();
-//               return resolve(error);
-//             } else {
-//               console.log("HERE2");
-//               queryData.totalInventoryValue = result[0].totalBalance;
-//             }
-//           },
-//         );
-//         if (storeId) {
-//           connection.query(
-//             `select s.store_id, s.store_name, SUM(d.price) as inventoryValue, COUNT(d.device_id) as deviceCount, calc.balance from STORES as s LEFT JOIN DEVICES as d ON s.store_id = d.store_id
-//             LEFT JOIN (
-//                 SELECT t.store_id, SUM(t.total_cost-t.shipping_cost-t.site_fee) as balance
-//                 FROM TRANSACTIONS as t
-//                 GROUP BY t.store_id
-//                     ) calc ON s.store_id = calc.store_id WHERE s.store_id = ? AND d.listing_active = 1 group by s.store_id;`,
-//             [storeId],
-//             (error, result) => {
-//               console.log("HERE2");
-//               if (error) {
-//                 response.statusCode = 418;
-//                 response.body = error.message;
-//                 return resolve(error);
-//               } else {
-//                 console.log("HERE2");
-//                 queryData.storeBalances = result;
-//                 queryData.storeBalances.map((val, index) => {
-//                   if (!val.balance) {
-//                     console.log(queryData.storeBalances[index]);
-//                     queryData.storeBalances[index].balance = 0;
-//                   }
-//                 });
-//                 response.body = queryData;
-//                 connection.release();
-//                 return resolve(0);
-//               }
-//             },
-//           );
-//         } else {
-//           connection.query(
-//             `select s.store_id as storeId, s.store_name as storeName, SUM(d.price) as inventoryValue, COUNT(d.device_id) as deviceCount, calc.balance from STORES as s LEFT JOIN DEVICES as d ON s.store_id = d.store_id
-//             LEFT JOIN (
-//                 SELECT t.store_id, SUM(t.total_cost-t.shipping_cost-t.site_fee) as balance
-//                 FROM TRANSACTIONS as t
-//                 GROUP BY t.store_id
-//                     ) calc ON s.store_id = calc.store_id WHERE d.listing_active = 1 group by s.store_id;`,
-//             (error, result) => {
-//               console.log("HERE2");
-//               if (error) {
-//                 response.statusCode = 418;
-//                 response.body = error.message;
-//                 return resolve(error);
-//               } else {
-//                 console.log("HERE2");
-//                 queryData.storeBalances = result;
-//                 queryData.storeBalances.map((val, index) => {
-//                   if (!val.balance) {
-//                     console.log(queryData.storeBalances[index]);
-//                     queryData.storeBalances[index].balance = 0;
-//                   }
-//                 });
-//                 response.body = queryData;
-//                 connection.release();
-//                 return resolve(0);
-//               }
-//             },
-//           );
-//         }
-//       });
-//     });
-//   };
-//   const getManaBalance = () => {
-//     return new Promise((resolve, reject) => {
-//       connPool.getConnection((err, connection) => {
-//         if (err) {
-//           response.statusCode = 503;
-//           response.body = err.message;
-//           return resolve(err);
-//         }
-//         connection.query(
-//           `SELECT SUM(site_fee) as managerBalance FROM TRANSACTIONS;`,
-//           (error, result) => {
-//             console.log("HERE");
-//             if (error) {
-//               response.statusCode = 418;
-//               response.body = error.message;
-//               connection.release();
-//               return resolve(error);
-//             } else {
-//               console.log("HERE2");
-//               queryData.managerBalance = result[0].managerBalance;
-//               resolve(0);
-//             }
-//           },
-//         );
-//       });
-//     });
-//   };
-//   console.log(event);
-//   const r = await getSiteSummary(event.queryStringParameters?.storeId);
-//   const bal = await getManaBalance();
-//   response.body = JSON.stringify(queryData);
-//   return response;
-// });
+    let storeBalances = Array<{
+      storeId: string;
+      storeName: string;
+      inventoryValue: number;
+      balance: number;
+    }>();
+    let managersBalance: number = 0;
+    storeBalanceRes.map((store, index) => {
+      const inventoryValue = store.devices.reduce(
+        (sum, a) => sum + (a.price ? a.price : 0),
+        0,
+      );
+      const managerFee = store.transactions.reduce(
+        (sum, a) => sum + (a.siteFee ? a.siteFee : 0),
+        0,
+      );
+      const balance = inventoryValue - managerFee;
+      managersBalance += managerFee;
+      storeBalances.push({
+        storeId: store.storeId,
+        storeName: store.storeName,
+        inventoryValue: inventoryValue,
+        balance: balance,
+      });
+    });
 
-// export const removeStore = ApiHandler(async (event) => {
-//   const removeDBStore = (storeId) => {
-//     return new Promise((resolve, reject) => {
-//       connPool.getConnection((err, connection) => {
-//         if (err) {
-//           response.statusCode = 503;
-//           response.body = err.message;
-//           return resolve(err);
-//         }
-//         connection.query(
-//           `DELETE FROM STORES WHERE store_id = ?;`,
-//           [storeId],
-//           (error, result) => {
-//             if (error) {
-//               response.statusCode = 418;
-//               response.body = error.message;
-//               if (connection) connection.release();
-//               return resolve(error);
-//             } else {
-//               response.statusCode = 200;
-//               response.body = result;
-//               if (connection) connection.release();
-//               return resolve(0);
-//             }
-//           },
-//         );
-//       });
-//     });
-//   };
+    const returnData = {
+      totalInventoryValue: totalInventoryValue,
+      managersBalance: managersBalance,
+      storeBalances: storeBalances,
+    };
+    response.body = JSON.stringify(returnData);
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        // The .code property can be accessed in a type-safe manner
+        if (error.code === "P2002") {
+          console.log(
+            "There is a unique constraint violation, a new user cannot be created with this email",
+          );
+          response.body = "Unique constraint violation: " + error.message;
+        } else {
+          const errorStr = `Prisma error ${error.code}: ${error.message}`;
+          console.log(errorStr);
+          response.body = errorStr;
+        }
+      } else {
+        console.log(`ERROR: ${JSON.stringify(error)}`);
+        response.statusCode = 400;
+        response.body =
+          "Error getting siteManager dashboard: " +
+          (error instanceof Error ? error.message : JSON.stringify(error));
+      }
 
-//   const r = await removeDBStore(event.queryStringParameters?.storeId);
-//   response.body = JSON.stringify(response.body);
-//   return response;
-// });
+  }
 
-// export const inspectStoreInv = ApiHandler(async (event) => {
-//   const queryData = {
-//     storeName: null,
-//     storeId: null,
-//     totalBalance: 0,
-//     inventory: 0,
-//   };
-//   const getInventory = (storeId) => {
-//     return new Promise((resolve, reject) => {
-//       connPool.getConnection((err, connection) => {
-//         if (err) {
-//           response.statusCode = 503;
-//           response.body = err.message;
-//           return resolve(err);
-//         }
-//         connection.query(
-//           `SELECT store_name, store_id FROM STORES WHERE STORES.store_id = ?;`,
-//           [storeId],
-//           (error, result) => {
-//             if (error) {
-//               response.statusCode = 418;
-//               response.body = error.message;
-//               return resolve(error);
-//             } else {
-//               console.log(result);
-//               queryData.storeName = result[0]?.store_name;
-//               queryData.storeId = result[0]?.store_id;
-//             }
-//             connection.query(
-//               `SELECT * FROM DEVICES WHERE DEVICES.store_id = ?;`,
-//               [storeId],
-//               (error, result) => {
-//                 console.log("HERE");
-//                 if (error) {
-//                   console.log(error);
-//                   response.statusCode = 418;
-//                   response.body = error.message;
-//                   return resolve(error);
-//                 }
-//                 console.log("HERE2");
-//                 queryData.inventory = result;
-//                 connection.query(
-//                   `SELECT SUM(price) as balance FROM DEVICES, USERS, STORES WHERE DEVICES.store_id = ?;`,
-//                   [storeId],
-//                   (error, result) => {
-//                     console.log("HERE");
-//                     if (error) {
-//                       console.log(error);
-//                       response.statusCode = 418;
-//                       response.body = error.message;
-//                       connection.release();
-//                       return resolve(error);
-//                     } else {
-//                       console.log("HERE2");
-//                       queryData.totalBalance = result[0].balance
-//                         ? result[0].balance
-//                         : 0;
-//                     }
-//                     response.body = queryData;
-//                     return resolve(0);
-//                   },
-//                 );
-//               },
-//             );
-//           },
-//         );
-//       });
-//     });
-//   };
+  return response;
+});
 
-//   const r = await getInventory(event.queryStringParameters?.storeId);
-//   response.body = JSON.stringify(response.body);
-//   return response;
-// });
+export const removeStore = ApiHandler(async (event) => {
+  const storeId = event.queryStringParameters?.storeId
+  try{
+    const result = await client.stores.delete({
+        where:{
+            storeId: storeId
+        }
+    })
+    response.body = JSON.stringify(result);
+  }
+  catch(error){
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        // The .code property can be accessed in a type-safe manner
+        if (error.code === "P2002") {
+          console.log(
+            "There is a unique constraint violation, a new user cannot be created with this email",
+          );
+          response.body = "Unique constraint violation: " + error.message;
+        } else {
+          const errorStr = `Prisma error ${error.code}: ${error.message}`;
+          console.log(errorStr);
+          response.body = errorStr;
+        }
+      } else {
+        console.log(`ERROR: ${JSON.stringify(error)}`);
+        response.statusCode = 400;
+        response.body =
+          "Error removing store: " +
+          (error instanceof Error ? error.message : JSON.stringify(error));
+      }
+  }
+  return response;
+});
+
+export const inspectStoreInv = ApiHandler(async (event) => {
+  const queryData = {
+    storeName: null,
+    storeId: null,
+    totalBalance: 0,
+    inventory: 0,
+  };
+  const storeId = event.queryStringParameters?.storeId
+
+  try{
+    const storeresult = await client.stores.findUnique({
+        where:{
+            storeId: storeId
+        },
+        select:{
+            storeId: true,
+            storeName: true,
+            devices: true,
+        }
+    })
+    const inventoryValue = await client.devices.aggregate({
+        _sum:{price:true},
+        where:{
+            storeId:storeId,
+            listingActive: true
+        }
+    })
+    const storeBalance = await client.transactions.aggregate({
+        _sum:{
+            siteFee:true,
+            shippingCost:true,
+            totalCost:true
+        },
+        where:{
+            storeId:storeId
+        }
+    })
+    const totalPrice = storeBalance._sum.siteFee? storeBalance._sum.totalCost! : 0;
+    const siteFee = storeBalance._sum?.siteFee? storeBalance._sum.siteFee : 0;
+    const shippingCost = storeBalance._sum.shippingCost? storeBalance._sum.shippingCost : 0;
+    const returnValue = {...storeresult, inventoryValue: inventoryValue._sum, balance:( totalPrice - siteFee - shippingCost)}
+    response.body = JSON.stringify(returnValue)
+  }
+  catch(error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        // The .code property can be accessed in a type-safe manner
+        if (error.code === "P2002") {
+          console.log(
+            "There is a unique constraint violation, a new user cannot be created with this email",
+          );
+          response.body = "Unique constraint violation: " + error.message;
+        } else {
+          const errorStr = `Prisma error ${error.code}: ${error.message}`;
+          console.log(errorStr);
+          response.body = errorStr;
+        }
+      } else {
+        console.log(`ERROR: ${JSON.stringify(error)}`);
+        response.statusCode = 400;
+        response.body =
+          "Error inspecting store inventory: " +
+          (error instanceof Error ? error.message : JSON.stringify(error));
+      }
+  }
+  return response;
+});
