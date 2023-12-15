@@ -1,4 +1,8 @@
-import { json, type LoaderFunctionArgs } from "@remix-run/node";
+import {
+  ActionFunctionArgs,
+  json,
+  type LoaderFunctionArgs,
+} from "@remix-run/node";
 import {
   Form,
   Link,
@@ -13,6 +17,10 @@ import searchIcon from "~/assets/search.svg";
 import { CustomerStoreResponse, Store } from "~/hooks/types";
 import { useCustomerData } from "~/hooks/useCustomerData";
 import { authenticator } from "~/services/auth.server";
+
+export async function action({ request }: ActionFunctionArgs) {
+  const body = await request.formData();
+}
 
 /* Loader to fetch the API url from the environment and pass it to the frontend */
 export async function loader({ request }: LoaderFunctionArgs) {
