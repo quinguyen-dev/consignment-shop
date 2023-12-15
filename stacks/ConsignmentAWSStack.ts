@@ -107,10 +107,8 @@ export function API({ stack }: StackContext) {
           },
           scopes: [OAuthScope.OPENID, OAuthScope.PROFILE, OAuthScope.EMAIL],
           callbackUrls: [
-            "https://oauth.pstmn.io/v1/callback",
-            "http://localhost:3000/auth/callback/",
           ],
-          logoutUrls: ["https://my-app-domain.com/signin"],
+          logoutUrls: [""],
         },
       },
     },
@@ -222,9 +220,10 @@ export function API({ stack }: StackContext) {
     .defaultChild as CfnUserPoolClient;
   cfnUserPoolClient.callbackUrLs = [
     "https://oauth.pstmn.io/v1/callback",
-    (site.url || "http://localhost:3000") + "/auth/callback/",
+      "http://localhost:3000/auth/callback/",
+      site.url?? site.url + "/auth/callback/",
   ];
-  cfnUserPoolClient.logoutUrLs = [(site.url || "http://localhost:3000") + "/"];
+  cfnUserPoolClient.logoutUrLs = ["http://localhost:3000/", site.url??  site.url + "/"];
 
   // Show the API endpoint and other info in the output
   stack.addOutputs({

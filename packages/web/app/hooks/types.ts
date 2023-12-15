@@ -23,7 +23,7 @@ export type InventoryResponse = StoreOwnerResponse & {
 
 export type SiteManagerResponse = {
   totalBalance: number;
-  managerBalance: number;
+  managersBalance: number;
   stores: Store[];
 };
 
@@ -33,7 +33,7 @@ export type StoreReport = {
 } & Store;
 
 export type SiteManagerReport = {
-  managerBalance: number;
+  managersBalance: number;
   totalInventoryValue: number;
   storeBalances: StoreReport[];
 };
@@ -66,6 +66,7 @@ export type ComputerResultResponse = Computer & { storeName: string };
 
 export type SearchResultResponse = {
   devices: ComputerResultResponse[];
+  storeName: string;
 };
 
 export type HomePageResponse = {

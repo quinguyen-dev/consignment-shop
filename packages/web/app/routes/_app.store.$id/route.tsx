@@ -21,8 +21,8 @@ export default function CustomerStoreView() {
       </h1>
       <hr className="my-3" />
       <div className="grid grid-cols-3 gap-4">
-        {query.data?.inventory.map((computer) => (
-          <div className="flex justify-between border-2 border-gray-200 p-4 mb-4">
+        {query.data?.devices.map((computer) => (
+          <div key={computer.deviceId} className="flex justify-between border-2 border-gray-200 p-4 mb-4">
             <div>
               <h1 className="font-bold text-xl mb-2">{computer.deviceName}</h1>
               <p>
