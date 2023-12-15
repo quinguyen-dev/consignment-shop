@@ -206,6 +206,12 @@ export function API({ stack }: StackContext) {
         }),
         authorizer: "none",
       },
+      "GET /customer/filter-device": {
+        function: new Function(stack, "SSTCustFilterDevice", {
+          handler: "packages/functions/src/customer.filterDevices",
+        }),
+        authorizer: "none",
+      },
       "GET /homepage-data": {
         function: new Function(stack, "SSTMiscHomePage", {
           handler: "packages/functions/src/misc.homepageData",

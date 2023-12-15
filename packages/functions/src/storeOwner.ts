@@ -15,7 +15,7 @@ export const newStore = ApiHandler(async (event) => {
       data: {
         storeId: "error",
         storeName: storeInfo.storeName,
-        latititude: storeInfo.latitude,
+        latitude: storeInfo.latitude,
         longitude: storeInfo.longitude,
         streetAddress: storeInfo.address,
         storeOwnerId: userInfo.username,
