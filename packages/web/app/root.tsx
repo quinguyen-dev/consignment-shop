@@ -7,7 +7,9 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
+import { useState } from "react";
 import ReactModal from "react-modal";
 import stylesheet from "~/tailwind.css";
 
@@ -23,6 +25,17 @@ axios.defaults.baseURL =
   "https://vo8vlr6cyc.execute-api.us-east-2.amazonaws.com/dev"; // todo dockerize
 
 export default function App() {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 60 * 1000,
+          },
+        },
+      }),
+  );
+
   return (
     <html lang="en">
       <head>
@@ -33,7 +46,9 @@ export default function App() {
       </head>
       <body>
         <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-          <Outlet />
+          <QueryClientProvider client={queryClient}>
+            <Outlet />
+          </QueryClientProvider>
           <ScrollRestoration />
           <Scripts />
           <LiveReload />
