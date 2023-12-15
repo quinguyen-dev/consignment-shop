@@ -53,7 +53,7 @@ export default function Compare() {
               <h2 className="font-medium text-lg mb-4 text-center">
                 ${computer.price}
               </h2>
-              <div className="flex space-x-12 text-gray-400">
+              <div className="flex space-x-12">
                 <div className="w-fit font-medium">
                   <p>Form factor: </p>
                   <p>Processor manufacturer: </p>

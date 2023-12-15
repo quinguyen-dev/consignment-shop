@@ -6,26 +6,28 @@ interface AddFormProps {
   onSubmit: (data: Computer) => void;
 }
 
-// todo change this to a modal and add type validatrion
 export function AddComputerForm({ setShowing, onSubmit }: AddFormProps) {
   const { register, handleSubmit } = useForm<Computer>();
 
   return (
     <>
-      <h1 className="mb-4 text-xl font-bold">Add a computer</h1>
-      <form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
+      <h1 className="mb-4 text-lg font-bold">Add a computer</h1>
+      <form
+        className="flex flex-col text-sm space-y-2 max-w-[400px]"
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <input
-          className="mb-2 border px-4 py-2"
+          className="border p-2 rounded-md"
           placeholder="Product name"
           {...register("deviceName")}
         />
         <input
-          className="mb-2 border px-2 py-4"
+          className="border p-2 rounded-md"
           placeholder="Price"
           {...register("price")}
         />
         <select
-          className="mb-2 border px-4 py-2"
+          className="border p-2 rounded-md"
           placeholder="Memory (in MB)"
           {...register("memoryMb")}
         >
@@ -35,7 +37,7 @@ export function AddComputerForm({ setShowing, onSubmit }: AddFormProps) {
           <option value={32000}>32GB</option>
         </select>
         <select
-          className="mb-2 border px-4 py-2"
+          className="border p-2 rounded-md"
           placeholder="Storage (in GB)"
           {...register("storageGb")}
         >
@@ -46,12 +48,12 @@ export function AddComputerForm({ setShowing, onSubmit }: AddFormProps) {
           <option value={4000}>4TB</option>
         </select>
         <input
-          className="mb-2 border px-4 py-2"
+          className="border p-2 rounded-md"
           placeholder="Processor Model"
           {...register("processorModel")}
         />
         <select
-          className="mb-2 border px-4 py-2"
+          className="border p-2 rounded-md"
           placeholder="GPU Manufacturer"
           {...register("gpuManufacturer")}
         >
@@ -60,7 +62,7 @@ export function AddComputerForm({ setShowing, onSubmit }: AddFormProps) {
           <option value="NVIDIA">NVIDIA</option>
         </select>
         <select
-          className="mb-2 border px-4 py-2"
+          className="border p-2 rounded-md"
           placeholder="GPU Model"
           {...register("gpuModel")}
         >

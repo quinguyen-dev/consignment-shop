@@ -17,12 +17,8 @@ export type Computer = {
   listingActive: boolean;
 };
 
-export type InventoryResponse = {
-  accountBalance: number;
-  totalInventoryValue: number;
-  storeName: string;
-  storeId: string;
-  inventory: Computer[];
+export type InventoryResponse = StoreOwnerResponse & {
+  devices: Computer[];
 };
 
 export type SiteManagerResponse = {
@@ -43,10 +39,15 @@ export type SiteManagerReport = {
 };
 
 export type StoreOwnerResponse = {
-  username: string;
   storeId: string;
   storeName: string;
-  inventoryValue: number;
+  accountBalance: number;
+  updatedAt: string;
+  streetAddress: string;
+  latitude: number;
+  longitude: number;
+  totalInventoryValue: number;
+  storeOwnerId: string;
 };
 
 export type Store = {

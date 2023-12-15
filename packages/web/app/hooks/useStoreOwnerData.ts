@@ -1,6 +1,6 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import type { InventoryResponse, StoreOwnerResponse } from "./types";
+import type { StoreOwnerResponse } from "./types";
 
 export function useStoreOwnerData(jwt: string) {
   const fetchAll = () =>
@@ -14,25 +14,7 @@ export function useStoreOwnerData(jwt: string) {
         });
         return response.data;
       },
-      select: (data: any) => {
-        return {
-          username: data.username,
-          storeId: data.storeId,
-          inventoryValue: data.inventoryValue,
-          storeName: data.storeName,
-        } satisfies StoreOwnerResponse;
-      },
     });
 
-  const create = (_: InventoryResponse) =>
-    useMutation<InventoryResponse, Error>({
-      mutationFn: async (): Promise<any> => {},
-    });
-
-  const remove = (_: number) =>
-    useMutation<InventoryResponse, Error>({
-      mutationFn: async (): Promise<any> => {},
-    });
-
-  return { fetchAll, create, remove };
+  return { fetchAll };
 }

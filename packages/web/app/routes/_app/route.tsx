@@ -1,4 +1,8 @@
-import { json, type LoaderFunctionArgs } from "@remix-run/node";
+import {
+  ActionFunctionArgs,
+  json,
+  type LoaderFunctionArgs,
+} from "@remix-run/node";
 import {
   Form,
   Link,
@@ -10,9 +14,14 @@ import { QueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import logo from "~/assets/logo.png";
 import searchIcon from "~/assets/search.svg";
+import userIcon from "~/assets/user.svg";
 import { CustomerStoreResponse, Store } from "~/hooks/types";
 import { useCustomerData } from "~/hooks/useCustomerData";
 import { authenticator } from "~/services/auth.server";
+
+export async function action({ request }: ActionFunctionArgs) {
+  const body = await request.formData();
+}
 
 /* Loader to fetch the API url from the environment and pass it to the frontend */
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -81,6 +90,14 @@ export default function AppLayout() {
               </button>
             </Form>
           </div>
+          {isAuthenticated && (
+            <Link
+              to="/owner"
+              className="border-2 rounded-xl px-4 h-[44px] border-gray-200 flex justify-center items-center"
+            >
+              <img src={userIcon} alt="user icon" className="w-8" />
+            </Link>
+          )}
           <button
             className="rounded-xl px-4 min-w-[96px] text-center bg-[#48576B] text-white text-sm h-[44px]"
             onClick={() => navigate("/auth/callback")}

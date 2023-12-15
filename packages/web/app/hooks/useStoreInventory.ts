@@ -14,7 +14,7 @@ export function useStoreInventory(jwt: string) {
             Authorization: `Bearer ${jwt}`,
           },
         });
-        return response.data;
+        return JSON.parse(response.data);
       },
     });
 
