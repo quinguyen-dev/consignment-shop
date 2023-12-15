@@ -155,6 +155,11 @@ export function API({ stack }: StackContext) {
           handler: "packages/functions/src/storeOwner.getStoreOwnerInfo",
         }),
       },
+      "POST /store-owner/modify-device": {
+        function: new Function(stack, "SSTStoreOwnerModifyDevice", {
+          handler: "packages/functions/src/storeOwner.modifyDevice",
+        }),
+      },
       "GET /site-manager/dashboard": {
         function: new Function(stack, "SSTSiteManagerDash", {
           handler: "packages/functions/src/siteManager.dashboard",
@@ -198,6 +203,12 @@ export function API({ stack }: StackContext) {
       "GET /customer/device": {
         function: new Function(stack, "SSTCustGetDevice", {
           handler: "packages/functions/src/customer.getDevice",
+        }),
+        authorizer: "none",
+      },
+      "GET /customer/filter-device": {
+        function: new Function(stack, "SSTCustFilterDevice", {
+          handler: "packages/functions/src/customer.filterDevices",
         }),
         authorizer: "none",
       },
