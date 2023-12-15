@@ -87,11 +87,16 @@ export default function Inventory() {
     <>
       <div className="mx-4 mt-8">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Manage {store?.storeName}</h1>
+          <h1 className="text-xl font-bold">
+            Inventory Manager{" "}
+            <span className="text-gray-400 font-normal">
+              ({store?.storeName})
+            </span>
+          </h1>
           <label className="self-b">
-            Store balance:{" "}
+            Inventory Balance:{" "}
             <span className="font-bold text-green-600">
-              {/* ${store?.accountBalance.toFixed(2) ?? 0} */}
+              ${store?.totalInventoryValue.toFixed(2) ?? 0}
             </span>
           </label>
         </div>
@@ -103,15 +108,12 @@ export default function Inventory() {
         ) : (
           <div className="space-x-2">
             <button
-              className="rounded-md bg-[#545F71] px-4 py-2 text-white"
+              className="rounded-xl bg-[#545F71] px-4 py-2 text-white"
               onClick={() => setAddModal(true)}
             >
               Add new listing
             </button>
-            <button className="rounded-md bg-[#EEF1F4] px-4 py-2 text-black">
-              Download
-            </button>
-            <TableView data={store?.inventory ?? []} columns={columns} />
+            <TableView data={store?.devices ?? []} columns={columns} />
           </div>
         )}
       </div>
