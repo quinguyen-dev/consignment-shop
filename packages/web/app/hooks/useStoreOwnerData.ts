@@ -14,14 +14,6 @@ export function useStoreOwnerData(jwt: string) {
         });
         return response.data;
       },
-      select: (data: any) => {
-        return {
-          username: data.username,
-          storeId: data.storeId,
-          inventoryValue: data.inventoryValue,
-          storeName: data.storeName,
-        } satisfies StoreOwnerResponse;
-      },
     });
 
   const create = (_: InventoryResponse) =>

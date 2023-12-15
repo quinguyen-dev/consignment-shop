@@ -46,7 +46,13 @@ export type StoreOwnerResponse = {
   username: string;
   storeId: string;
   storeName: string;
-  inventoryValue: number;
+  accountBalance: number;
+  updatedAt: string;
+  streetAddress: string;
+  latitude: number;
+  longitude: number;
+  totalInventoryValue: number;
+  storeOwnerId: string;
 };
 
 export type Store = {

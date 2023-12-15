@@ -91,7 +91,7 @@ export default function Inventory() {
           <label className="self-b">
             Store balance:{" "}
             <span className="font-bold text-green-600">
-              ${store?.accountBalance.toFixed(2) ?? 0}
+              {/* ${store?.accountBalance.toFixed(2) ?? 0} */}
             </span>
           </label>
         </div>

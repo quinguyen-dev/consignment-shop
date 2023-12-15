@@ -16,10 +16,10 @@ export default function StoreOwnerDashboard() {
   const ownerData = useStoreOwnerData(loaderData.token);
   const query = ownerData.fetchAll();
 
-  if (query.isLoading) return <div>Loading</div>;
+  if (query.isLoading) return "Loading";
 
   return (
-    <div className="mx-4 mt-8 h-screen">
+    <div className="mx-4 mt-6 h-screen">
       {!query.data ? (
         <button
           className="w-full bg-green-500 py-2 "
@@ -29,15 +29,44 @@ export default function StoreOwnerDashboard() {
         </button>
       ) : (
         <>
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4 flex-col flex">
             <h1 className="text-2xl font-bold">{query.data?.storeName}</h1>
-            <label className="self-b">
-              Store inventory value:{" "}
-              <span className="font-bold text-green-600">
-                {/* ${query.data.inventoryValue.toFixed(2) ?? 0} */}
-              </span>
-            </label>
+            <div className="flex items-start space-x-8 mt-4 text-sm">
+              <div className="flex space-x-4">
+                <div className="font-medium flex flex-col w-fit">
+                  <label>Store ID:</label>
+                  <label>Store Owner ID:</label>
+                </div>
+                <div className="flex flex-col w-fit text-gray-500">
+                  <label>{query.data?.storeId}</label>
+                  <label>{query.data?.storeOwnerId} </label>
+                </div>
+              </div>
+
+              <div className="flex space-x-4">
+                <div className="font-medium flex flex-col w-fit">
+                  <label>Account balance:</label>
+                  <label>Total inventory value:</label>
+                </div>
+                <div className="flex flex-col w-fit text-gray-500">
+                  <label>${query.data?.accountBalance}</label>
+                  <label>${query.data?.totalInventoryValue} </label>
+                </div>
+              </div>
+
+              <div className="flex space-x-4">
+                <div className="font-medium flex flex-col w-fit">
+                  <label>Longitude:</label>
+                  <label>Latitude:</label>
+                </div>
+                <div className="flex flex-col w-fit text-gray-500">
+                  <label>{query.data?.latitude}</label>
+                  <label>{query.data?.longitude} </label>
+                </div>
+              </div>
+            </div>
           </div>
+          <hr className="my-4" />
           <Link
             to="/inventory"
             className="flex flex-col w-fit border px-4 pt-3 pb-4 rounded-md"
