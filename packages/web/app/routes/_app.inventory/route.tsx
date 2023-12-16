@@ -108,7 +108,7 @@ export default function Inventory() {
         ) : (
           <div className="space-x-2">
             <button
-              className="rounded-xl bg-[#545F71] px-4 py-2 text-white"
+              className="rounded-lg bg-[#545F71] px-4 text-sm py-2 text-white"
               onClick={() => setAddModal(true)}
             >
               Add new listing

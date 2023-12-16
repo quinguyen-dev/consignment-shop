@@ -47,15 +47,22 @@ export function AddComputerForm({ setShowing, onSubmit }: AddFormProps) {
           <option value={2000}>2GB</option>
           <option value={4000}>4TB</option>
         </select>
-        <input
+        <select
           className="border p-2 rounded-md"
           placeholder="Processor Model"
           {...register("processorModel")}
-        />
+        >
+          <option value="Intel i9" selected>
+            Intel i9
+          </option>
+          <option value="Intel i7">512GB</option>
+          <option value="AMD Ryzen 9">AMD Ryzen 9</option>
+          <option value="AMD Ryzen 7">AMD Ryzen 7</option>
+        </select>
         <select
           className="border p-2 rounded-md"
-          placeholder="GPU Manufacturer"
-          {...register("gpuManufacturer")}
+          placeholder="Processor Manufacturer"
+          {...register("processorManufacturer")}
         >
           <option value="Intel">Intel</option>
           <option value="AMD">AMD</option>
@@ -87,11 +94,12 @@ export function AddComputerForm({ setShowing, onSubmit }: AddFormProps) {
           >
             Cancel
           </button>
-          <input
+          <button
             className="cursor-pointer rounded-md bg-green-600 px-4 py-2 text-white"
             type="submit"
-            value="Confirm"
-          />
+          >
+            Submit
+          </button>
         </div>
       </form>
     </>

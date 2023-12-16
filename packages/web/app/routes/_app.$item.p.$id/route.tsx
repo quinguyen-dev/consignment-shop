@@ -22,6 +22,8 @@ export async function action({ request }: ActionFunctionArgs) {
     `customer/buy-device?deviceId=${deviceId}&custLatitude=${latitude}&custLongitude=${longitude}&storeId=${storeId}`,
   );
 
+  if (response.status !== 200) return redirect("error");
+
   return redirect("/sr?storeId=&query=");
 }
 

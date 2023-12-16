@@ -10,7 +10,7 @@ interface StoreCardProps {
 export function StoreCard({ store, variant = "md" }: StoreCardProps) {
   return (
     <Link
-      to={`/sr?store=${store.storeName}&query=`}
+      to={`/sr?storeName=${store.storeName}&query=`}
       key={store.storeId}
       className="border px-4 py-4 flex space-x-3 rounded-lg h-full"
     >
