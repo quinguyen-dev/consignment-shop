@@ -214,7 +214,7 @@ export const listStores = ApiHandler(async (event) => {
     });
     const resultStr = JSON.stringify(r);
     console.log(JSON.stringify(r));
-    response.statusCode = 100;
+    response.statusCode = 200;
     response.body = resultStr;
   } catch (error) {
     response.statusCode = 503;
