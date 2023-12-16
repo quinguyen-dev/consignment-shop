@@ -15,6 +15,9 @@ export const homepageData = ApiHandler(async (event) => {
       },
     });
     const devices = await client.devices.findMany({
+      where:{
+        listingActive: true,
+      },
       include:{
         stores:{
           select:{

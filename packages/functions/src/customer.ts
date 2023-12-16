@@ -185,6 +185,7 @@ export const inspectStoreInv = ApiHandler(async (event) => {
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       // The .code property can be accessed in a type-safe manner
+      response.statusCode = 400;
       if (error.code === "P2002") {
         console.log(
           "There is a unique constraint violation, a new user cannot be created with this email",
@@ -213,6 +214,7 @@ export const listStores = ApiHandler(async (event) => {
     });
     const resultStr = JSON.stringify(r);
     console.log(JSON.stringify(r));
+    response.statusCode = 100;
     response.body = resultStr;
   } catch (error) {
     response.statusCode = 503;
@@ -239,27 +241,29 @@ const getFees = async (
     deviceCost: -1,
   };
   try {
-    const data: any = await client.devices.findFirst({
+    const data = await client.devices.findFirst({
       where: { deviceId: deviceId },
-      include: {
+      select: {
+        price: true,
         stores: { select: { latitude: true, longitude: true } },
       },
     });
-    console.log(JSON.stringify(data));
-    if (data.stores.coords_lat) {
-      const latitude = data.stores.coords_lat;
-      const longitude = data.stores.coords_long;
-      responseData.shippingCost =
-        getDistance(
-          { latitude: custLat, longitude: custLong },
-          { latitude: latitude, longitude: longitude },
-        ) *
-        0.000621371 *
-        0.03;
-      responseData.deviceCost = data.price;
-      responseData.managersCut = data.price * 0.05;
+    if (!data?.stores){
+      throw new Error(`No store information found for device ${deviceId}`)
     }
-
+    console.log(`Device DATA: ${JSON.stringify(data)}`);
+    const latitude = data?.stores.latitude ? data?.stores.latitude : 0;
+    const longitude = data?.stores.longitude ? data?.stores.longitude : 0;
+    responseData.shippingCost =
+      getDistance(
+        { latitude: custLat, longitude: custLong },
+        { latitude: latitude, longitude: longitude },
+      ) *
+      0.000621371 *
+      0.03;
+    responseData.deviceCost = data?.price ? data.price : -1;
+    responseData.managersCut = responseData.deviceCost * 0.05;
+    console.log(`FEE DATA: ${JSON.stringify(response)}`);
     return responseData;
   } catch (err) {
     console.error(err);
@@ -284,7 +288,9 @@ export const estimateFees = ApiHandler(async (event) => {
     } else {
       response.body = JSON.stringify(response.body);
     }
+    response.statusCode = 200;
   } catch (error) {
+    response.statusCode = 400;
     response.body = `ERROR: Invalid parameters. Parameters received: ${event.queryStringParameters}`;
   }
   return response;
@@ -308,6 +314,43 @@ export const buyDevice = ApiHandler(async (event) => {
     custLongitude,
   );
 
+  try {
+    const result = await client.devices.findUnique({
+      where: {
+        deviceId: deviceId,
+      },
+      select: {
+        listingActive: true,
+      },
+    });
+    if (result?.listingActive === false) {
+      response.statusCode = 410;
+      response.body = "Device listing no longer active";
+      return response;
+    }
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      // The .code property can be accessed in a type-safe manner
+      response.statusCode = 400;
+      if (err.code === "P2002") {
+        console.log(
+          "There is a unique constraint violation, a new user cannot be created with this email",
+        );
+        response.body = "Unique constraint violation: " + err.message;
+      } else {
+        const errorStr = `Prisma error ${err.code}: ${err.message}`;
+        console.log(errorStr);
+        response.body = errorStr;
+      }
+    } else {
+      console.log(`ERROR: ${JSON.stringify(err)}`);
+      response.statusCode = 400;
+      response.body =
+        "Error querying device status: " +
+        (err instanceof Error ? err.message : JSON.stringify(err));
+    }
+  }
+
   if (!(fees instanceof Number)) {
     try {
       const result = await client.transactions.createMany({
@@ -323,13 +366,14 @@ export const buyDevice = ApiHandler(async (event) => {
         },
       });
       const deactivateDevice = await client.devices.update({
-        where:{
+        where: {
           deviceId: deviceId,
         },
-        data:{
-          listingActive: false
-        }
-      })
+        data: {
+          listingActive: false,
+        },
+      });
+      response.statusCode = 200;
       response.body = JSON.stringify(fees);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -338,6 +382,7 @@ export const buyDevice = ApiHandler(async (event) => {
           console.log(
             "There is a unique constraint violation, a new user cannot be created with this email",
           );
+          response.statusCode = 400
           response.body = "Unique constraint violation: " + error.message;
         } else {
           const errorStr = `Prisma error ${error.code}: ${error.message}`;
@@ -357,7 +402,6 @@ export const buyDevice = ApiHandler(async (event) => {
     response.body = "Error generating fees and total cost information";
   }
   console.log(`EVENT: ${event}`);
-  response.body = JSON.stringify(response.body);
   return response;
 });
 
@@ -384,8 +428,10 @@ export const getDevice = ApiHandler(async (event) => {
     }
     const { stores, ...everythingElse } = result;
     const returnData = { ...everythingElse, storeName: stores.storeName };
+    response.statusCode = 200
     response.body = JSON.stringify(returnData);
   } catch (error) {
+    response.statusCode = 400;
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       // The .code property can be accessed in a type-safe manner
       if (error.code === "P2002") {
@@ -400,7 +446,7 @@ export const getDevice = ApiHandler(async (event) => {
       }
     } else {
       console.log(`ERROR: ${JSON.stringify(error)}`);
-      response.statusCode = 400;
+      
       response.body =
         "Error creating transaction: " +
         (error instanceof Error ? error.message : JSON.stringify(error));
