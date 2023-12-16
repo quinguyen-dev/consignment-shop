@@ -204,7 +204,6 @@ export const inspectStoreInv = ApiHandler(async (event) => {
     }
   }
   return response;
-  return response;
 });
 
 export const listStores = ApiHandler(async (event) => {
