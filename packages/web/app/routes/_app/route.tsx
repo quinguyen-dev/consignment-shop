@@ -1,27 +1,21 @@
-import {
-  ActionFunctionArgs,
-  json,
-  type LoaderFunctionArgs,
-} from "@remix-run/node";
+import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import {
   Form,
   Link,
   Outlet,
   useLoaderData,
   useNavigate,
+  useSearchParams,
 } from "@remix-run/react";
 import { QueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { useRef } from "react";
 import logo from "~/assets/logo.png";
 import searchIcon from "~/assets/search.svg";
 import userIcon from "~/assets/user.svg";
 import { CustomerStoreResponse, Store } from "~/hooks/types";
 import { useCustomerData } from "~/hooks/useCustomerData";
 import { authenticator } from "~/services/auth.server";
-
-export async function action({ request }: ActionFunctionArgs) {
-  const body = await request.formData();
-}
 
 /* Loader to fetch the API url from the environment and pass it to the frontend */
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -42,13 +36,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function AppLayout() {
   const navigate = useNavigate();
   const { isAuthenticated } = useLoaderData<typeof loader>();
-
   const query = useCustomerData();
   const { data, isLoading } = query.fetchAll();
+  const formRef = useRef<HTMLFormElement>(null);
+  const [searchParams] = useSearchParams();
 
-  function scrollToTop() {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+  const forceSubmit = () => formRef.current?.submit();
 
   if (isLoading) return "Loading";
 
@@ -64,16 +58,22 @@ export default function AppLayout() {
               id="search-bar"
               action="/sr"
               method="get"
+              ref={formRef}
               className="flex overflow-hidden rounded-xl border-2 border-gray-200 focus-within:border-2 focus-within:border-blue-500"
             >
               <select
                 className="inline-flex items-center bg-gray-200 py-2.5 px-4 text-gray-600 text-sm border-r-8 max-w-[128px]"
                 placeholder="All stores"
                 name="storeName"
+                onChange={forceSubmit}
               >
                 <option value="">All stores</option>
                 {data?.stores.map((store: Omit<Store, "balance">) => (
-                  <option key={store.storeId} value={store.storeName}>
+                  <option
+                    key={store.storeId}
+                    value={store.storeName}
+                    selected={searchParams.get("storeName") === store.storeName}
+                  >
                     {store.storeName}
                   </option>
                 ))}

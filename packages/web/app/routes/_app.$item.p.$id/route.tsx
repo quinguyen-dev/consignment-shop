@@ -18,11 +18,11 @@ export async function action({ request }: ActionFunctionArgs) {
   const longitude = body.get("longitude");
   const latitude = body.get("latitude");
 
-  await axios.post(
+  const response = await axios.post(
     `customer/buy-device?deviceId=${deviceId}&custLatitude=${latitude}&custLongitude=${longitude}&storeId=${storeId}`,
   );
 
-  return redirect("/");
+  return redirect("/sr?storeId=&query=");
 }
 
 export async function loader({ params }: LoaderFunctionArgs) {
