@@ -107,6 +107,8 @@ export function API({ stack }: StackContext) {
           },
           scopes: [OAuthScope.OPENID, OAuthScope.PROFILE, OAuthScope.EMAIL],
           callbackUrls: [
+            "https://oauth.pstmn.io/v1/callback",
+            "http://localhost:3000/auth/callback/",
           ],
           logoutUrls: [""],
         },
@@ -206,12 +208,6 @@ export function API({ stack }: StackContext) {
         }),
         authorizer: "none",
       },
-      "GET /customer/filter-device": {
-        function: new Function(stack, "SSTCustFilterDevice", {
-          handler: "packages/functions/src/customer.filterDevices",
-        }),
-        authorizer: "none",
-      },
       "GET /homepage-data": {
         function: new Function(stack, "SSTMiscHomePage", {
           handler: "packages/functions/src/misc.homepageData",
@@ -227,8 +223,8 @@ export function API({ stack }: StackContext) {
     path: "packages/web/",
   });
 
-  const cfnUserPoolClient = cognito.cdk.userPoolClient.node
-    .defaultChild as CfnUserPoolClient;
+  const cfnUserPoolClient = cognito.cdk.userPoolClient.node.defaultChild as CfnUserPoolClient;
+
   cfnUserPoolClient.callbackUrLs = [
     "https://oauth.pstmn.io/v1/callback",
       "http://localhost:3000/auth/callback/",
