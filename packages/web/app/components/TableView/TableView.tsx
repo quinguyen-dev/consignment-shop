@@ -1,7 +1,7 @@
 import {
   ColumnDef,
   flexRender,
-  getCoreRowModel,
+  getCoreRowModel, getSortedRowModel, SortingState,
   useReactTable,
 } from "@tanstack/react-table";
 import { useMemo } from "react";
@@ -9,17 +9,23 @@ import { useMemo } from "react";
 interface TableViewProps<T extends object> {
   data: T[];
   columns: ColumnDef<T, any>[];
+  sortingState?: SortingState;
 }
 
 export function TableView<T extends object>({
   data,
   columns,
+    sortingState
 }: TableViewProps<T>) {
   const defaultValue = useMemo(() => [], []);
   const table = useReactTable({
     data: data ?? defaultValue,
     columns,
+    state: {
+      sorting: sortingState
+    },
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
   return (

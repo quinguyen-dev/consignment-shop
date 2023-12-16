@@ -29,7 +29,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 
   return json({
-    isAuthenticated: !!(await authenticator.isAuthenticated(request)),
+    isAuthenticated: await authenticator.isAuthenticated(request),
   });
 }
 

@@ -152,7 +152,8 @@ export const dashboard = ApiHandler(async (event) => {
         shippingCost: true,
       },
     });
-    const resBody = { ...res, accountBalance: 0, totalInventoryValue: 0 };
+    const resBody = { storeId: res?.storeId, storeOwnerId: res?.storeOwnerId,
+      longitude: res?.longitude, latitude: res?.latitude, accountBalance: 0, totalInventoryValue: 0 };
     resBody.accountBalance = balance[0]._sum
       ? balance[0]._sum.totalCost! -
         balance[0]._sum.siteFee! -

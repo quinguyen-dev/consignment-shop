@@ -67,15 +67,26 @@ export default function StoreOwnerDashboard() {
             </div>
           </div>
           <hr className="my-4" />
+          <div className="w-fit space-y-5">
           <Link
             to="/inventory"
-            className="flex flex-col w-fit border px-4 pt-3 pb-4 rounded-md"
+            className="flex flex-col w-full border px-4 pt-3 pb-4 rounded-md"
           >
             <h3 className="font-medium">Manage Store Inventory</h3>
             <p className="text-xs">
               Add computers, edit product information, or remove a listing.
             </p>
           </Link>
+          {loaderData.username == "sitemanager" && <Link
+            to="/manager"
+            className="flex flex-col w-fit border px-4 pt-3 pb-4 rounded-md"
+          >
+            <h3 className="font-medium">View Site Manager Dashboard</h3>
+            <p className="text-xs">
+              Perform Site Manager functions, such as viewing and managing all stores.
+            </p>
+          </Link>}
+            </div>
         </>
       )}
     </div>

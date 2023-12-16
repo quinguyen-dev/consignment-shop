@@ -38,7 +38,7 @@ export function useCustomerData() {
           `customer/store-inventory?storeName=${query.storeName}&price=${query.price}&memoryMb=${query.memoryMb}&storageGb=${query.storageGb}&processorManufacturer=${query.processorManufacturer}&processorModel=${query.processorModel}&gpuModel=${query.gpuModel}`,
         );
 
-        return { devices: response.data };
+        return { devices: response.data, storeName: query.storeName };
       },
       staleTime: 1,
     });
