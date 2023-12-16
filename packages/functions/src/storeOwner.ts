@@ -47,9 +47,9 @@ export const newDevice = ApiHandler(async (event) => {
       processorManufacturer: body.processorManufacturer,
       processorModel: body.processorModel,
       memoryType: body.memoryType,
-      memoryMb: body.memoryMB,
+      memoryMb: body.memoryMb,
       storageType: body.storageType,
-      storageGb: body.storageGB,
+      storageGb: body.storageGb,
       operatingSystem: body.operatingSystem,
       dedicatedGpu: body.dedicatedGpu,
       gpuManufacturer: body.gpuManufacturer,
@@ -239,7 +239,9 @@ export const deleteDevice = ApiHandler(async (event) => {
         deviceId: null,
         storeId: deviceData?.storeId,
         transactionId: "error",
-        siteFee: -25,
+        siteFee: 25,
+        shippingCost: 0,
+        totalCost: 0,
       },
     });
     response.statusCode = 200;
