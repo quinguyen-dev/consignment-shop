@@ -24,12 +24,17 @@ export function AddComputerForm({ setShowing, onSubmit }: AddFormProps) {
         <input
           className="border p-2 rounded-md"
           placeholder="Price"
-          {...register("price")}
+          type="number"
+          {...register("price", {
+            valueAsNumber: true,
+          })}
         />
         <select
           className="border p-2 rounded-md"
           placeholder="Memory (in MB)"
-          {...register("memoryMb")}
+          {...register("memoryMb", {
+            valueAsNumber: true,
+          })}
         >
           <option value={4000}>4GB</option>
           <option value={8000}>8GB</option>
@@ -39,7 +44,9 @@ export function AddComputerForm({ setShowing, onSubmit }: AddFormProps) {
         <select
           className="border p-2 rounded-md"
           placeholder="Storage (in GB)"
-          {...register("storageGb")}
+          {...register("storageGb", {
+            valueAsNumber: true,
+          })}
         >
           <option value={256}>256GB</option>
           <option value={512}>512GB</option>

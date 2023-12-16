@@ -67,8 +67,10 @@ export default function Inventory() {
 
   /* Submit action for computer */
   const onSubmit: SubmitHandler<Computer> = async (data: Computer) => {
+    console.log(data);
     data = {
       ...data,
+      price: data.price as number,
       storeId: store?.storeId!,
       formFactor: "N/A",
       processorManufacturer: "N/A",
@@ -79,6 +81,7 @@ export default function Inventory() {
       listingActive: true,
     } satisfies Computer; // todo fix this
 
+    console.log(data);
     create(data);
     setAddModal(false);
   };
