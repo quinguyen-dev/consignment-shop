@@ -33,7 +33,7 @@ export function ResultPane({ computer, disabled, onChange }: ResultPaneProps) {
               {computer.storeName}
             </p>
           </div>
-          <p className="font-medium">$3000</p>
+          <p className="font-medium">${computer.price}</p>
         </div>
         <div className="text-gray-500 text-sm w-full flex mt-4 lg:mt-0">
           <div className="w-fit font-bold">

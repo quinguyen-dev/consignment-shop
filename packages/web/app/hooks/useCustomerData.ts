@@ -4,6 +4,7 @@ import type {
   ComputerResultResponse,
   CustomerStoreResponse,
   HomePageResponse,
+  SearchResultInput,
   SearchResultResponse,
 } from "./types";
 
@@ -26,17 +27,20 @@ export function useCustomerData() {
         );
         return { stores: response.data };
       },
+      staleTime: 0,
     });
 
-  const fetchStoreInfo = (storeName: string) =>
+  const fetchStoreInfo = (query: SearchResultInput) =>
     useQuery<SearchResultResponse, Error>({
-      queryKey: [`${storeName}`],
+      queryKey: [`${query.storeName}`],
       queryFn: async (): Promise<SearchResultResponse> => {
         const response = await axios.get(
-          `customer/store-inventory?storeName=${storeName}`,
+          `customer/store-inventory?storeName=${query.storeName}&price=${query.price}&memoryMb=${query.memoryMb}&storageGb=${query.storageGb}&processorManufacturer=${query.processorManufacturer}&processorModel=${query.processorModel}&gpuModel=${query.gpuModel}`,
         );
-        return response.data;
+
+        return { devices: response.data };
       },
+      staleTime: 1,
     });
 
   const fetchHomePageData = () =>

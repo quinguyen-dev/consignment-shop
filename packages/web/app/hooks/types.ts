@@ -72,3 +72,13 @@ export type HomePageResponse = {
   selecDevices: ComputerResultResponse[];
   selecStores: Store[];
 };
+
+export type SearchResultInput = {
+  storeName: string;
+  price: string;
+  memoryMb: string;
+  storageGb: string;
+  processorManufacturer: string;
+  processorModel: string;
+  gpuModel: string;
+};

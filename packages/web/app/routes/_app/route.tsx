@@ -71,7 +71,7 @@ export default function AppLayout() {
               <select
                 className="inline-flex items-center bg-gray-200 py-2.5 px-4 text-gray-600 text-sm border-r-8 max-w-[128px]"
                 placeholder="All stores"
-                name="store"
+                name="storeName"
               >
                 <option value="">All stores</option>
                 {data?.stores.map((store: Omit<Store, "balance">) => (
