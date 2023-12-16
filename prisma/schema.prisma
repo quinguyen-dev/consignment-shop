@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = []
+  previewFeatures = ["fullTextSearch"]
   binaryTargets   = ["native", "rhel-openssl-1.0.x"]
 }
 
@@ -41,7 +41,7 @@ model devices {
 model stores {
   storeId       String         @id @map("store_id") @db.VarChar(36)
   storeName     String         @unique(map: "STORES_pk") @map("store_name") @db.VarChar(255)
-  latititude     Float          @map("coords_lat") @db.Float
+  latitude     Float          @map("coords_lat") @db.Float
   longitude    Float          @map("coords_long") @db.Float
   streetAddress String?        @map("street_address") @db.VarChar(255)
   storeOwnerId  String         @map("store_owner_id") @db.VarChar(36)

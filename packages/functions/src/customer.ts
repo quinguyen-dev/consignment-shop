@@ -15,11 +15,25 @@ export const inspectStoreInv = ApiHandler(async (event) => {
         },
       },
       where: {
-        stores: { storeName: event.queryStringParameters?.storeName === '' ? undefined :  event.queryStringParameters?.storeName},
+        listingActive: true,
+        stores: {
+          storeName:
+            event.queryStringParameters?.storeName === ""
+              ? undefined
+              : event.queryStringParameters?.storeName,
+        },
       },
     });
-    console.log(event)
-    response.body = JSON.stringify({devices: devices });
+    console.log(event);
+    const returnData = Array();
+    devices.map((device) => {
+      const { stores, ...everythingElse } = device;
+      returnData.push({
+        ...everythingElse,
+        storeName: device.stores.storeName,
+      });
+    });
+    response.body = JSON.stringify({ devices: returnData });
   } catch (err) {
     console.log(err);
     console.log(event);
@@ -27,7 +41,7 @@ export const inspectStoreInv = ApiHandler(async (event) => {
     response.body =
       err instanceof Error ? "Error: " + err.message : "Unknown error occurred";
   }
-  return response
+  return response;
 });
 
 export const listStores = ApiHandler(async (event) => {
@@ -66,7 +80,7 @@ const getFees = async (
     const data: any = await client.devices.findFirst({
       where: { deviceId: deviceId },
       include: {
-        stores: { select: { latititude: true, longitude: true } },
+        stores: { select: { latitude: true, longitude: true } },
       },
     });
     console.log(JSON.stringify(data));
@@ -89,7 +103,6 @@ const getFees = async (
     console.error(err);
     throw err;
   }
-  return -1;
 };
 
 export const estimateFees = ApiHandler(async (event) => {
@@ -184,6 +197,14 @@ export const getDevice = ApiHandler(async (event) => {
     const result = await client.devices.findUnique({
       where: {
         deviceId: deviceId,
+        listingActive: true
+      },
+      include: {
+        stores: {
+          select: {
+            storeName: true,
+          },
+        },
       },
     });
     if (result == null) {
@@ -191,7 +212,9 @@ export const getDevice = ApiHandler(async (event) => {
     } else {
       response.statusCode = 200;
     }
-    response.body = JSON.stringify(result);
+    const { stores, ...everythingElse } = result;
+    const returnData = { ...everythingElse, storeName: stores.storeName };
+    response.body = JSON.stringify(returnData);
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       // The .code property can be accessed in a type-safe manner
@@ -214,5 +237,201 @@ export const getDevice = ApiHandler(async (event) => {
     }
   }
 
+  return response;
+});
+
+export const filterDevices = ApiHandler(async (event) => {
+  const query = event.queryStringParameters;
+  const filterJSON: any = {};
+
+  filterJSON["storeId"] = { OR: Array() };
+  (query?.storeName ? (query?.storeId as string) : undefined)
+    ?.split(",")
+    .map((id: string) => {
+      filterJSON["storeId"].OR.push({ storeId: id.trim() });
+    });
+  
+  filterJSON["deviceName"] = { OR: Array() };
+  (query?.deviceName ? (query?.deviceName as string) : undefined)
+    ?.split(",")
+    .map((name: string) => {
+      filterJSON["deviceName"].OR.push({ deviceName: name.trim() });
+    });
+
+  filterJSON["price"] = { OR: Array() };
+  (query?.price ? (query?.price as string) : undefined)
+    ?.split(",")
+    .map((prices: string) => {
+      const limit = prices.split("-");
+      const bounds = { AND: Array() };
+      if (limit[0]) {
+        bounds.AND.push({
+          price: { gt: (Number(limit[0].trim()) - 1) as number },
+        });
+      }
+      if (limit[1]) {
+        bounds.AND.push({
+          price: { lt: (Number(limit[1].trim()) + 1) as number },
+        });
+      }
+      filterJSON.price.OR.push(bounds);
+    });
+
+  filterJSON["formFactor"] = { OR: Array() };
+  (query?.formFactor ? (query?.formFactor as string) : undefined)
+    ?.split(",")
+    .map((formFactor: string) => {
+      filterJSON["formFactor"].OR.push({ formFactor: formFactor.trim() });
+    });
+
+  filterJSON["processorManufacturer"] = { OR: Array() };
+  (query?.processorManufacturer
+    ? (query?.processorManufacturer as string)
+    : undefined
+  )
+    ?.split(",")
+    .map((processorManufacturer: string) => {
+      filterJSON.processorManufacturer.OR.push({
+        processorManufacturer: processorManufacturer.trim(),
+      });
+    });
+
+  filterJSON["processorModel"] = { OR: Array() };
+  (query?.processorModel ? (query?.processorModel as string) : undefined)
+    ?.split(",")
+    .map((processorModel: string) => {
+      filterJSON.processorModel.OR.push({
+        processorModel: processorModel.trim(),
+      });
+    });
+
+  filterJSON["gpuManufacturer"] = { OR: Array() };
+  (query?.gpuManufacturer ? (query?.gpuManufacturer as string) : undefined)
+    ?.split(",")
+    .map((gpuManufacturer: string) => {
+      filterJSON.gpuManufacturer.OR.push({
+        gpuManufacturer: gpuManufacturer.trim(),
+      });
+    });
+
+  filterJSON["gpuModel"] = { OR: Array() };
+  (query?.gpuModel ? (query?.gpuModel as string) : undefined)
+    ?.split(",")
+    .map((gpuModel: string) => {
+      filterJSON.gpuModel.OR.push({ gpuModel: gpuModel.trim() });
+    });
+
+  filterJSON["memoryType"] = { OR: Array() };
+  (query?.memoryType ? (query?.memoryType as string) : undefined)
+    ?.split(",")
+    .map((memoryType: string) => {
+      filterJSON.memoryType.OR.push({ memoryType: memoryType.trim() });
+    });
+
+  filterJSON["memoryMb"] = { OR: Array() };
+  (query?.memoryMb ? (query?.memoryMb as string) : undefined)
+    ?.split(",")
+    .map((memoryMb: string) => {
+      const limit = memoryMb.split("-");
+      const bounds = { AND: Array() };
+      if (limit[0]) {
+        bounds.AND.push({
+          price: { gt: (Number(limit[0].trim()) - 1) as number },
+        });
+      }
+      if (limit[1]) {
+        bounds.AND.push({
+          price: { lt: (Number(limit[1].trim()) + 1) as number },
+        });
+      }
+      filterJSON.memoryMb.OR.push(bounds);
+    });
+
+  filterJSON["storageType"] = { OR: Array() };
+  (query?.storageType ? (query?.storageType as string) : undefined)
+    ?.split(",")
+    .map((storageType: string) => {
+      filterJSON.memoryType.OR.push({ storageType: storageType.trim() });
+    });
+
+  filterJSON["storageGb"] = { OR: Array() };
+  (query?.storageGb ? (query?.storageGb as string) : undefined)
+    ?.split(",")
+    .map((storageGb: string) => {
+      const limit = storageGb.split("-");
+      const bounds = { AND: Array() };
+      if (limit[0]) {
+        bounds.AND.push({
+          price: { gt: (Number(limit[0].trim()) - 1) as number },
+        });
+      }
+      if (limit[1]) {
+        bounds.AND.push({
+          price: { lt: (Number(limit[1].trim()) + 1) as number },
+        });
+      }
+      filterJSON.storageGb.OR.push(bounds);
+    });
+
+  filterJSON["operatingSystem"] = { OR: Array() };
+  (query?.operatingSystem ? (query?.operatingSystem as string) : undefined)
+    ?.split(",")
+    .map((operatingSystem: string) => {
+      filterJSON.operatingSystem.OR.push({
+        operatingSystem: operatingSystem.trim(),
+      });
+    });
+
+  filterJSON["dedicatedGpu"] = {
+    dedicatedGpu: query?.dedicatedGpu ? query?.dedicatedGpu : undefined,
+  };
+
+  filterJSON["listingActive"] = {listingActive: true}
+
+  console.log(JSON.stringify(filterJSON));
+
+  const finalFilter = { AND: Array() };
+  for (var key in filterJSON) {
+    finalFilter.AND.push(filterJSON[key]);
+  }
+  try {
+    const devices = await client.devices.findMany({
+      where: finalFilter,
+      include: {
+        stores: {
+          select: { storeName: true },
+        },
+      },
+    });
+    const returnData = Array();
+    devices.map((device: any) => {
+      const { stores, ...everythingElse } = device;
+      returnData.push({
+        ...everythingElse,
+        storeName: device.stores.storeName,
+      });
+    });
+    response.body = JSON.stringify(returnData);
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // The .code property can be accessed in a type-safe manner
+      if (error.code === "P2002") {
+        console.log(
+          "There is a unique constraint violation, a new user cannot be created with this email",
+        );
+        response.body = JSON.stringify(error);
+      } else {
+        const errorStr = `Prisma error ${error.code}: ${error.message}`;
+        console.log(errorStr);
+        response.body = errorStr;
+      }
+    } else {
+      console.log(`ERROR: ${error as Error}`);
+      response.statusCode = 400;
+      response.body =
+        "Error filtering for devices: " +
+        (error instanceof Error ? error : JSON.stringify(error));
+    }
+  }
   return response;
 });
