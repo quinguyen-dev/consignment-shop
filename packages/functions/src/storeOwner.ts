@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { ApiHandler } from "sst/node/api";
 import { client } from "./util/prismaClient";
 import { response } from "./util/response";
+import {Computer} from "./util/types";
 
 /* Do whatever operation */
 export const newStore = ApiHandler(async (event) => {
@@ -15,13 +16,13 @@ export const newStore = ApiHandler(async (event) => {
       data: {
         storeId: "error",
         storeName: storeInfo.storeName,
-        latitude: storeInfo.latitude,
-        longitude: storeInfo.longitude,
+        latitude: parseFloat(storeInfo.latitude),
+        longitude: parseFloat(storeInfo.longitude),
         streetAddress: storeInfo.address,
         storeOwnerId: userInfo.username,
       },
     });
-    response.statusCode = 400;
+    response.statusCode = 200;
     response.body = JSON.stringify(returnedData);
   } catch (error) {
     console.error(error);
@@ -160,14 +161,19 @@ export const dashboard = ApiHandler(async (event) => {
       latitude: res?.latitude,
       accountBalance: 0,
       totalInventoryValue: 0,
+      devices: [] as Computer[]
     };
-    resBody.accountBalance = balance[0]._sum
+    // If we didn't get anything back, we have no transactions, don't bother calculating account balance
+    if (balance.length != 0) {
+      resBody.accountBalance = balance[0]._sum
       ? balance[0]._sum.totalCost! -
         balance[0]._sum.siteFee! -
         balance[0]._sum.shippingCost!
       : -1;
+    }
     let inventory = 0;
     res?.devices.forEach((device: any) => {
+      resBody.devices.push(device);
       inventory += device.price;
     });
     resBody.storeName = res?.storeName;
@@ -221,11 +227,15 @@ export const getStoreOwnerInfo = ApiHandler(async (event) => {
       accountBalance: 0,
       totalInventoryValue: 0,
     };
-    resBody.accountBalance = balance[0]._sum
+
+    // If we didn't get anything back, we have no transactions, don't bother calculating account balance
+    if (balance.length != 0) {
+      resBody.accountBalance = balance[0]._sum
       ? balance[0]._sum.totalCost! -
         balance[0]._sum.siteFee! -
         balance[0]._sum.shippingCost!
       : -1;
+    }
     let inventory = 0;
     res?.devices.forEach((device: any) => {
       inventory += device.price;

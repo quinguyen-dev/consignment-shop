@@ -8,6 +8,8 @@ import type { Computer } from "~/hooks/types";
 import { useStoreInventory } from "~/hooks/useStoreInventory";
 import { authenticator } from "~/services/auth.server";
 import { AddComputerForm } from "./AddComputerForm";
+import Modal from "react-modal";
+
 
 /* Determine if the user is authenticated */
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -26,9 +28,14 @@ export default function Inventory() {
   const { data: store, isLoading } = storeInfo.fetchStoreInventory();
   const { mutate: create } = storeInfo.create();
   const { mutate: remove } = storeInfo.remove();
+  const { mutate: modifyPrice } = storeInfo.modifyPrice();
+
 
   /* Modal state setup */
   const [addModal, setAddModal] = useState(false);
+
+  const [priceChangeComputer, setPriceChangeComputer] = useState<Computer | null>(null);
+  const [priceChangePrice, setPriceChangePrice] = useState(0);
 
   /* Create columns for table */
   const columns = useMemo<ColumnDef<Computer, any>[]>(() => {
@@ -55,11 +62,23 @@ export default function Inventory() {
       helper.accessor("operatingSystem", { header: "OS" }),
       helper.display({
         header: "",
+        id: "updateColumn",
+        cell: (props) => (
+          <button onClick={() => {
+            setPriceChangeComputer(props.row.original);
+            setPriceChangePrice(props.row.original.price);
+          }} className="border border-black">
+            Change Price
+          </button>
+        )
+      }),
+      helper.display({
+        header: "",
         id: "trashColumn",
         cell: (props) => (
-          <button onClick={() => remove(props.row.original.deviceId)}>
-            Delete
-          </button>
+            <button onClick={() => remove(props.row.original.deviceId)} className="border border-black">
+              Delete Computer
+            </button>
         ),
       }),
     ];
@@ -88,6 +107,48 @@ export default function Inventory() {
 
   return (
     <>
+    <Modal
+        isOpen={priceChangeComputer != null}
+        onRequestClose={() => {
+          setPriceChangeComputer(null);
+        }}
+        contentLabel={`Change ${priceChangeComputer?.deviceName} Price?`}
+        onAfterClose={() => setPriceChangePrice(0)}
+        className="absolute left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]"
+        overlayClassName="fixed top-0 bottom-0 left-0 right-0 bg-black/50"
+      >
+        <div className="flex w-min flex-col space-y-2.5 rounded-lg bg-white p-6">
+          <h1 className="text-xl font-bold text-black">
+            Update Price
+          </h1>
+          <label className="text-xl text-black">
+            Set the new price for {" "}
+            <span className="font-bold">{priceChangeComputer?.deviceName}</span>
+          </label>
+          <input type="number"
+            onChange={(event) => setPriceChangePrice(parseFloat(event.target.value))}
+            placeholder={`${priceChangeComputer?.price.toLocaleString() ?? ""}`}
+            className="w-full rounded-md p-3 text-gray-600 outline outline-1 outline-gray-600"
+          />
+          <div className="flex flex-row space-x-2 self-end">
+            <button
+              onClick={() => setPriceChangeComputer(null)}
+              className="rounded-md p-3 bg-red-500 text-white outline outline-1 outline-gray-600"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                setPriceChangeComputer(null);
+                modifyPrice({deviceId: priceChangeComputer!.deviceId, newPrice: priceChangePrice},)
+              }}
+              className="rounded-md bg-green-500 p-3 text-white disabled:opacity-50"
+            >
+              Update Price
+            </button>
+          </div>
+        </div>
+      </Modal>
       <div className="mx-4 mt-8">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold">

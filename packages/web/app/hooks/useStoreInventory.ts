@@ -52,5 +52,22 @@ export function useStoreInventory(jwt: string) {
         queryClient.invalidateQueries({ queryKey: ["store_inventory"] }), // todo change this to setQueryData()
     });
 
-  return { fetchStoreInventory, create, remove };
+    const modifyPrice = () =>
+      useMutation<Computer, Error, {deviceId: string; newPrice: number;}>({
+        mutationFn: async (updateProps): Promise<any> => {
+          const response = await axios.post("/store-owner/modify-device", {
+            deviceId: updateProps.deviceId,
+            price: updateProps.newPrice
+          }, {
+            headers: {
+              Authorization: `Bearer ${jwt}`
+            }
+          });
+
+          return response.data;
+        },
+        onSuccess: () => queryClient.invalidateQueries({queryKey: ["store_inventory"]})
+      })
+
+  return { fetchStoreInventory, create, remove, modifyPrice };
 }
