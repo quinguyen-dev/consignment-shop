@@ -15,7 +15,7 @@ export const dashboard = ApiHandler(async (event) => {
     const totInvRes = await client.devices.aggregate({
       _sum: {
         price: true,
-      },
+      }
     });
     const totalInventoryValue = totInvRes._sum.price;
 
@@ -58,6 +58,7 @@ export const dashboard = ApiHandler(async (event) => {
       storeName: string;
       inventoryValue: number;
       balance: number;
+      deviceCount: number;
     }>();
     let managersBalance: number = 0;
     storeBalanceRes.map((store, index) => {
@@ -76,6 +77,7 @@ export const dashboard = ApiHandler(async (event) => {
         storeName: store.storeName,
         inventoryValue: inventoryValue,
         balance: balance,
+        deviceCount: store.devices.length
       });
     });
 

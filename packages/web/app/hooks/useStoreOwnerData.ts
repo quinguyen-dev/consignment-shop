@@ -6,6 +6,7 @@ export function useStoreOwnerData(jwt: string) {
   const fetchAll = () =>
     useQuery<StoreOwnerResponse, Error>({
       queryKey: ["store_owner_data"],
+        retry: false,
       queryFn: async (): Promise<StoreOwnerResponse> => {
         const response = await axios.get(`/store-owner/user-info`, {
           headers: {

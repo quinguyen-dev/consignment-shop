@@ -29,8 +29,6 @@ export default function SiteManagerView() {
   const managerData = useSiteManagerData(loaderData.token);
   const query = managerData.fetchReport();
 
-  console.log(query.data);
-
   return (
     <div className="mx-4 mt-8">
       <h1 className="text-2xl font-semibold">Welcome back, Site Manager!</h1>

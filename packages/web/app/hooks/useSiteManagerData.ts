@@ -34,7 +34,7 @@ export function useSiteManagerData(jwt: string) {
   const remove = useMutation<Store, Error, string>({
     mutationFn: async (storeId: string): Promise<any> => {
       const response = await axios.delete(
-        "/site-manager/delete-site/?" +
+        "/site-manager/remove-store?" +
           new URLSearchParams({ storeId: storeId }).toString(),
         {
           headers: {
@@ -45,7 +45,8 @@ export function useSiteManagerData(jwt: string) {
       return response.data;
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["site_manager_data"] });
+              await queryClient.invalidateQueries({ queryKey: ["site_manager_data"] });
+      await queryClient.invalidateQueries({ queryKey: ["site_manager_report"] });
     },
   });
 

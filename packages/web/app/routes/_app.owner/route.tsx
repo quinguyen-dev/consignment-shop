@@ -21,17 +21,29 @@ export default function StoreOwnerDashboard() {
   return (
     <div className="mx-4 mt-6 h-screen">
       {!query.data ? (
-        <button
-          className="w-full bg-green-500 py-2 "
-          onClick={() => navigate("/register")}
-        >
-          Create store
-        </button>
+          <div className="space-y-5">
+            <button
+                className="w-full bg-green-500 py-2 "
+                onClick={() => navigate("/register")}
+            >
+              Create store
+            </button>
+
+            {loaderData.username == "sitemanager" && <Link
+                to="/manager"
+                className="flex flex-col w-fit border px-4 pt-3 pb-4 rounded-md"
+            >
+              <h3 className="font-medium">View Site Manager Dashboard</h3>
+              <p className="text-xs">
+                Perform Site Manager functions, such as viewing and managing all stores.
+              </p>
+            </Link>}
+          </div>
       ) : (
-        <>
-          <div className="mb-4 flex-col flex">
-            <h1 className="text-2xl font-bold">{query.data?.storeName}</h1>
-            <div className="flex items-start space-x-8 mt-4 text-sm">
+          <>
+            <div className="mb-4 flex-col flex">
+              <h1 className="text-2xl font-bold">{query.data?.storeName}</h1>
+              <div className="flex items-start space-x-8 mt-4 text-sm">
               <div className="flex space-x-4">
                 <div className="font-medium flex flex-col w-fit">
                   <label>Store ID:</label>
