@@ -322,6 +322,14 @@ export const buyDevice = ApiHandler(async (event) => {
           longitude: custLongitude,
         },
       });
+      const deactivateDevice = await client.devices.update({
+        where:{
+          deviceId: deviceId,
+        },
+        data:{
+          listingActive: false
+        }
+      })
       response.body = JSON.stringify(fees);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {

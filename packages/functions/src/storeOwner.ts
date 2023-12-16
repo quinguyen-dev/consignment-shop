@@ -239,7 +239,9 @@ export const deleteDevice = ApiHandler(async (event) => {
         deviceId: null,
         storeId: deviceData?.storeId,
         transactionId: "error",
-        siteFee: -25,
+        siteFee: 25,
+        shippingCost: 0,
+        totalCost: 0,
       },
     });
     response.statusCode = 200;
