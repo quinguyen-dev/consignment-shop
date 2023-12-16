@@ -134,7 +134,7 @@ export const modifyDevice = ApiHandler(async (event) => {
 
 export const dashboard = ApiHandler(async (event) => {
   try {
-    const res = await client.stores.findFirst({
+    const res = await client.stores.findFirstOrThrow({
       where: {
         storeOwnerId: (event.requestContext as any).authorizer?.jwt.claims
           .username,
@@ -152,7 +152,7 @@ export const dashboard = ApiHandler(async (event) => {
         shippingCost: true,
       },
     });
-    const resBody = { storeId: res?.storeId, storeOwnerId: res?.storeOwnerId,
+    const resBody = { storeName: res?.storeName, storeId: res?.storeId, storeOwnerId: res?.storeOwnerId,
       longitude: res?.longitude, latitude: res?.latitude, accountBalance: 0, totalInventoryValue: 0 };
     resBody.accountBalance = balance[0]._sum
       ? balance[0]._sum.totalCost! -
@@ -163,6 +163,11 @@ export const dashboard = ApiHandler(async (event) => {
     res?.devices.forEach((device: any) => {
       inventory += device.price;
     });
+    resBody.storeName = res?.storeName;
+    resBody.storeId = res?.storeId;
+    resBody.storeOwnerId = res?.storeOwnerId;
+    resBody.longitude = res?.longitude;
+    resBody.latitude = res?.latitude;
     resBody.totalInventoryValue = inventory;
     response.statusCode = 200;
     response.body = JSON.stringify(resBody);
@@ -180,7 +185,7 @@ export const dashboard = ApiHandler(async (event) => {
 
 export const getStoreOwnerInfo = ApiHandler(async (event) => {
   try {
-    const res = await client.stores.findFirst({
+    const res = await client.stores.findFirstOrThrow({
       where: {
         storeOwnerId: (event.requestContext as any).authorizer?.jwt.claims
           .username,
@@ -200,7 +205,7 @@ export const getStoreOwnerInfo = ApiHandler(async (event) => {
         shippingCost: true,
       },
     });
-    const resBody = { storeId: res?.storeId, storeOwnerId: res?.storeOwnerId,
+    const resBody = { storeName: res?.storeName, storeId: res?.storeId, storeOwnerId: res?.storeOwnerId,
       longitude: res?.longitude, latitude: res?.latitude, accountBalance: 0, totalInventoryValue: 0 };
     resBody.accountBalance = balance[0]._sum
       ? balance[0]._sum.totalCost! -
@@ -211,6 +216,11 @@ export const getStoreOwnerInfo = ApiHandler(async (event) => {
     res?.devices.forEach((device: any) => {
       inventory += device.price;
     });
+    resBody.storeName = res?.storeName;
+    resBody.storeId = res?.storeId;
+    resBody.storeOwnerId = res?.storeOwnerId;
+    resBody.longitude = res?.longitude;
+    resBody.latitude = res?.latitude;
     resBody.totalInventoryValue = inventory;
     response.statusCode = 200;
     response.body = JSON.stringify(resBody);
@@ -228,7 +238,7 @@ export const getStoreOwnerInfo = ApiHandler(async (event) => {
 export const deleteDevice = ApiHandler(async (event) => {
   const deviceId = JSON.parse(event.body ? event.body : "").deviceId;
   try {
-    const deviceData = await client.devices.findFirst({
+    const deviceData = await client.devices.findFirstOrThrow({
       where: { deviceId: deviceId },
     });
     const res = await client.devices.delete({
@@ -239,7 +249,7 @@ export const deleteDevice = ApiHandler(async (event) => {
     const transRes = await client.transactions.createMany({
       data: {
         deviceId: null,
-        storeId: deviceData?.storeId,
+        storeId: deviceData.storeId,
         transactionId: "error",
         siteFee: 25,
         shippingCost: 0,

@@ -155,7 +155,7 @@ export const inspectStoreInv = ApiHandler(async (event) => {
   const storeId = event.queryStringParameters?.storeId
 
   try{
-    const storeresult = await client.stores.findUnique({
+    const storeresult = await client.stores.findUniqueOrThrow({
         where:{
             storeId: storeId
         },
