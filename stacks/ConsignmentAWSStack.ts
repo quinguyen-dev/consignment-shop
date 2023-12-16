@@ -16,7 +16,7 @@ import {
   StackContext,
 } from "sst/constructs";
 
-export const LAYER_MODULES = ["encoding", "@prisma/client/runtime"]
+export const LAYER_MODULES = ["encoding", "@prisma/client/runtime"];
 
 function preparePrismaLayerFiles() {
   const layerPath = "./layers/prisma";
@@ -73,7 +73,11 @@ export function API({ stack }: StackContext) {
     nodejs: {
       // format: "esm",
       esbuild: {
-        external: LAYER_MODULES.concat(["@prisma/engines", "@prisma/engines-version", "@prisma/internals"]),
+        external: LAYER_MODULES.concat([
+          "@prisma/engines",
+          "@prisma/engines-version",
+          "@prisma/internals",
+        ]),
         sourcemap: true,
       },
     },
@@ -213,7 +217,7 @@ export function API({ stack }: StackContext) {
           handler: "packages/functions/src/misc.homepageData",
         }),
         authorizer: "none",
-      }
+      },
     },
   });
   // Allow authenticated users invoke API
@@ -223,14 +227,18 @@ export function API({ stack }: StackContext) {
     path: "packages/web/",
   });
 
-  const cfnUserPoolClient = cognito.cdk.userPoolClient.node.defaultChild as CfnUserPoolClient;
+  const cfnUserPoolClient = cognito.cdk.userPoolClient.node
+    .defaultChild as CfnUserPoolClient;
 
   cfnUserPoolClient.callbackUrLs = [
     "https://oauth.pstmn.io/v1/callback",
-      "http://localhost:3000/auth/callback/",
-      site.url?? site.url + "/auth/callback/",
+    "http://localhost:3000/auth/callback/",
+    site.url ?? site.url + "/auth/callback/",
   ];
-  cfnUserPoolClient.logoutUrLs = ["http://localhost:3000/", site.url??  site.url + "/"];
+  cfnUserPoolClient.logoutUrLs = [
+    "http://localhost:3000/",
+    site.url ?? site.url + "/",
+  ];
 
   // Show the API endpoint and other info in the output
   stack.addOutputs({

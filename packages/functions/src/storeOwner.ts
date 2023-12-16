@@ -93,8 +93,8 @@ export const newDevice = ApiHandler(async (event) => {
 });
 
 export const modifyDevice = ApiHandler(async (event) => {
-  const {deviceId, ...deviceInfo} = JSON.parse(event.body? event.body : "");
-  console.log(event)
+  const { deviceId, ...deviceInfo } = JSON.parse(event.body ? event.body : "");
+  console.log(event);
   console.log(deviceId);
   console.log(deviceInfo);
   if (!deviceId) {
@@ -106,7 +106,7 @@ export const modifyDevice = ApiHandler(async (event) => {
         where: { deviceId: deviceId },
         data: deviceInfo,
       });
-      response.body = JSON.stringify(updatedDevice)
+      response.body = JSON.stringify(updatedDevice);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         // The .code property can be accessed in a type-safe manner
@@ -152,8 +152,15 @@ export const dashboard = ApiHandler(async (event) => {
         shippingCost: true,
       },
     });
-    const resBody = { storeName: res?.storeName, storeId: res?.storeId, storeOwnerId: res?.storeOwnerId,
-      longitude: res?.longitude, latitude: res?.latitude, accountBalance: 0, totalInventoryValue: 0 };
+    const resBody = {
+      storeName: res?.storeName,
+      storeId: res?.storeId,
+      storeOwnerId: res?.storeOwnerId,
+      longitude: res?.longitude,
+      latitude: res?.latitude,
+      accountBalance: 0,
+      totalInventoryValue: 0,
+    };
     resBody.accountBalance = balance[0]._sum
       ? balance[0]._sum.totalCost! -
         balance[0]._sum.siteFee! -
@@ -205,8 +212,15 @@ export const getStoreOwnerInfo = ApiHandler(async (event) => {
         shippingCost: true,
       },
     });
-    const resBody = { storeName: res?.storeName, storeId: res?.storeId, storeOwnerId: res?.storeOwnerId,
-      longitude: res?.longitude, latitude: res?.latitude, accountBalance: 0, totalInventoryValue: 0 };
+    const resBody = {
+      storeName: res?.storeName,
+      storeId: res?.storeId,
+      storeOwnerId: res?.storeOwnerId,
+      longitude: res?.longitude,
+      latitude: res?.latitude,
+      accountBalance: 0,
+      totalInventoryValue: 0,
+    };
     resBody.accountBalance = balance[0]._sum
       ? balance[0]._sum.totalCost! -
         balance[0]._sum.siteFee! -

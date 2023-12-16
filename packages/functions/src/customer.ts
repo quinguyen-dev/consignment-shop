@@ -248,8 +248,8 @@ const getFees = async (
         stores: { select: { latitude: true, longitude: true } },
       },
     });
-    if (!data?.stores){
-      throw new Error(`No store information found for device ${deviceId}`)
+    if (!data?.stores) {
+      throw new Error(`No store information found for device ${deviceId}`);
     }
     console.log(`Device DATA: ${JSON.stringify(data)}`);
     const latitude = data?.stores.latitude ? data?.stores.latitude : 0;
@@ -382,7 +382,7 @@ export const buyDevice = ApiHandler(async (event) => {
           console.log(
             "There is a unique constraint violation, a new user cannot be created with this email",
           );
-          response.statusCode = 400
+          response.statusCode = 400;
           response.body = "Unique constraint violation: " + error.message;
         } else {
           const errorStr = `Prisma error ${error.code}: ${error.message}`;
@@ -428,7 +428,7 @@ export const getDevice = ApiHandler(async (event) => {
     }
     const { stores, ...everythingElse } = result;
     const returnData = { ...everythingElse, storeName: stores.storeName };
-    response.statusCode = 200
+    response.statusCode = 200;
     response.body = JSON.stringify(returnData);
   } catch (error) {
     response.statusCode = 400;
@@ -446,7 +446,7 @@ export const getDevice = ApiHandler(async (event) => {
       }
     } else {
       console.log(`ERROR: ${JSON.stringify(error)}`);
-      
+
       response.body =
         "Error creating transaction: " +
         (error instanceof Error ? error.message : JSON.stringify(error));

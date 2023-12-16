@@ -1,7 +1,7 @@
+import { Prisma } from "@prisma/client";
 import { ApiHandler } from "sst/node/api";
 import { client } from "./util/prismaClient";
 import { response } from "./util/response";
-import { Prisma } from "@prisma/client";
 
 export const dashboard = ApiHandler(async (event) => {
   const queryData = {
@@ -15,12 +15,12 @@ export const dashboard = ApiHandler(async (event) => {
     const totInvRes = await client.devices.aggregate({
       _sum: {
         price: true,
-      }
+      },
     });
     const totalInventoryValue = totInvRes._sum.price;
 
-    const storeBalanceRes = storeId ? //if a specific store is requested
-        await client.stores.findMany({
+    const storeBalanceRes = storeId //if a specific store is requested
+      ? await client.stores.findMany({
           where: {
             storeId: storeId,
           },
@@ -77,7 +77,7 @@ export const dashboard = ApiHandler(async (event) => {
         storeName: store.storeName,
         inventoryValue: inventoryValue,
         balance: balance,
-        deviceCount: store.devices.length
+        deviceCount: store.devices.length,
       });
     });
 
@@ -89,60 +89,58 @@ export const dashboard = ApiHandler(async (event) => {
     response.body = JSON.stringify(returnData);
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        // The .code property can be accessed in a type-safe manner
-        if (error.code === "P2002") {
-          console.log(
-            "There is a unique constraint violation, a new user cannot be created with this email",
-          );
-          response.body = "Unique constraint violation: " + error.message;
-        } else {
-          const errorStr = `Prisma error ${error.code}: ${error.message}`;
-          console.log(errorStr);
-          response.body = errorStr;
-        }
+      // The .code property can be accessed in a type-safe manner
+      if (error.code === "P2002") {
+        console.log(
+          "There is a unique constraint violation, a new user cannot be created with this email",
+        );
+        response.body = "Unique constraint violation: " + error.message;
       } else {
-        console.log(`ERROR: ${JSON.stringify(error)}`);
-        response.statusCode = 400;
-        response.body =
-          "Error getting siteManager dashboard: " +
-          (error instanceof Error ? error.message : JSON.stringify(error));
+        const errorStr = `Prisma error ${error.code}: ${error.message}`;
+        console.log(errorStr);
+        response.body = errorStr;
       }
-
+    } else {
+      console.log(`ERROR: ${JSON.stringify(error)}`);
+      response.statusCode = 400;
+      response.body =
+        "Error getting siteManager dashboard: " +
+        (error instanceof Error ? error.message : JSON.stringify(error));
+    }
   }
 
   return response;
 });
 
 export const removeStore = ApiHandler(async (event) => {
-  const storeId = event.queryStringParameters?.storeId
-  try{
+  const storeId = event.queryStringParameters?.storeId;
+  try {
     const result = await client.stores.delete({
-        where:{
-            storeId: storeId
-        }
-    })
+      where: {
+        storeId: storeId,
+      },
+    });
     response.body = JSON.stringify(result);
-  }
-  catch(error){
+  } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        // The .code property can be accessed in a type-safe manner
-        if (error.code === "P2002") {
-          console.log(
-            "There is a unique constraint violation, a new user cannot be created with this email",
-          );
-          response.body = "Unique constraint violation: " + error.message;
-        } else {
-          const errorStr = `Prisma error ${error.code}: ${error.message}`;
-          console.log(errorStr);
-          response.body = errorStr;
-        }
+      // The .code property can be accessed in a type-safe manner
+      if (error.code === "P2002") {
+        console.log(
+          "There is a unique constraint violation, a new user cannot be created with this email",
+        );
+        response.body = "Unique constraint violation: " + error.message;
       } else {
-        console.log(`ERROR: ${JSON.stringify(error)}`);
-        response.statusCode = 400;
-        response.body =
-          "Error removing store: " +
-          (error instanceof Error ? error.message : JSON.stringify(error));
+        const errorStr = `Prisma error ${error.code}: ${error.message}`;
+        console.log(errorStr);
+        response.body = errorStr;
       }
+    } else {
+      console.log(`ERROR: ${JSON.stringify(error)}`);
+      response.statusCode = 400;
+      response.body =
+        "Error removing store: " +
+        (error instanceof Error ? error.message : JSON.stringify(error));
+    }
   }
   return response;
 });
@@ -154,62 +152,69 @@ export const inspectStoreInv = ApiHandler(async (event) => {
     totalBalance: 0,
     inventory: 0,
   };
-  const storeId = event.queryStringParameters?.storeId
+  const storeId = event.queryStringParameters?.storeId;
 
-  try{
+  try {
     const storeresult = await client.stores.findUniqueOrThrow({
-        where:{
-            storeId: storeId
-        },
-        select:{
-            storeId: true,
-            storeName: true,
-            devices: true,
-        }
-    })
+      where: {
+        storeId: storeId,
+      },
+      select: {
+        storeId: true,
+        storeName: true,
+        devices: true,
+      },
+    });
     const inventoryValue = await client.devices.aggregate({
-        _sum:{price:true},
-        where:{
-            storeId:storeId,
-            listingActive: true
-        }
-    })
+      _sum: { price: true },
+      where: {
+        storeId: storeId,
+        listingActive: true,
+      },
+    });
     const storeBalance = await client.transactions.aggregate({
-        _sum:{
-            siteFee:true,
-            shippingCost:true,
-            totalCost:true
-        },
-        where:{
-            storeId:storeId
-        }
-    })
-    const totalPrice = storeBalance._sum.siteFee? storeBalance._sum.totalCost! : 0;
-    const siteFee = storeBalance._sum?.siteFee? storeBalance._sum.siteFee : 0;
-    const shippingCost = storeBalance._sum.shippingCost? storeBalance._sum.shippingCost : 0;
-    const returnValue = {...storeresult, inventoryValue: inventoryValue._sum, balance:( totalPrice - siteFee - shippingCost)}
-    response.body = JSON.stringify(returnValue)
-  }
-  catch(error) {
+      _sum: {
+        siteFee: true,
+        shippingCost: true,
+        totalCost: true,
+      },
+      where: {
+        storeId: storeId,
+      },
+    });
+    const totalPrice = storeBalance._sum.siteFee
+      ? storeBalance._sum.totalCost!
+      : 0;
+    const siteFee = storeBalance._sum?.siteFee ? storeBalance._sum.siteFee : 0;
+    const shippingCost = storeBalance._sum.shippingCost
+      ? storeBalance._sum.shippingCost
+      : 0;
+    const returnValue = {
+      ...storeresult,
+      inventoryValue: inventoryValue._sum,
+      balance: totalPrice - siteFee - shippingCost,
+    };
+    response.body = JSON.stringify(returnValue);
+  } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        // The .code property can be accessed in a type-safe manner
-        if (error.code === "P2002") {
-          console.log(
-            "There is a unique constraint violation, a new user cannot be created with this email",
-          );
-          response.body = "Unique constraint violation: " + error.message;
-        } else {
-          const errorStr = `Prisma error ${error.code}: ${error.message}`;
-          console.log(errorStr);
-          response.body = errorStr;
-        }
+      // The .code property can be accessed in a type-safe manner
+      if (error.code === "P2002") {
+        console.log(
+          "There is a unique constraint violation, a new user cannot be created with this email",
+        );
+        response.body = "Unique constraint violation: " + error.message;
       } else {
-        console.log(`ERROR: ${JSON.stringify(error)}`);
-        response.statusCode = 400;
-        response.body =
-          "Error inspecting store inventory: " +
-          (error instanceof Error ? error.message : JSON.stringify(error));
+        const errorStr = `Prisma error ${error.code}: ${error.message}`;
+        console.log(errorStr);
+        response.body = errorStr;
       }
+    } else {
+      console.log(`ERROR: ${JSON.stringify(error)}`);
+      response.statusCode = 400;
+      response.body =
+        "Error inspecting store inventory: " +
+        (error instanceof Error ? error.message : JSON.stringify(error));
+    }
   }
   return response;
 });

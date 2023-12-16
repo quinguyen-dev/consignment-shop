@@ -45,8 +45,10 @@ export function useSiteManagerData(jwt: string) {
       return response.data;
     },
     onSuccess: async () => {
-              await queryClient.invalidateQueries({ queryKey: ["site_manager_data"] });
-      await queryClient.invalidateQueries({ queryKey: ["site_manager_report"] });
+      await queryClient.invalidateQueries({ queryKey: ["site_manager_data"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["site_manager_report"],
+      });
     },
   });
 

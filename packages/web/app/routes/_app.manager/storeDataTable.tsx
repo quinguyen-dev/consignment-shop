@@ -54,7 +54,14 @@ function StoresDataTable() {
         id: "viewDataColumn",
         cell: (props) => (
           <button
-            onClick={() => navigate("/sr?" + new URLSearchParams({storeName: props.row.original.storeName}))}
+            onClick={() =>
+              navigate(
+                "/sr?" +
+                  new URLSearchParams({
+                    storeName: props.row.original.storeName,
+                  }),
+              )
+            }
           >
             <img src={dataIcon} alt="View Data"></img>
           </button>
