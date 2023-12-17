@@ -15,25 +15,25 @@ model USERS {
 }
 
 model devices {
-  deviceId               String        @id @unique(map: "DEVICES_pk") @map("device_id") @db.VarChar(36)
-  storeId                String        @map("store_id") @db.VarChar(36)
-  deviceName             String?       @map("device_name") @db.VarChar(255)
-  formFactor             String?       @map("form_factor") @db.VarChar(255)
+  deviceId              String        @id @unique(map: "DEVICES_pk") @map("device_id") @db.VarChar(36)
+  storeId               String        @map("store_id") @db.VarChar(36)
+  deviceName            String?       @map("device_name") @db.VarChar(255)
+  formFactor            String?       @map("form_factor") @db.VarChar(255)
   processorManufacturer String?       @map("processor_manufacturer") @db.VarChar(255)
   processorModel        String?       @map("processor_model") @db.VarChar(255)
   memoryType            String?       @map("memory_type") @db.VarChar(255)
   memoryMb              Int?          @map("memory_mb")
-  storageType           String?       @db.VarChar(255) @map("storage_type")
-  storageGb             Int?          @map("storage_gb") @db.UnsignedInt
-  price                  Float?        @map("price") @db.Float
+  storageType           String?       @map("storage_type") @db.VarChar(255)
+  storageGb             Int?          @map("storage_gb")
+  price                 Float?        @map("price") @db.Float
   operatingSystem       String?       @map("operating_system") @db.VarChar(255)
   dedicatedGpu          Boolean?      @map("dedicated_gpu")
   gpuManufacturer       String?       @map("gpu_manufacturer") @db.VarChar(255)
-  gpuModel               String?       @map("gpu_model") @db.VarChar(255)
+  gpuModel              String?       @map("gpu_model") @db.VarChar(255)
   listingActive         Boolean?      @map("listing_active")
   updatedAt             DateTime?     @default(now()) @map("updated_at") @db.DateTime(0)
-  stores                 stores        @relation(fields: [storeId], references: [storeId], onDelete: Cascade, onUpdate: NoAction, map: "devices_ibfk_1")
-  transactions           transactions?
+  stores                stores        @relation(fields: [storeId], references: [storeId], onDelete: Cascade, onUpdate: NoAction, map: "devices_ibfk_1")
+  transactions          transactions?
 
   @@index([storeId], map: "DEVICES_ibfk_1")
 }
@@ -41,8 +41,8 @@ model devices {
 model stores {
   storeId       String         @id @map("store_id") @db.VarChar(36)
   storeName     String         @unique(map: "STORES_pk") @map("store_name") @db.VarChar(255)
-  latitude     Float          @map("coords_lat") @db.Float
-  longitude    Float          @map("coords_long") @db.Float
+  latitude      Float          @map("coords_lat") @db.Float
+  longitude     Float          @map("coords_long") @db.Float
   streetAddress String?        @map("street_address") @db.VarChar(255)
   storeOwnerId  String         @map("store_owner_id") @db.VarChar(36)
   updatedAt     DateTime?      @default(now()) @map("updated_at") @db.DateTime(0)
@@ -62,7 +62,7 @@ model transactions {
   buyerAddress  String?  @map("buyer_address") @db.VarChar(255)
   latitude      Float?   @map("buyer_lat") @db.Float
   longitude     Float?   @map("buyer_long") @db.Float
-  devices       devices? @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade, onUpdate: NoAction, map: "TRANSACTIONS_DEVICES_device_id_fk")
+  devices       devices? @relation(fields: [deviceId], references: [deviceId], onUpdate: NoAction, map: "TRANSACTIONS_DEVICES_device_id_fk")
   stores        stores?  @relation(fields: [storeId], references: [storeId], map: "transactions_ibfk_1")
 
   @@index([storeId], map: "TRANSACTIONS_ibfk_1")

@@ -80,10 +80,15 @@ export const dashboard = ApiHandler(async (event) => {
         deviceCount: store.devices.length,
       });
     });
+    const totalManagerBalance = await client.transactions.aggregate({
+      _sum:{
+        siteFee: true,
+      }
+    })
 
     const returnData = {
       totalInventoryValue: totalInventoryValue,
-      managersBalance: managersBalance,
+      managersBalance: totalManagerBalance._sum.siteFee ? totalManagerBalance._sum.siteFee : 0,
       storeBalances: storeBalances,
     };
     response.body = JSON.stringify(returnData);
