@@ -254,6 +254,9 @@ const getFees = async (
     console.log(`Device DATA: ${JSON.stringify(data)}`);
     const latitude = data?.stores.latitude ? data?.stores.latitude : 0;
     const longitude = data?.stores.longitude ? data?.stores.longitude : 0;
+    if (custLat == latitude && custLong == longitude) {
+      responseData.shippingCost = 0;
+    } else {
     responseData.shippingCost =
       getDistance(
         { latitude: custLat, longitude: custLong },
@@ -261,6 +264,7 @@ const getFees = async (
       ) *
       0.000621371 *
       0.03;
+    }
     responseData.deviceCost = data?.price ? data.price : -1;
     responseData.managersCut = responseData.deviceCost * 0.05;
     console.log(`FEE DATA: ${JSON.stringify(response)}`);

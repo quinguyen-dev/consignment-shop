@@ -92,7 +92,7 @@ export default function Inventory() {
       price: data.price as number,
       storeId: store?.storeId!,
       formFactor: "N/A",
-      processorManufacturer: "N/A",
+      gpuManufacturer: "N/A",
       memoryType: "N/A",
       storageType: "N/A",
       operatingSystem: "N/A",

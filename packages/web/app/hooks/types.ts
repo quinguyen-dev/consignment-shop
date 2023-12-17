@@ -62,6 +62,12 @@ export type CustomerStoreResponse = {
   stores: Omit<Store, "balance">[];
 };
 
+export type EstimatedShippingResponse = {
+  shippingCost: number;
+  managersCut: number;
+  deviceCost: number;
+};
+
 export type ComputerResultResponse = Computer & { storeName: string };
 
 export type SearchResultResponse = {

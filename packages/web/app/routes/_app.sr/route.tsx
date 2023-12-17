@@ -10,7 +10,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const { searchParams } = new URL(request.url);
   const body = await request.formData();
 
-  const store = searchParams.get("storeName");
+  const store = searchParams.get("storeName") ?? "";
   const price = body.getAll("price");
   const memory = body.getAll("memoryMb");
   const storage = body.getAll("storageGb");

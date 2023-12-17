@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import type {
-  ComputerResultResponse,
-  CustomerStoreResponse,
-  HomePageResponse,
-  SearchResultInput,
-  SearchResultResponse,
+import {
+  EstimatedShippingResponse,
+  type ComputerResultResponse,
+  type CustomerStoreResponse,
+  type HomePageResponse,
+  type SearchResultInput,
+  type SearchResultResponse,
 } from "./types";
 
 export function useCustomerData() {
@@ -17,6 +18,21 @@ export function useCustomerData() {
         return { stores: response.data };
       },
     });
+
+    const getFees = (deviceId: string, custLat: number, custLon: number) => useQuery<EstimatedShippingResponse, Error>({
+      queryKey: [deviceId, "fee"],
+      queryFn: async (): Promise<EstimatedShippingResponse> => {
+        const response = await axios.get("/customer/device-fees", {
+          params: {
+            deviceId: deviceId,
+            custLatitude: custLat,
+            custLongitude: custLon
+          }
+        })
+
+        return response.data;
+      }
+    })
 
   const fetchInventory = (storeName: string) =>
     useQuery<CustomerStoreResponse, Error>({
@@ -63,5 +79,5 @@ export function useCustomerData() {
       },
     });
 
-  return { fetchAll, fetchStoreInfo, fetchHomePageData, fetchDevice };
+  return { fetchAll, fetchStoreInfo, fetchHomePageData, fetchDevice, getFees };
 }
