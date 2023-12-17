@@ -29,7 +29,7 @@ export default function ReportDataTable() {
     } else {
       return [
         {
-          id: "Inventory Value",
+          id: "inventoryValue",
           desc: filteringType == "dsc",
         },
       ];
@@ -50,7 +50,7 @@ export default function ReportDataTable() {
         (item) => {
           return `$${item.inventoryValue.toLocaleString()}`;
         },
-        { header: "Inventory Value" },
+        { header: "Inventory Value", id: "inventoryValue", sortingFn: (a, b) => a.original.inventoryValue-b.original.inventoryValue },
       ),
       helper.accessor("deviceCount", { header: "Device Count" }),
     ];

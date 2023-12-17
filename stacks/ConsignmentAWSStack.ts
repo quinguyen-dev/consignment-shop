@@ -233,11 +233,11 @@ export function API({ stack }: StackContext) {
   cfnUserPoolClient.callbackUrLs = [
     "https://oauth.pstmn.io/v1/callback",
     "http://localhost:3000/auth/callback/",
-    site.url ?? site.url + "/auth/callback/",
+    site.url + "/auth/callback/",
   ];
   cfnUserPoolClient.logoutUrLs = [
     "http://localhost:3000/",
-    site.url ?? site.url + "/",
+    site.url + "/",
   ];
 
   // Show the API endpoint and other info in the output
