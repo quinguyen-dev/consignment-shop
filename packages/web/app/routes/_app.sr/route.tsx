@@ -1,27 +1,9 @@
-import { ActionFunctionArgs, redirectDocument } from "@remix-run/node";
 import { Link, useSearchParams } from "@remix-run/react";
 import { useState } from "react";
 import { Computer, ComputerResultResponse } from "~/hooks/types";
 import { useCustomerData } from "~/hooks/useCustomerData";
 import { ResultPane } from "~/routes/_app.sr/ResultPane";
 import { FilterPane } from "./FilterPane";
-
-export async function action({ request }: ActionFunctionArgs) {
-  const { searchParams } = new URL(request.url);
-  const body = await request.formData();
-
-  const store = searchParams.get("storeName") ?? "";
-  const price = body.getAll("price");
-  const memory = body.getAll("memoryMb");
-  const storage = body.getAll("storageGb");
-  const processor = body.getAll("processorManufacturer");
-  const model = body.getAll("processorModel");
-  const gpu = body.getAll("gpuModel");
-
-  return redirectDocument(
-    `/sr?storeName=${store}&price=${price}&memoryMb=${memory}&storageGb=${storage}&processorManufacturer=${processor}&processorModel=${model}&gpuModel=${gpu}`,
-  );
-}
 
 export default function SearchResults() {
   const [searchParams] = useSearchParams();

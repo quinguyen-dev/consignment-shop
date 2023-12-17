@@ -1,11 +1,28 @@
-import { Form } from "@remix-run/react";
+import { Form, useNavigate } from "@remix-run/react";
 import { FilterItem } from "./FilterItem";
 
 export function FilterPane() {
+  const navigate = useNavigate();
   return (
     <div className="mr-4 border w-[350px] h-fit p-4">
       <h1 className="font-bold">Filter items</h1>
-      <Form className="flex flex-col text-sm" method="post">
+      <Form className="flex flex-col text-sm" onSubmit={(event) => {
+        const body = new FormData(event.currentTarget);
+
+        const { searchParams } = new URL(window.location.toString());
+
+  const store = searchParams.get("storeName") ?? "";
+  const price = body.getAll("price");
+  const memory = body.getAll("memoryMb");
+  const storage = body.getAll("storageGb");
+  const processor = body.getAll("processorManufacturer");
+  const model = body.getAll("processorModel");
+  const gpu = body.getAll("gpuModel");
+
+  window.location.assign(
+    `/sr?storeName=${store}&price=${price}&memoryMb=${memory}&storageGb=${storage}&processorManufacturer=${processor}&processorModel=${model}&gpuModel=${gpu}`
+  );
+      }}>
         <h2 className="font-medium pt-2 pb-1">Price</h2>
         <FilterItem value="0-500" name="price" text="$500 or less" />
         <FilterItem value="501-1000" name="price" text="$501 - $1,000" />
