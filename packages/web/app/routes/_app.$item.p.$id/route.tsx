@@ -109,14 +109,13 @@ export default function ItemPage() {
                 if (!device) {
                   setModalMessage("Invalid Device ID. The Device may have already been purchased");
                 }
-                const response = await axios.post(
+                try {
+                 await axios.post(
                   `customer/buy-device?deviceId=${data.deviceId!}&custLatitude=${latitude}&custLongitude=${longitude}&storeId=${device!.storeId}`,
                 );
-                
-                if (response.status == 200) {
-                  setModalMessage("Successfully purchased " + device!.deviceName);
-                } else {
-                  setModalMessage("Failed to purchase " + device!.deviceName + ". The device may no longer be available")
+                setModalMessage("Successfully purchased " + device!.deviceName);
+                } catch (error) {
+                  setModalMessage("Failed to purchase " + device!.deviceName + ". The device may no longer be available");
                 }
               }}
               disabled={longitude === "" && latitude === ""}
